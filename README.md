@@ -58,6 +58,18 @@ This uses the unminified version of Cesium.js, which is great for debugging but 
 ```
 The [Cesium Contributor's Guide](TODO) has more info on Cesium build options.
 
+Importing into Eclipse
+----------------------
+
+If you use Eclipse as your JavaScript IDE, it is easy to important the `cesium-starter-app` project into a new workspace.  In Eclipse:
+* `File -> Switch Workspace -> Other`
+* Select a directory for the workspace and click `OK`
+* In `Package Explorer`, right click and select `Import`
+* Under `General`, select `Existing Projects into Workspace` and click `Next`
+* Next to `Select root directory`, click `Browse`
+* Browse to the `cesium-starter-app` root directory and click `Open`
+* Click `Finish`
+
 Cesium resources
 ----------------
 
