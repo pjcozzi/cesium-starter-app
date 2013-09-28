@@ -7,6 +7,8 @@
 A simple JavaScript starter app for building apps with [Cesium](http://cesium.agi.com/), the open-source WebGL virtual globe and map engine.  Just fork the repo and start coding.  My primary use for this is to quickly start coding at hackathons without having to setup a repo with a server, .gitignore, Eclipse project, third-party includes, etc.
 
 What's here?
+* [.project](.project) - an [Eclipse](TODO) project with [JSHint](TODO) enabled.
+* [.gitignore](.gitignore) - a small list of files not to include in the git repo for you to add to as you need.
 * [LICENSE.md](LICENSE.md) - a license file already referencing Cesium as a third-party.  This starter app is licensed with [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) (free for commercial and non-commercial use).  You can, of course, license your code however you want.
 * [node.js](node.js) - A simple node.js server for serving your Cesium app.  See the `Local server` section below.
 
