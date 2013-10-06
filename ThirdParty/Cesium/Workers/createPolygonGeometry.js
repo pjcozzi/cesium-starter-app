@@ -1198,6 +1198,15 @@ define('Core/Math',[
     CesiumMath.SOLAR_RADIUS = 6.955e8;
 
     /**
+     * The mean radius of the moon, according to the "Report of the IAU/IAG Working Group on
+     * Cartographic Coordinates and Rotational Elements of the Planets and satellites: 2000",
+     * Celestial Mechanics 82: 83-110, 2002.
+     * @type {Number}
+     * @constant
+     */
+    CesiumMath.LUNAR_RADIUS = 1737400.0;
+
+    /**
      * 64 * 1024
      * @type {Number}
      * @constant
@@ -2734,6 +2743,12 @@ define('Core/Ellipsoid',[
     Ellipsoid.UNIT_SPHERE = freezeObject(new Ellipsoid(1.0, 1.0, 1.0));
 
     /**
+     * An Ellipsoid instance initialized to a sphere with the lunar radius.
+     * @memberof Ellipsoid
+     */
+    Ellipsoid.MOON = freezeObject(new Ellipsoid(CesiumMath.LUNAR_RADIUS, CesiumMath.LUNAR_RADIUS, CesiumMath.LUNAR_RADIUS));
+
+    /**
      * @memberof Ellipsoid
      * @returns {Cartesian3} The radii of the ellipsoid.
      */
@@ -3003,7 +3018,7 @@ define('Core/Ellipsoid',[
         return result;
     };
 
-    var scaleToGeodeticSurfaceIntersection;
+    var scaleToGeodeticSurfaceIntersection = new Cartesian3();
     var scaleToGeodeticSurfaceGradient = new Cartesian3();
 
     /**
@@ -4777,7 +4792,7 @@ define('Core/Matrix3',[
      * // Rotate a point 45 degrees counterclockwise around the x-axis.
      * var p = new Cartesian3(5, 6, 7);
      * var m = Matrix3.fromRotationX(CesiumMath.toRadians(45.0));
-     * var rotated = m.multiplyByVector(p);
+     * var rotated = Matrix3.multiplyByVector(m, p);
      */
     Matrix3.fromRotationX = function(angle, result) {
         if (!defined(angle)) {
@@ -4821,7 +4836,7 @@ define('Core/Matrix3',[
      * // Rotate a point 45 degrees counterclockwise around the y-axis.
      * var p = new Cartesian3(5, 6, 7);
      * var m = Matrix3.fromRotationY(CesiumMath.toRadians(45.0));
-     * var rotated = m.multiplyByVector(p);
+     * var rotated = Matrix3.multiplyByVector(m, p);
      */
     Matrix3.fromRotationY = function(angle, result) {
         if (!defined(angle)) {
@@ -4865,7 +4880,7 @@ define('Core/Matrix3',[
      * // Rotate a point 45 degrees counterclockwise around the z-axis.
      * var p = new Cartesian3(5, 6, 7);
      * var m = Matrix3.fromRotationZ(CesiumMath.toRadians(45.0));
-     * var rotated = m.multiplyByVector(p);
+     * var rotated = Matrix3.multiplyByVector(m, p);
      */
     Matrix3.fromRotationZ = function(angle, result) {
         if (!defined(angle)) {
@@ -5420,147 +5435,6 @@ define('Core/Matrix3',[
     };
 
     /**
-     * Creates an Array from this Matrix3 instance.
-     * @memberof Matrix3
-     *
-     * @param {Array} [result] The Array onto which to store the result.
-     * @returns {Array} The modified Array parameter or a new Array instance if one was not provided.
-     */
-    Matrix3.prototype.toArray = function(result) {
-        return Matrix3.toArray(this, result);
-    };
-
-    /**
-     * Retrieves a copy of the matrix column at the provided index as a Cartesian3 instance.
-     * @memberof Matrix3
-     *
-     * @param {Number} index The zero-based index of the column to retrieve.
-     * @param {Cartesian3} [result] The object onto which to store the result.
-     * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} index is required and must be 0, 1, or 2.
-     *
-     * @see Cartesian3
-     */
-    Matrix3.prototype.getColumn = function(index, result) {
-        return Matrix3.getColumn(this, index, result);
-    };
-
-    /**
-     * Computes a new matrix that replaces the specified column in this matrix with the provided Cartesian3 instance.
-     * @memberof Matrix3
-     *
-     * @param {Number} index The zero-based index of the column to set.
-     * @param {Cartesian3} cartesian The Cartesian whose values will be assigned to the specified column.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, or 2.
-     *
-     * @see Cartesian3
-     */
-    Matrix3.prototype.setColumn = function(index, cartesian, result) {
-        return Matrix3.setColumn(this, index, cartesian, result);
-    };
-
-    /**
-     * Retrieves a copy of the matrix row at the provided index as a Cartesian3 instance.
-     * @memberof Matrix3
-     *
-     * @param {Number} index The zero-based index of the row to retrieve.
-     * @param {Cartesian3} [result] The object onto which to store the result.
-     * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} index is required and must be 0, 1, or 2.
-     *
-     * @see Cartesian3
-     */
-    Matrix3.prototype.getRow = function(index, result) {
-        return Matrix3.getRow(this, index, result);
-    };
-
-    /**
-     * Computes a new matrix that replaces the specified row in this matrix with the provided Cartesian3 instance.
-     * @memberof Matrix3
-     *
-     * @param {Number} index The zero-based index of the row to set.
-     * @param {Cartesian3} cartesian The Cartesian whose values will be assigned to the specified row.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, or 2.
-     *
-     * @see Cartesian3
-     */
-    Matrix3.prototype.setRow = function(index, cartesian, result) {
-        return Matrix3.setRow(this, index, cartesian, result);
-    };
-
-    /**
-     * Computes the product of this matrix and the provided matrix.
-     * @memberof Matrix3
-     *
-     * @param {Matrix3} right The right hand side matrix.
-     * @param {Matrix3} [result] The object onto which to store the result.
-     * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} right is required.
-     */
-    Matrix3.prototype.multiply = function(right, result) {
-        return Matrix3.multiply(this, right, result);
-    };
-
-    /**
-     * Computes the product of this matrix and a column vector.
-     * @memberof Matrix3
-     *
-     * @param {Cartesian3} cartesian The column.
-     * @param {Cartesian3} [result] The object onto which to store the result.
-     * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Matrix3.prototype.multiplyByVector = function(cartesian, result) {
-        return Matrix3.multiplyByVector(this, cartesian, result);
-    };
-
-    /**
-     * Computes the product of this matrix and a scalar.
-     * @memberof Matrix3
-     *
-     * @param {Number} scalar The number to multiply by.
-     * @param {Matrix3} [result] The object onto which to store the result.
-     * @returns {Matrix3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} scalar is required and must be a number.
-     */
-    Matrix3.prototype.multiplyByScalar = function(scalar, result) {
-        return Matrix3.multiplyByScalar(this, scalar, result);
-    };
-    /**
-     * Creates a negated copy of this matrix.
-     * @memberof Matrix3
-     *
-     * @param {Matrix3} matrix The matrix to negate.
-     * @param {Matrix3} [result] The object onto which to store the result.
-     * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
-     */
-    Matrix3.prototype.negate = function(result) {
-        return Matrix3.negate(this, result);
-    };
-
-    /**
-     * Computes the transpose of this matrix.
-     * @memberof Matrix3
-     *
-     * @param {Matrix3} [result] The object onto which to store the result.
-     * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
-     */
-    Matrix3.prototype.transpose = function(result) {
-        return Matrix3.transpose(this, result);
-    };
-
-    /**
      * Compares this matrix to the provided matrix componentwise and returns
      * <code>true</code> if they are equal, <code>false</code> otherwise.
      * @memberof Matrix3
@@ -5603,6 +5477,7 @@ define('Core/Matrix3',[
 
     return Matrix3;
 });
+
 /*global define*/
 define('Core/RuntimeError',['./defined'], function(defined) {
     "use strict";
@@ -7723,196 +7598,6 @@ define('Core/Matrix4',[
     };
 
     /**
-     * Computes an Array from this Matrix4 instance.
-     * @memberof Matrix4
-     *
-     * @param {Array} [result] The Array onto which to store the result.
-     * @returns {Array} The modified Array parameter or a new Array instance if one was not provided.
-     */
-    Matrix4.prototype.toArray = function(result) {
-        return Matrix4.toArray(this, result);
-    };
-
-    /**
-     * Retrieves a copy of the matrix column at the provided index as a Cartesian4 instance.
-     * @memberof Matrix4
-     *
-     * @param {Number} index The zero-based index of the column to retrieve.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} index is required and must be 0, 1, 2, or 3.
-     *
-     * @see Cartesian4
-     */
-    Matrix4.prototype.getColumn = function(index, result) {
-        return Matrix4.getColumn(this, index, result);
-    };
-
-    /**
-     * Computes a new matrix that replaces the specified column in this matrix with the provided Cartesian4 instance.
-     * @memberof Matrix4
-     *
-     * @param {Number} index The zero-based index of the column to set.
-     * @param {Cartesian4} cartesian The Cartesian whose values will be assigned to the specified column.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, 2, or 3.
-     *
-     * @see Cartesian4
-     */
-    Matrix4.prototype.setColumn = function(index, cartesian, result) {
-        return Matrix4.setColumn(this, index, cartesian, result);
-    };
-
-    /**
-     * Retrieves a copy of the matrix row at the provided index as a Cartesian4 instance.
-     * @memberof Matrix4
-     *
-     * @param {Number} index The zero-based index of the row to retrieve.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} index is required and must be 0, 1, 2, or 3.
-     *
-     * @see Cartesian4
-     */
-    Matrix4.prototype.getRow = function(index, result) {
-        return Matrix4.getRow(this, index, result);
-    };
-
-    /**
-     * Computes a new matrix that replaces the specified row in this matrix with the provided Cartesian4 instance.
-     * @memberof Matrix4
-     *
-     * @param {Number} index The zero-based index of the row to set.
-     * @param {Cartesian4} cartesian The Cartesian whose values will be assigned to the specified row.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, 2, or 3.
-     *
-     * @see Cartesian4
-     */
-    Matrix4.prototype.setRow = function(index, cartesian, result) {
-        return Matrix4.setRow(this, index, cartesian, result);
-    };
-
-    /**
-     * Computes the product of this matrix and the provided matrix.
-     * @memberof Matrix4
-     *
-     * @param {Matrix4} right The right hand side matrix.
-     * @param {Matrix4} [result] The object onto which to store the result.
-     * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} right is required.
-     */
-    Matrix4.prototype.multiply = function(right, result) {
-        return Matrix4.multiply(this, right, result);
-    };
-
-    /**
-     * Multiplies this matrix, assuming it is a transformation matrix (with a bottom row of
-     * <code>[0.0, 0.0, 0.0, 1.0]</code>), by an implicit translation matrix defined by a {@link Cartesian3}.
-     *
-     * @memberof Matrix4
-     *
-     * @param {Cartesian3} translation The translation on the right-hand side of the multiplication.
-     * @param {Matrix4} [result] The object onto which to store the result.
-     *
-     * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} translation is required.
-     */
-    Matrix4.prototype.multiplyByTranslation = function(translation, result) {
-        return Matrix4.multiplyByTranslation(this, translation, result);
-    };
-
-    /**
-     * Multiplies this matrix, assuming it is a transformation matrix (with a bottom row of
-     * <code>[0.0, 0.0, 0.0, 1.0]</code>), by an implicit uniform scale matrix.
-     *
-     * @memberof Matrix4
-     *
-     * @param {Number} scale The scale on the right-hand side of the multiplication.
-     * @param {Matrix4} [result] The object onto which to store the result.
-     *
-     * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} scale is required.
-     */
-    Matrix4.prototype.multiplyByUniformScale = function(scale, result) {
-        return Matrix4.multiplyByUniformScale(this, scale, result);
-    };
-
-    /**
-     * Computes the product of this matrix and a column vector.
-     * @memberof Matrix4
-     *
-     * @param {Cartesian4} cartesian The vector.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Matrix4.prototype.multiplyByVector = function(cartesian, result) {
-        return Matrix4.multiplyByVector(this, cartesian, result);
-    };
-
-    /**
-     * Computes the product of a matrix and a {@link Cartesian3}.  This is equivalent to calling {@link Matrix4#multiplyByVector}
-     * with a {@link Cartesian4} with a <code>w</code> component of one.
-     * @memberof Matrix4
-     *
-     * @param {Cartesian3} cartesian The point.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Matrix4.prototype.multiplyByPoint = function(cartesian, result) {
-        return Matrix4.multiplyByPoint(this, cartesian, result);
-    };
-
-    /**
-     * Computes the product of this matrix and a scalar.
-     * @memberof Matrix4
-     *
-     * @param {Number} scalar The number to multiply by.
-     * @param {Matrix4} [result] The object onto which to store the result.
-     * @returns {Matrix4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} scalar is required and must be a number.
-     */
-    Matrix4.prototype.multiplyByScalar = function(scalar, result) {
-        return Matrix4.multiplyByScalar(this, scalar, result);
-    };
-    /**
-     * Computes a negated copy of this matrix.
-     * @memberof Matrix4
-     *
-     * @param {Matrix4} matrix The matrix to negate.
-     * @param {Matrix4} [result] The object onto which to store the result.
-     * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
-     */
-    Matrix4.prototype.negate = function(result) {
-        return Matrix4.negate(this, result);
-    };
-
-    /**
-     * Computes the transpose of this matrix.
-     * @memberof Matrix4
-     *
-     * @param {Matrix4} [result] The object onto which to store the result.
-     * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
-     */
-    Matrix4.prototype.transpose = function(result) {
-        return Matrix4.transpose(this, result);
-    };
-
-    /**
      * Compares this matrix to the provided matrix componentwise and returns
      * <code>true</code> if they are equal, <code>false</code> otherwise.
      * @memberof Matrix4
@@ -7952,65 +7637,6 @@ define('Core/Matrix4',[
                '(' + this[1] + ', ' + this[5] + ', ' + this[9] + ', ' + this[13] +')\n' +
                '(' + this[2] + ', ' + this[6] + ', ' + this[10] + ', ' + this[14] +')\n' +
                '(' + this[3] + ', ' + this[7] + ', ' + this[11] + ', ' + this[15] +')';
-    };
-
-    /**
-     * Gets the translation portion of this matrix, assuming the matrix is a affine transformation matrix.
-     * @memberof Matrix4
-     *
-     * @param {Cartesian3} [result] The object onto which to store the result.
-     * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @see Cartesian3
-     */
-    Matrix4.prototype.getTranslation = function(result) {
-        return Matrix4.getTranslation(this, result);
-    };
-
-    /**
-     * Gets the upper left 3x3 rotation matrix of this matrix, assuming the matrix is a affine transformation matrix.
-     * @memberof Matrix4
-     *
-     * @param {Matrix3} [result] The object onto which to store the result.
-     * @returns {Matrix3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @see Matrix3
-     */
-    Matrix4.prototype.getRotation = function(result) {
-        return Matrix4.getRotation(this, result);
-    };
-
-    /**
-     * Computes the inverse of this matrix using Cramers Rule.
-     * If the determinant is zero, the matrix can not be inverted, and an exception is thrown.
-     * If the matrix is an affine transformation matrix, it is more efficient
-     * to invert it with {@link #inverseTransformation}.
-     * @memberof Matrix4
-     *
-     * @param {Matrix4} [result] The object onto which to store the result.
-     * @returns {Matrix4} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {RuntimeError} matrix is not invertible because its determinate is zero.
-     */
-    Matrix4.prototype.inverse = function(result) {
-        return Matrix4.inverse(this, result);
-    };
-
-    /**
-     * Computes the inverse of this matrix assuming it is
-     * an affine transformation matrix, where the upper left 3x3 elements
-     * are a rotation matrix, and the upper three elements in the fourth
-     * column are the translation.  The bottom row is assumed to be [0, 0, 0, 1].
-     * The matrix is not verified to be in the proper form.
-     * This method is faster than computing the inverse for a general 4x4
-     * matrix using {@link #inverse}.
-     * @memberof Matrix4
-     *
-     * @param {Matrix4} [result] The object onto which to store the result.
-     * @returns {Matrix4} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     */
-    Matrix4.prototype.inverseTransformation = function(result) {
-        return Matrix4.inverseTransformation(this, result);
     };
 
     return Matrix4;
@@ -9432,11 +9058,13 @@ define('Core/FeatureDetection',[
 });
 /*global define*/
 define('Core/ComponentDatatype',[
+        './defaultValue',
         './defined',
         './DeveloperError',
         './FeatureDetection',
         './Enumeration'
     ], function(
+        defaultValue,
         defined,
         DeveloperError,
         FeatureDetection,
@@ -9623,19 +9251,22 @@ define('Core/ComponentDatatype',[
             throw new DeveloperError('buffer is required.');
         }
 
+        byteOffset = defaultValue(byteOffset, 0);
+        length = defaultValue(length, (buffer.byteLength - byteOffset) / componentDatatype.sizeInBytes);
+
         switch (componentDatatype.value) {
         case ComponentDatatype.BYTE.value:
-            return new Int8Array(buffer, byteOffset);
+            return new Int8Array(buffer, byteOffset, length);
         case ComponentDatatype.UNSIGNED_BYTE.value:
-            return new Uint8Array(buffer, byteOffset);
+            return new Uint8Array(buffer, byteOffset, length);
         case ComponentDatatype.SHORT.value:
-            return new Int16Array(buffer, byteOffset);
+            return new Int16Array(buffer, byteOffset, length);
         case ComponentDatatype.UNSIGNED_SHORT.value:
-            return new Uint16Array(buffer, byteOffset);
+            return new Uint16Array(buffer, byteOffset, length);
         case ComponentDatatype.FLOAT.value:
-            return new Float32Array(buffer, byteOffset);
+            return new Float32Array(buffer, byteOffset, length);
         case ComponentDatatype.DOUBLE.value:
-            return new Float64Array(buffer, byteOffset);
+            return new Float64Array(buffer, byteOffset, length);
         default:
             throw new DeveloperError('componentDatatype is not a valid enumeration value.');
         }
@@ -14183,7 +13814,7 @@ define('Core/Transforms',[
             return undefined;
         }
 
-        return fixedToIcrfMtx.transpose(result);
+        return Matrix3.transpose(fixedToIcrfMtx, result);
     };
 
     var xysScratch = new Iau2006XysSample(0.0, 0.0, 0.0);
@@ -14216,7 +13847,7 @@ define('Core/Transforms',[
      * var fixedToIcrf = Transforms.computeIcrfToFixedMatrix(now);
      * var pointInInertial;
      * if (defined(fixedToIcrf)) {
-     *     pointInInertial = fixedToIcrf.multiplyByVector(pointInFixed);
+     *     pointInInertial = Matrix3.multiplyByVector(fixedToIcrf, pointInFixed);
      * }
      */
     Transforms.computeFixedToIcrfMatrix = function(date, result) {
@@ -14261,7 +13892,7 @@ define('Core/Transforms',[
         rotation1[8] = 1 - a * (x * x + y * y);
 
         var rotation2 = Matrix3.fromRotationZ(-xys.s, rotation2Scratch);
-        var matrixQ = rotation1.multiply(rotation2, rotation1Scratch);
+        var matrixQ = Matrix3.multiply(rotation1, rotation2, rotation1Scratch);
 
         // Similar to TT conversions above
         // It's possible here that secondTT could roll over 86400
@@ -14287,7 +13918,7 @@ define('Core/Transforms',[
         var earthRotation = Matrix3.fromRotationZ(era, rotation2Scratch);
 
         // pseudoFixed to ICRF
-        var pfToIcrf = matrixQ.multiply(earthRotation, rotation1Scratch);
+        var pfToIcrf = Matrix3.multiply(matrixQ, earthRotation, rotation1Scratch);
 
         // Compute pole wander matrix
         var cosxp = Math.cos(eop.xPoleWander);
@@ -14314,7 +13945,7 @@ define('Core/Transforms',[
         fToPfMtx[7] = sinyp * cossp - cosyp * sinxp * sinsp;
         fToPfMtx[8] = cosyp * cosxp;
 
-        return pfToIcrf.multiply(fToPfMtx, result);
+        return Matrix3.multiply(pfToIcrf, fToPfMtx, result);
     };
 
     var pointToWindowCoordinatesTemp = new Cartesian4();
@@ -15651,7 +15282,7 @@ define('Core/IntersectionTests',[
         var B = new Matrix3(firstAxis.x, secondAxis.x, thirdAxis.x,
                             firstAxis.y, secondAxis.y, thirdAxis.y,
                             firstAxis.z, secondAxis.z, thirdAxis.z);
-        var B_T = B.transpose();
+        var B_T = Matrix3.transpose(B);
 
         // Get the scaling matrix and its inverse.
         var D_I = Matrix3.fromScale(ellipsoid.getRadii());
@@ -15661,9 +15292,9 @@ define('Core/IntersectionTests',[
                             -direction.z, 0.0, direction.x,
                             direction.y, -direction.x, 0.0);
 
-        var temp = B_T.multiply(D).multiply(C);
-        var A = temp.multiply(D_I).multiply(B);
-        var b = temp.multiplyByVector(position);
+        var temp = Matrix3.multiply(Matrix3.multiply(B_T, D), C);
+        var A = Matrix3.multiply(Matrix3.multiply(temp, D_I), B);
+        var b = Matrix3.multiplyByVector(temp, position);
 
         // Solve for the solutions to the expression in standard form:
         var solutions = quadraticVectorExpression(A, Cartesian3.negate(b), 0.0, 0.0, 1.0);
@@ -15676,7 +15307,7 @@ define('Core/IntersectionTests',[
             var maximumValue = Number.NEGATIVE_INFINITY;
 
             for ( var i = 0; i < length; ++i) {
-                s = D_I.multiplyByVector(B.multiplyByVector(solutions[i]));
+                s = Matrix3.multiplyByVector(D_I, Matrix3.multiplyByVector(B, solutions[i]));
                 var v = Cartesian3.normalize(Cartesian3.subtract(s, position));
                 var dotProduct = Cartesian3.dot(v, direction);
 
@@ -16147,6 +15778,7 @@ define('Core/EllipsoidTangentPlane',[
         './Cartesian2',
         './Cartesian3',
         './Ellipsoid',
+        './Matrix4',
         './Ray',
         './Plane'
     ], function(
@@ -16159,6 +15791,7 @@ define('Core/EllipsoidTangentPlane',[
         Cartesian2,
         Cartesian3,
         Ellipsoid,
+        Matrix4,
         Ray,
         Plane) {
     "use strict";
@@ -16190,10 +15823,10 @@ define('Core/EllipsoidTangentPlane',[
         var eastNorthUp = Transforms.eastNorthUpToFixedFrame(origin, ellipsoid);
         this._ellipsoid = ellipsoid;
         this._origin = Cartesian3.clone(origin);
-        this._xAxis = Cartesian3.fromCartesian4(eastNorthUp.getColumn(0));
-        this._yAxis = Cartesian3.fromCartesian4(eastNorthUp.getColumn(1));
+        this._xAxis = Cartesian3.fromCartesian4(Matrix4.getColumn(eastNorthUp, 0));
+        this._yAxis = Cartesian3.fromCartesian4(Matrix4.getColumn(eastNorthUp, 1));
 
-        var normal = Cartesian3.fromCartesian4(eastNorthUp.getColumn(2));
+        var normal = Cartesian3.fromCartesian4(Matrix4.getColumn(eastNorthUp, 2));
         this._plane = Plane.fromPointNormal(origin, normal);
     };
 
@@ -16712,7 +16345,7 @@ define('Core/GeometryAttributes',['./defaultValue'], function(defaultValue) {
      * into the vertex buffer for better rendering performance.
      * </p>
      *
-     * @alias VertexFormat
+     * @alias GeometryAttributes
      * @constructor
      */
     var GeometryAttributes = function(options) {
@@ -16963,7 +16596,7 @@ define('Core/GeometryInstance',[
      *
      * @param {Geometry} options.geometry The geometry to instance.
      * @param {Matrix4} [options.modelMatrix=Matrix4.IDENTITY] The model matrix that transforms to transform the geometry from model to world coordinates.
-     * @param {Object} [options.id=undefined] A user-defined object to return when the instance is picked with {@link Context#pick} or get/set per-instance attributes with {@link Primitive#getGeometryInstanceAttributes}.
+     * @param {Object} [options.id=undefined] A user-defined object to return when the instance is picked with {@link Scene#pick} or get/set per-instance attributes with {@link Primitive#getGeometryInstanceAttributes}.
      * @param {Object} [options.attributes] Per-instance attributes like a show or color attribute shown in the example below.
      *
      * @exception {DeveloperError} options.geometry is required.
@@ -17032,7 +16665,7 @@ define('Core/GeometryInstance',[
          *
          * @default undefined
          *
-         * @see Context#pick
+         * @see Scene#pick
          * @see Primitive#getGeometryInstanceAttributes
          */
         this.id = options.id;
@@ -18477,6 +18110,11 @@ define('Core/GeometryPipeline',[
 
         for ( var i = 0; i < values3D.length; i += 3) {
             var value = Cartesian3.fromArray(values3D, i, scratchProjectTo2DCartesian3);
+
+            if (Cartesian3.equals(value, Cartesian3.ZERO)) {
+                continue;
+            }
+
             var lonLat = ellipsoid.cartesianToCartographic(value, scratchProjectTo2DCartographic);
             var projectedLonLat = projection.project(lonLat, scratchProjectTo2DCartesian3);
 
@@ -18673,7 +18311,7 @@ define('Core/GeometryPipeline',[
             instance.geometry.boundingSphere = BoundingSphere.transform(boundingSphere, modelMatrix, boundingSphere);
         }
 
-        instance.modelMatrix = Matrix4.IDENTITY.clone();
+        instance.modelMatrix = Matrix4.clone(Matrix4.IDENTITY);
 
         return instance;
     };
@@ -20431,7 +20069,7 @@ define('Core/PolygonPipeline',[
         var after = getNextVertex(a1i, pArray, AFTER);
 
         var s1 = Cartesian2.subtract(pArray[before].position, a1.position);
-        var s2 = Cartesian2.subtract(pArray[after].position,  a1.position);
+        var s2 = Cartesian2.subtract(pArray[after].position, a1.position);
         var cut = Cartesian2.subtract(a2.position, a1.position);
 
         // Convert to 3-dimensional so we can use cross product
@@ -20559,7 +20197,7 @@ define('Core/PolygonPipeline',[
         }
 
         var s1 = Cartesian2.subtract(pArray[before].position, pArray[index].position);
-        var s2 = Cartesian2.subtract(pArray[after].position,  pArray[index].position);
+        var s2 = Cartesian2.subtract(pArray[after].position, pArray[index].position);
 
         // Convert to 3-dimensional so we can use cross product
         s1 = new Cartesian3(s1.x, s1.y, 0.0);
@@ -20752,7 +20390,6 @@ define('Core/PolygonPipeline',[
      * @returns {Array} Index array representing triangles that fill the polygon
      *
      * @exception {DeveloperError} Invalid polygon: must have at least three vertices.
-     * @exception {DeveloperERror} Tried x times to find a vild cut and couldn't.
      *
      * @private
      */
@@ -20780,7 +20417,8 @@ define('Core/PolygonPipeline',[
             // Make sure we don't go into an endless loop
             var maxTries = nodeArray.length * 10;
             if (tries > maxTries) {
-                throw new DeveloperError('Tried ' + maxTries + ' times to find a valid cut and couldn\'t.');
+                // Hopefully that part of the polygon isn't important
+                return [];
             }
             tries++;
 
@@ -22334,23 +21972,22 @@ define('Core/PolygonGeometry',[
     var createGeometryFromPositionsPositions = [];
 
     function createGeometryFromPositions(ellipsoid, positions, granularity) {
-        var cleanedPositions = PolygonPipeline.removeDuplicates(positions);
-        if (cleanedPositions.length < 3) {
-            throw new DeveloperError('Duplicate positions result in not enough positions to form a polygon.');
-        }
-
-        var tangentPlane = EllipsoidTangentPlane.fromPoints(cleanedPositions, ellipsoid);
-        var positions2D = tangentPlane.projectPointsOntoPlane(cleanedPositions, createGeometryFromPositionsPositions);
+        var tangentPlane = EllipsoidTangentPlane.fromPoints(positions, ellipsoid);
+        var positions2D = tangentPlane.projectPointsOntoPlane(positions, createGeometryFromPositionsPositions);
 
         var originalWindingOrder = PolygonPipeline.computeWindingOrder2D(positions2D);
         if (originalWindingOrder === WindingOrder.CLOCKWISE) {
             positions2D.reverse();
-            cleanedPositions.reverse();
+            positions.reverse();
         }
 
         var indices = PolygonPipeline.triangulate(positions2D);
+        /* If polygon is completely unrenderable, just use the first three vertices */
+        if (indices.length < 3) {
+            indices = [0, 1, 2];
+        }
         return new GeometryInstance({
-            geometry : PolygonPipeline.computeSubdivision(cleanedPositions, indices, granularity)
+            geometry : PolygonPipeline.computeSubdivision(positions, indices, granularity)
         });
     }
 
@@ -22373,8 +22010,7 @@ define('Core/PolygonGeometry',[
         if (vertexFormat.st || vertexFormat.normal || vertexFormat.tangent || vertexFormat.binormal) {
             // PERFORMANCE_IDEA: Compute before subdivision, then just interpolate during subdivision.
             // PERFORMANCE_IDEA: Compute with createGeometryFromPositions() for fast path when there's no holes.
-            var cleanedPositions = PolygonPipeline.removeDuplicates(outerPositions);
-            var tangentPlane = EllipsoidTangentPlane.fromPoints(cleanedPositions, ellipsoid);
+            var tangentPlane = EllipsoidTangentPlane.fromPoints(outerPositions, ellipsoid);
             var boundingRectangle = computeBoundingRectangle(tangentPlane, outerPositions, stRotation, scratchBoundingRectangle);
 
             var origin = appendTextureCoordinatesOrigin;
@@ -22870,25 +22506,30 @@ define('Core/PolygonGeometry',[
         while (queue.length !== 0) {
             var outerNode = queue.dequeue();
             var outerRing = outerNode.positions;
-
+            var holes = outerNode.holes;
+            outerRing = PolygonPipeline.removeDuplicates(outerRing);
             if (outerRing.length < 3) {
                 throw new DeveloperError('At least three positions are required.');
             }
 
-            var numChildren = outerNode.holes ? outerNode.holes.length : 0;
+            var numChildren = holes ? holes.length : 0;
             if (numChildren === 0) {
                 // The outer polygon is a simple polygon with no nested inner polygon.
                 polygonHierarchy.push({
                     outerRing: outerRing,
                     holes: []
                 });
-                polygons.push(outerNode.positions);
+                polygons.push(outerRing);
             } else {
                 // The outer polygon contains inner polygons
-                var holes = [];
+                var polygonHoles = [];
                 for (i = 0; i < numChildren; i++) {
-                    var hole = outerNode.holes[i];
-                    holes.push(hole.positions);
+                    var hole = holes[i];
+                    hole.positions = PolygonPipeline.removeDuplicates(hole.positions);
+                    if (hole.positions.length < 3) {
+                        throw new DeveloperError('At least three positions are required.');
+                    }
+                    polygonHoles.push(hole.positions);
 
                     var numGrandchildren = 0;
                     if (defined(hole.holes)) {
@@ -22901,9 +22542,9 @@ define('Core/PolygonGeometry',[
                 }
                 polygonHierarchy.push({
                     outerRing: outerRing,
-                    holes: holes
+                    holes: polygonHoles
                 });
-                var combinedPolygon = PolygonPipeline.eliminateHoles(outerRing, holes);
+                var combinedPolygon = PolygonPipeline.eliminateHoles(outerRing, polygonHoles);
                 polygons.push(combinedPolygon);
             }
         }
@@ -22955,7 +22596,7 @@ define('Core/PolygonGeometry',[
         center = Cartesian3.add(center, scratchPosition, center);
 
         if (extrude) {
-            scratchBoundingSphere = boundingSphere.clone(scratchBoundingSphere);
+            scratchBoundingSphere = BoundingSphere.clone(boundingSphere, scratchBoundingSphere);
             center = scratchBoundingSphere.center;
             scratchPosition = Cartesian3.multiplyByScalar(scratchNormal, extrudedHeight, scratchPosition);
             center = Cartesian3.add(ellipsoid.scaleToGeodeticSurface(center, center), scratchPosition, center);
@@ -23280,7 +22921,7 @@ define('Core/Color',[
 
         var namedColor = Color[color.toUpperCase()];
         if (defined(namedColor)) {
-            return namedColor.clone();
+            return Color.clone(namedColor);
         }
 
         var matches = rgbMatcher.exec(color);

@@ -5741,6 +5741,15 @@ define('Core/Math',[
     CesiumMath.SOLAR_RADIUS = 6.955e8;
 
     /**
+     * The mean radius of the moon, according to the "Report of the IAU/IAG Working Group on
+     * Cartographic Coordinates and Rotational Elements of the Planets and satellites: 2000",
+     * Celestial Mechanics 82: 83-110, 2002.
+     * @type {Number}
+     * @constant
+     */
+    CesiumMath.LUNAR_RADIUS = 1737400.0;
+
+    /**
      * 64 * 1024
      * @type {Number}
      * @constant
@@ -6444,7 +6453,7 @@ define('Core/Matrix3',[
      * // Rotate a point 45 degrees counterclockwise around the x-axis.
      * var p = new Cartesian3(5, 6, 7);
      * var m = Matrix3.fromRotationX(CesiumMath.toRadians(45.0));
-     * var rotated = m.multiplyByVector(p);
+     * var rotated = Matrix3.multiplyByVector(m, p);
      */
     Matrix3.fromRotationX = function(angle, result) {
         if (!defined(angle)) {
@@ -6488,7 +6497,7 @@ define('Core/Matrix3',[
      * // Rotate a point 45 degrees counterclockwise around the y-axis.
      * var p = new Cartesian3(5, 6, 7);
      * var m = Matrix3.fromRotationY(CesiumMath.toRadians(45.0));
-     * var rotated = m.multiplyByVector(p);
+     * var rotated = Matrix3.multiplyByVector(m, p);
      */
     Matrix3.fromRotationY = function(angle, result) {
         if (!defined(angle)) {
@@ -6532,7 +6541,7 @@ define('Core/Matrix3',[
      * // Rotate a point 45 degrees counterclockwise around the z-axis.
      * var p = new Cartesian3(5, 6, 7);
      * var m = Matrix3.fromRotationZ(CesiumMath.toRadians(45.0));
-     * var rotated = m.multiplyByVector(p);
+     * var rotated = Matrix3.multiplyByVector(m, p);
      */
     Matrix3.fromRotationZ = function(angle, result) {
         if (!defined(angle)) {
@@ -7087,147 +7096,6 @@ define('Core/Matrix3',[
     };
 
     /**
-     * Creates an Array from this Matrix3 instance.
-     * @memberof Matrix3
-     *
-     * @param {Array} [result] The Array onto which to store the result.
-     * @returns {Array} The modified Array parameter or a new Array instance if one was not provided.
-     */
-    Matrix3.prototype.toArray = function(result) {
-        return Matrix3.toArray(this, result);
-    };
-
-    /**
-     * Retrieves a copy of the matrix column at the provided index as a Cartesian3 instance.
-     * @memberof Matrix3
-     *
-     * @param {Number} index The zero-based index of the column to retrieve.
-     * @param {Cartesian3} [result] The object onto which to store the result.
-     * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} index is required and must be 0, 1, or 2.
-     *
-     * @see Cartesian3
-     */
-    Matrix3.prototype.getColumn = function(index, result) {
-        return Matrix3.getColumn(this, index, result);
-    };
-
-    /**
-     * Computes a new matrix that replaces the specified column in this matrix with the provided Cartesian3 instance.
-     * @memberof Matrix3
-     *
-     * @param {Number} index The zero-based index of the column to set.
-     * @param {Cartesian3} cartesian The Cartesian whose values will be assigned to the specified column.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, or 2.
-     *
-     * @see Cartesian3
-     */
-    Matrix3.prototype.setColumn = function(index, cartesian, result) {
-        return Matrix3.setColumn(this, index, cartesian, result);
-    };
-
-    /**
-     * Retrieves a copy of the matrix row at the provided index as a Cartesian3 instance.
-     * @memberof Matrix3
-     *
-     * @param {Number} index The zero-based index of the row to retrieve.
-     * @param {Cartesian3} [result] The object onto which to store the result.
-     * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} index is required and must be 0, 1, or 2.
-     *
-     * @see Cartesian3
-     */
-    Matrix3.prototype.getRow = function(index, result) {
-        return Matrix3.getRow(this, index, result);
-    };
-
-    /**
-     * Computes a new matrix that replaces the specified row in this matrix with the provided Cartesian3 instance.
-     * @memberof Matrix3
-     *
-     * @param {Number} index The zero-based index of the row to set.
-     * @param {Cartesian3} cartesian The Cartesian whose values will be assigned to the specified row.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, or 2.
-     *
-     * @see Cartesian3
-     */
-    Matrix3.prototype.setRow = function(index, cartesian, result) {
-        return Matrix3.setRow(this, index, cartesian, result);
-    };
-
-    /**
-     * Computes the product of this matrix and the provided matrix.
-     * @memberof Matrix3
-     *
-     * @param {Matrix3} right The right hand side matrix.
-     * @param {Matrix3} [result] The object onto which to store the result.
-     * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} right is required.
-     */
-    Matrix3.prototype.multiply = function(right, result) {
-        return Matrix3.multiply(this, right, result);
-    };
-
-    /**
-     * Computes the product of this matrix and a column vector.
-     * @memberof Matrix3
-     *
-     * @param {Cartesian3} cartesian The column.
-     * @param {Cartesian3} [result] The object onto which to store the result.
-     * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Matrix3.prototype.multiplyByVector = function(cartesian, result) {
-        return Matrix3.multiplyByVector(this, cartesian, result);
-    };
-
-    /**
-     * Computes the product of this matrix and a scalar.
-     * @memberof Matrix3
-     *
-     * @param {Number} scalar The number to multiply by.
-     * @param {Matrix3} [result] The object onto which to store the result.
-     * @returns {Matrix3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} scalar is required and must be a number.
-     */
-    Matrix3.prototype.multiplyByScalar = function(scalar, result) {
-        return Matrix3.multiplyByScalar(this, scalar, result);
-    };
-    /**
-     * Creates a negated copy of this matrix.
-     * @memberof Matrix3
-     *
-     * @param {Matrix3} matrix The matrix to negate.
-     * @param {Matrix3} [result] The object onto which to store the result.
-     * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
-     */
-    Matrix3.prototype.negate = function(result) {
-        return Matrix3.negate(this, result);
-    };
-
-    /**
-     * Computes the transpose of this matrix.
-     * @memberof Matrix3
-     *
-     * @param {Matrix3} [result] The object onto which to store the result.
-     * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
-     */
-    Matrix3.prototype.transpose = function(result) {
-        return Matrix3.transpose(this, result);
-    };
-
-    /**
      * Compares this matrix to the provided matrix componentwise and returns
      * <code>true</code> if they are equal, <code>false</code> otherwise.
      * @memberof Matrix3
@@ -7270,6 +7138,7 @@ define('Core/Matrix3',[
 
     return Matrix3;
 });
+
 /*global define*/
 define('Core/Cartesian4',[
         './defaultValue',
@@ -10082,196 +9951,6 @@ define('Core/Matrix4',[
     };
 
     /**
-     * Computes an Array from this Matrix4 instance.
-     * @memberof Matrix4
-     *
-     * @param {Array} [result] The Array onto which to store the result.
-     * @returns {Array} The modified Array parameter or a new Array instance if one was not provided.
-     */
-    Matrix4.prototype.toArray = function(result) {
-        return Matrix4.toArray(this, result);
-    };
-
-    /**
-     * Retrieves a copy of the matrix column at the provided index as a Cartesian4 instance.
-     * @memberof Matrix4
-     *
-     * @param {Number} index The zero-based index of the column to retrieve.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} index is required and must be 0, 1, 2, or 3.
-     *
-     * @see Cartesian4
-     */
-    Matrix4.prototype.getColumn = function(index, result) {
-        return Matrix4.getColumn(this, index, result);
-    };
-
-    /**
-     * Computes a new matrix that replaces the specified column in this matrix with the provided Cartesian4 instance.
-     * @memberof Matrix4
-     *
-     * @param {Number} index The zero-based index of the column to set.
-     * @param {Cartesian4} cartesian The Cartesian whose values will be assigned to the specified column.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, 2, or 3.
-     *
-     * @see Cartesian4
-     */
-    Matrix4.prototype.setColumn = function(index, cartesian, result) {
-        return Matrix4.setColumn(this, index, cartesian, result);
-    };
-
-    /**
-     * Retrieves a copy of the matrix row at the provided index as a Cartesian4 instance.
-     * @memberof Matrix4
-     *
-     * @param {Number} index The zero-based index of the row to retrieve.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} index is required and must be 0, 1, 2, or 3.
-     *
-     * @see Cartesian4
-     */
-    Matrix4.prototype.getRow = function(index, result) {
-        return Matrix4.getRow(this, index, result);
-    };
-
-    /**
-     * Computes a new matrix that replaces the specified row in this matrix with the provided Cartesian4 instance.
-     * @memberof Matrix4
-     *
-     * @param {Number} index The zero-based index of the row to set.
-     * @param {Cartesian4} cartesian The Cartesian whose values will be assigned to the specified row.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, 2, or 3.
-     *
-     * @see Cartesian4
-     */
-    Matrix4.prototype.setRow = function(index, cartesian, result) {
-        return Matrix4.setRow(this, index, cartesian, result);
-    };
-
-    /**
-     * Computes the product of this matrix and the provided matrix.
-     * @memberof Matrix4
-     *
-     * @param {Matrix4} right The right hand side matrix.
-     * @param {Matrix4} [result] The object onto which to store the result.
-     * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} right is required.
-     */
-    Matrix4.prototype.multiply = function(right, result) {
-        return Matrix4.multiply(this, right, result);
-    };
-
-    /**
-     * Multiplies this matrix, assuming it is a transformation matrix (with a bottom row of
-     * <code>[0.0, 0.0, 0.0, 1.0]</code>), by an implicit translation matrix defined by a {@link Cartesian3}.
-     *
-     * @memberof Matrix4
-     *
-     * @param {Cartesian3} translation The translation on the right-hand side of the multiplication.
-     * @param {Matrix4} [result] The object onto which to store the result.
-     *
-     * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} translation is required.
-     */
-    Matrix4.prototype.multiplyByTranslation = function(translation, result) {
-        return Matrix4.multiplyByTranslation(this, translation, result);
-    };
-
-    /**
-     * Multiplies this matrix, assuming it is a transformation matrix (with a bottom row of
-     * <code>[0.0, 0.0, 0.0, 1.0]</code>), by an implicit uniform scale matrix.
-     *
-     * @memberof Matrix4
-     *
-     * @param {Number} scale The scale on the right-hand side of the multiplication.
-     * @param {Matrix4} [result] The object onto which to store the result.
-     *
-     * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} scale is required.
-     */
-    Matrix4.prototype.multiplyByUniformScale = function(scale, result) {
-        return Matrix4.multiplyByUniformScale(this, scale, result);
-    };
-
-    /**
-     * Computes the product of this matrix and a column vector.
-     * @memberof Matrix4
-     *
-     * @param {Cartesian4} cartesian The vector.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Matrix4.prototype.multiplyByVector = function(cartesian, result) {
-        return Matrix4.multiplyByVector(this, cartesian, result);
-    };
-
-    /**
-     * Computes the product of a matrix and a {@link Cartesian3}.  This is equivalent to calling {@link Matrix4#multiplyByVector}
-     * with a {@link Cartesian4} with a <code>w</code> component of one.
-     * @memberof Matrix4
-     *
-     * @param {Cartesian3} cartesian The point.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Matrix4.prototype.multiplyByPoint = function(cartesian, result) {
-        return Matrix4.multiplyByPoint(this, cartesian, result);
-    };
-
-    /**
-     * Computes the product of this matrix and a scalar.
-     * @memberof Matrix4
-     *
-     * @param {Number} scalar The number to multiply by.
-     * @param {Matrix4} [result] The object onto which to store the result.
-     * @returns {Matrix4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} scalar is required and must be a number.
-     */
-    Matrix4.prototype.multiplyByScalar = function(scalar, result) {
-        return Matrix4.multiplyByScalar(this, scalar, result);
-    };
-    /**
-     * Computes a negated copy of this matrix.
-     * @memberof Matrix4
-     *
-     * @param {Matrix4} matrix The matrix to negate.
-     * @param {Matrix4} [result] The object onto which to store the result.
-     * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
-     */
-    Matrix4.prototype.negate = function(result) {
-        return Matrix4.negate(this, result);
-    };
-
-    /**
-     * Computes the transpose of this matrix.
-     * @memberof Matrix4
-     *
-     * @param {Matrix4} [result] The object onto which to store the result.
-     * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
-     */
-    Matrix4.prototype.transpose = function(result) {
-        return Matrix4.transpose(this, result);
-    };
-
-    /**
      * Compares this matrix to the provided matrix componentwise and returns
      * <code>true</code> if they are equal, <code>false</code> otherwise.
      * @memberof Matrix4
@@ -10311,65 +9990,6 @@ define('Core/Matrix4',[
                '(' + this[1] + ', ' + this[5] + ', ' + this[9] + ', ' + this[13] +')\n' +
                '(' + this[2] + ', ' + this[6] + ', ' + this[10] + ', ' + this[14] +')\n' +
                '(' + this[3] + ', ' + this[7] + ', ' + this[11] + ', ' + this[15] +')';
-    };
-
-    /**
-     * Gets the translation portion of this matrix, assuming the matrix is a affine transformation matrix.
-     * @memberof Matrix4
-     *
-     * @param {Cartesian3} [result] The object onto which to store the result.
-     * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @see Cartesian3
-     */
-    Matrix4.prototype.getTranslation = function(result) {
-        return Matrix4.getTranslation(this, result);
-    };
-
-    /**
-     * Gets the upper left 3x3 rotation matrix of this matrix, assuming the matrix is a affine transformation matrix.
-     * @memberof Matrix4
-     *
-     * @param {Matrix3} [result] The object onto which to store the result.
-     * @returns {Matrix3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @see Matrix3
-     */
-    Matrix4.prototype.getRotation = function(result) {
-        return Matrix4.getRotation(this, result);
-    };
-
-    /**
-     * Computes the inverse of this matrix using Cramers Rule.
-     * If the determinant is zero, the matrix can not be inverted, and an exception is thrown.
-     * If the matrix is an affine transformation matrix, it is more efficient
-     * to invert it with {@link #inverseTransformation}.
-     * @memberof Matrix4
-     *
-     * @param {Matrix4} [result] The object onto which to store the result.
-     * @returns {Matrix4} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {RuntimeError} matrix is not invertible because its determinate is zero.
-     */
-    Matrix4.prototype.inverse = function(result) {
-        return Matrix4.inverse(this, result);
-    };
-
-    /**
-     * Computes the inverse of this matrix assuming it is
-     * an affine transformation matrix, where the upper left 3x3 elements
-     * are a rotation matrix, and the upper three elements in the fourth
-     * column are the translation.  The bottom row is assumed to be [0, 0, 0, 1].
-     * The matrix is not verified to be in the proper form.
-     * This method is faster than computing the inverse for a general 4x4
-     * matrix using {@link #inverse}.
-     * @memberof Matrix4
-     *
-     * @param {Matrix4} [result] The object onto which to store the result.
-     * @returns {Matrix4} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     */
-    Matrix4.prototype.inverseTransformation = function(result) {
-        return Matrix4.inverseTransformation(this, result);
     };
 
     return Matrix4;
@@ -10729,6 +10349,12 @@ define('Core/Ellipsoid',[
     Ellipsoid.UNIT_SPHERE = freezeObject(new Ellipsoid(1.0, 1.0, 1.0));
 
     /**
+     * An Ellipsoid instance initialized to a sphere with the lunar radius.
+     * @memberof Ellipsoid
+     */
+    Ellipsoid.MOON = freezeObject(new Ellipsoid(CesiumMath.LUNAR_RADIUS, CesiumMath.LUNAR_RADIUS, CesiumMath.LUNAR_RADIUS));
+
+    /**
      * @memberof Ellipsoid
      * @returns {Cartesian3} The radii of the ellipsoid.
      */
@@ -10998,7 +10624,7 @@ define('Core/Ellipsoid',[
         return result;
     };
 
-    var scaleToGeodeticSurfaceIntersection;
+    var scaleToGeodeticSurfaceIntersection = new Cartesian3();
     var scaleToGeodeticSurfaceGradient = new Cartesian3();
 
     /**
@@ -12047,7 +11673,7 @@ define('Core/Transforms',[
             return undefined;
         }
 
-        return fixedToIcrfMtx.transpose(result);
+        return Matrix3.transpose(fixedToIcrfMtx, result);
     };
 
     var xysScratch = new Iau2006XysSample(0.0, 0.0, 0.0);
@@ -12080,7 +11706,7 @@ define('Core/Transforms',[
      * var fixedToIcrf = Transforms.computeIcrfToFixedMatrix(now);
      * var pointInInertial;
      * if (defined(fixedToIcrf)) {
-     *     pointInInertial = fixedToIcrf.multiplyByVector(pointInFixed);
+     *     pointInInertial = Matrix3.multiplyByVector(fixedToIcrf, pointInFixed);
      * }
      */
     Transforms.computeFixedToIcrfMatrix = function(date, result) {
@@ -12125,7 +11751,7 @@ define('Core/Transforms',[
         rotation1[8] = 1 - a * (x * x + y * y);
 
         var rotation2 = Matrix3.fromRotationZ(-xys.s, rotation2Scratch);
-        var matrixQ = rotation1.multiply(rotation2, rotation1Scratch);
+        var matrixQ = Matrix3.multiply(rotation1, rotation2, rotation1Scratch);
 
         // Similar to TT conversions above
         // It's possible here that secondTT could roll over 86400
@@ -12151,7 +11777,7 @@ define('Core/Transforms',[
         var earthRotation = Matrix3.fromRotationZ(era, rotation2Scratch);
 
         // pseudoFixed to ICRF
-        var pfToIcrf = matrixQ.multiply(earthRotation, rotation1Scratch);
+        var pfToIcrf = Matrix3.multiply(matrixQ, earthRotation, rotation1Scratch);
 
         // Compute pole wander matrix
         var cosxp = Math.cos(eop.xPoleWander);
@@ -12178,7 +11804,7 @@ define('Core/Transforms',[
         fToPfMtx[7] = sinyp * cossp - cosyp * sinxp * sinsp;
         fToPfMtx[8] = cosyp * cosxp;
 
-        return pfToIcrf.multiply(fToPfMtx, result);
+        return Matrix3.multiply(pfToIcrf, fToPfMtx, result);
     };
 
     var pointToWindowCoordinatesTemp = new Cartesian4();
@@ -13559,7 +13185,7 @@ define('Core/IntersectionTests',[
         var B = new Matrix3(firstAxis.x, secondAxis.x, thirdAxis.x,
                             firstAxis.y, secondAxis.y, thirdAxis.y,
                             firstAxis.z, secondAxis.z, thirdAxis.z);
-        var B_T = B.transpose();
+        var B_T = Matrix3.transpose(B);
 
         // Get the scaling matrix and its inverse.
         var D_I = Matrix3.fromScale(ellipsoid.getRadii());
@@ -13569,9 +13195,9 @@ define('Core/IntersectionTests',[
                             -direction.z, 0.0, direction.x,
                             direction.y, -direction.x, 0.0);
 
-        var temp = B_T.multiply(D).multiply(C);
-        var A = temp.multiply(D_I).multiply(B);
-        var b = temp.multiplyByVector(position);
+        var temp = Matrix3.multiply(Matrix3.multiply(B_T, D), C);
+        var A = Matrix3.multiply(Matrix3.multiply(temp, D_I), B);
+        var b = Matrix3.multiplyByVector(temp, position);
 
         // Solve for the solutions to the expression in standard form:
         var solutions = quadraticVectorExpression(A, Cartesian3.negate(b), 0.0, 0.0, 1.0);
@@ -13584,7 +13210,7 @@ define('Core/IntersectionTests',[
             var maximumValue = Number.NEGATIVE_INFINITY;
 
             for ( var i = 0; i < length; ++i) {
-                s = D_I.multiplyByVector(B.multiplyByVector(solutions[i]));
+                s = Matrix3.multiplyByVector(D_I, Matrix3.multiplyByVector(B, solutions[i]));
                 var v = Cartesian3.normalize(Cartesian3.subtract(s, position));
                 var dotProduct = Cartesian3.dot(v, direction);
 
@@ -14055,6 +13681,7 @@ define('Core/EllipsoidTangentPlane',[
         './Cartesian2',
         './Cartesian3',
         './Ellipsoid',
+        './Matrix4',
         './Ray',
         './Plane'
     ], function(
@@ -14067,6 +13694,7 @@ define('Core/EllipsoidTangentPlane',[
         Cartesian2,
         Cartesian3,
         Ellipsoid,
+        Matrix4,
         Ray,
         Plane) {
     "use strict";
@@ -14098,10 +13726,10 @@ define('Core/EllipsoidTangentPlane',[
         var eastNorthUp = Transforms.eastNorthUpToFixedFrame(origin, ellipsoid);
         this._ellipsoid = ellipsoid;
         this._origin = Cartesian3.clone(origin);
-        this._xAxis = Cartesian3.fromCartesian4(eastNorthUp.getColumn(0));
-        this._yAxis = Cartesian3.fromCartesian4(eastNorthUp.getColumn(1));
+        this._xAxis = Cartesian3.fromCartesian4(Matrix4.getColumn(eastNorthUp, 0));
+        this._yAxis = Cartesian3.fromCartesian4(Matrix4.getColumn(eastNorthUp, 1));
 
-        var normal = Cartesian3.fromCartesian4(eastNorthUp.getColumn(2));
+        var normal = Cartesian3.fromCartesian4(Matrix4.getColumn(eastNorthUp, 2));
         this._plane = Plane.fromPointNormal(origin, normal);
     };
 
@@ -14703,16 +14331,20 @@ define('Core/PolylinePipeline',[
     var carto1 = new Cartographic();
     var carto2 = new Cartographic();
     var cartesian = new Cartesian3();
+    var scaleFirst = new Cartesian3();
+    var scaleLast = new Cartesian3();
     var ellipsoidGeodesic = new EllipsoidGeodesic();
     //Returns subdivided line scaled to ellipsoid surface starting at p1 and ending at p2.
     //Result includes p1, but not include p2.  This function is called for a sequence of line segments,
     //and this prevents duplication of end point.
     function generateCartesianArc(p1, p2, granularity, ellipsoid) {
-        var separationAngle = Cartesian3.angleBetween(p1, p2);
+        var first = ellipsoid.scaleToGeodeticSurface(p1, scaleFirst);
+        var last = ellipsoid.scaleToGeodeticSurface(p2, scaleLast);
+        var separationAngle = Cartesian3.angleBetween(first, last);
         var numPoints = Math.ceil(separationAngle/granularity);
         var result = new Array(numPoints*3);
-        var start = ellipsoid.cartesianToCartographic(p1, carto1);
-        var end = ellipsoid.cartesianToCartographic(p2, carto2);
+        var start = ellipsoid.cartesianToCartographic(first, carto1);
+        var end = ellipsoid.cartesianToCartographic(last, carto2);
 
         ellipsoidGeodesic.setEndPoints(start, end);
         var surfaceDistanceBetweenPoints = ellipsoidGeodesic.getSurfaceDistance() / (numPoints);
@@ -15868,6 +15500,425 @@ define('Core/Quaternion',[
 });
 
 /*global define*/
+define('Core/PolylineVolumeGeometryLibrary',[
+        './defined',
+        './Cartesian2',
+        './Cartesian3',
+        './Cartesian4',
+        './Cartographic',
+        './CornerType',
+        './DeveloperError',
+        './EllipsoidTangentPlane',
+        './PolylinePipeline',
+        './Matrix3',
+        './Matrix4',
+        './Quaternion',
+        './Transforms',
+        './Math'
+    ], function(
+        defined,
+        Cartesian2,
+        Cartesian3,
+        Cartesian4,
+        Cartographic,
+        CornerType,
+        DeveloperError,
+        EllipsoidTangentPlane,
+        PolylinePipeline,
+        Matrix3,
+        Matrix4,
+        Quaternion,
+        Transforms,
+        CesiumMath) {
+    "use strict";
+
+    var scratch2Array = [new Cartesian3(), new Cartesian3()];
+    var scratchCartesian1 = new Cartesian3();
+    var scratchCartesian2 = new Cartesian3();
+    var scratchCartesian3 = new Cartesian3();
+    var scratchCartesian4 = new Cartesian3();
+    var scratchCartesian5 = new Cartesian3();
+    var scratchCartesian6 = new Cartesian3();
+    var scratchCartesian7 = new Cartesian3();
+    var scratchCartesian8 = new Cartesian3();
+    var scratchCartesian9 = new Cartesian3();
+
+    var scratch1 = new Cartesian3();
+    var scratch2 = new Cartesian3();
+
+    /**
+     * @private
+     */
+    var PolylineVolumeGeometryLibrary = {};
+
+    var cartographic = new Cartographic();
+    function scaleToSurface(positions, ellipsoid) {
+        var heights = new Array(positions.length);
+        for ( var i = 0; i < positions.length; i++) {
+            var pos = positions[i];
+            cartographic = ellipsoid.cartesianToCartographic(pos, cartographic);
+            heights[i] = cartographic.height;
+            positions[i] = ellipsoid.scaleToGeodeticSurface(pos, pos);
+        }
+        return heights;
+    }
+
+    function subdivideHeights(points, h0, h1, granularity) {
+        var p0 = points[0];
+        var p1 = points[1];
+        var angleBetween = Cartesian3.angleBetween(p0, p1);
+        var numPoints = Math.ceil(angleBetween / granularity);
+        var heights = new Array(numPoints);
+        var i;
+        if (h0 === h1) {
+            for (i = 0; i < numPoints; i++) {
+                heights[i] = h0;
+            }
+            heights.push(h1);
+            return heights;
+        }
+
+        var dHeight = h1 - h0;
+        var heightPerVertex = dHeight / (numPoints);
+
+        for (i = 1; i < numPoints; i++) {
+            var h = h0 + i * heightPerVertex;
+            heights[i] = h;
+        }
+
+        heights[0] = h0;
+        heights.push(h1);
+        return heights;
+    }
+
+    function computeRotationAngle(start, end, position, ellipsoid) {
+        var tangentPlane = new EllipsoidTangentPlane(position, ellipsoid);
+        var next = tangentPlane.projectPointOntoPlane(Cartesian3.add(position, start, nextScratch), nextScratch);
+        var prev = tangentPlane.projectPointOntoPlane(Cartesian3.add(position, end, prevScratch), prevScratch);
+        var angle = Cartesian2.angleBetween(next, prev);
+
+        return (prev.x * next.y - prev.y * next.x >= 0.0) ? -angle : angle;
+    }
+
+    var negativeX = new Cartesian4(-1, 0, 0, 0);
+    var transform = new Matrix4();
+    var translation = new Matrix4();
+    var rotationZ = new Matrix3();
+    var scaleMatrix = Matrix3.IDENTITY.clone();
+    var westScratch = new Cartesian4();
+    var finalPosScratch = new Cartesian4();
+    var heightCartesian = new Cartesian3();
+    function addPosition(center, left, shape, finalPositions, ellipsoid, height, xScalar, repeat) {
+        var west = westScratch;
+        var finalPosition = finalPosScratch;
+        transform = Transforms.eastNorthUpToFixedFrame(center, ellipsoid, transform);
+
+        west = Matrix4.multiplyByVector(transform, negativeX, west);
+        west = Cartesian3.normalize(west, west);
+        var angle = computeRotationAngle(west, left, center, ellipsoid);
+        rotationZ = Matrix3.fromRotationZ(angle, rotationZ);
+
+        heightCartesian.z = height;
+        transform = Matrix4.multiply(transform, Matrix4.fromRotationTranslation(rotationZ, heightCartesian, translation), transform);
+        var scale = scaleMatrix;
+        scale[0] = xScalar;
+
+        for ( var j = 0; j < repeat; j++) {
+            for ( var i = 0; i < shape.length; i += 3) {
+                finalPosition = Cartesian3.fromArray(shape, i, finalPosition);
+                finalPosition = Matrix3.multiplyByVector(scale, finalPosition, finalPosition);
+                finalPosition = Matrix4.multiplyByPoint(transform, finalPosition, finalPosition);
+                finalPositions.push(finalPosition.x, finalPosition.y, finalPosition.z);
+            }
+        }
+
+        return finalPositions;
+    }
+
+    var centerScratch = new Cartesian3();
+    function addPositions(centers, left, shape, finalPositions, ellipsoid, heights, xScalar) {
+        for ( var i = 0; i < centers.length; i += 3) {
+            var center = Cartesian3.fromArray(centers, i, centerScratch);
+            finalPositions = addPosition(center, left, shape, finalPositions, ellipsoid, heights[i / 3], xScalar, 1);
+        }
+        return finalPositions;
+    }
+
+    function convertShapeTo3DDuplicate(shape2D, boundingRectangle) { //orientate 2D shape to XZ plane center at (0, 0, 0), duplicate points
+        var length = shape2D.length;
+        var shape = new Array(length * 6);
+        var index = 0;
+        var xOffset = boundingRectangle.x + boundingRectangle.width / 2;
+        var yOffset = boundingRectangle.y + boundingRectangle.height / 2;
+
+        var point = shape2D[0];
+        shape[index++] = point.x - xOffset;
+        shape[index++] = 0.0;
+        shape[index++] = point.y - yOffset;
+        for ( var i = 1; i < length; i++) {
+            point = shape2D[i];
+            var x = point.x - xOffset;
+            var z = point.y - yOffset;
+            shape[index++] = x;
+            shape[index++] = 0.0;
+            shape[index++] = z;
+
+            shape[index++] = x;
+            shape[index++] = 0.0;
+            shape[index++] = z;
+        }
+        point = shape2D[0];
+        shape[index++] = point.x - xOffset;
+        shape[index++] = 0.0;
+        shape[index++] = point.y - yOffset;
+
+        return shape;
+    }
+
+    function convertShapeTo3D(shape2D, boundingRectangle) { //orientate 2D shape to XZ plane center at (0, 0, 0)
+        var length = shape2D.length;
+        var shape = new Array(length * 3);
+        var index = 0;
+        var xOffset = boundingRectangle.x + boundingRectangle.width / 2;
+        var yOffset = boundingRectangle.y + boundingRectangle.height / 2;
+
+        for ( var i = 0; i < length; i++) {
+            shape[index++] = shape2D[i].x - xOffset;
+            shape[index++] = 0;
+            shape[index++] = shape2D[i].y - yOffset;
+        }
+
+        return shape;
+    }
+
+    var quaterion = new Quaternion();
+    var startPointScratch = new Cartesian3();
+    var rotMatrix = new Matrix3();
+    function computeRoundCorner(pivot, startPoint, endPoint, cornerType, leftIsOutside, ellipsoid, finalPositions, shape, height, duplicatePoints) {
+        var angle = Cartesian3.angleBetween(Cartesian3.subtract(startPoint, pivot, scratch1), Cartesian3.subtract(endPoint, pivot, scratch2));
+        var granularity = (cornerType.value === CornerType.BEVELED.value) ? 0 : Math.ceil(angle / CesiumMath.toRadians(5));
+
+        var m;
+        if (leftIsOutside) {
+            m = Matrix3.fromQuaternion(Quaternion.fromAxisAngle(pivot, angle / (granularity + 1), quaterion), rotMatrix);
+        } else {
+            m = Matrix3.fromQuaternion(Quaternion.fromAxisAngle(Cartesian3.negate(pivot, scratch1), angle / (granularity + 1), quaterion), rotMatrix);
+        }
+
+        var left;
+        var surfacePoint;
+        startPoint = Cartesian3.clone(startPoint, startPointScratch);
+        if (granularity > 0) {
+            var repeat = duplicatePoints ? 2 : 1;
+            for ( var i = 0; i < granularity; i++) {
+                startPoint = Matrix3.multiplyByVector(m, startPoint, startPoint);
+                left = Cartesian3.subtract(startPoint, pivot, scratch1);
+                left = Cartesian3.normalize(left, left);
+                if (!leftIsOutside) {
+                    left = Cartesian3.negate(left, left);
+                }
+                surfacePoint = ellipsoid.scaleToGeodeticSurface(startPoint, scratch2);
+                finalPositions = addPosition(surfacePoint, left, shape, finalPositions, ellipsoid, height, 1, repeat);
+            }
+        } else {
+            left = Cartesian3.subtract(startPoint, pivot, scratch1);
+            left = Cartesian3.normalize(left, left);
+            if (!leftIsOutside) {
+                left = Cartesian3.negate(left, left);
+            }
+            surfacePoint = ellipsoid.scaleToGeodeticSurface(startPoint, scratch2);
+            finalPositions = addPosition(surfacePoint, left, shape, finalPositions, ellipsoid, height, 1, 1);
+
+            endPoint = Cartesian3.clone(endPoint, startPointScratch);
+            left = Cartesian3.subtract(endPoint, pivot, scratch1);
+            left = Cartesian3.normalize(left, left);
+            if (!leftIsOutside) {
+                left = Cartesian3.negate(left, left);
+            }
+            surfacePoint = ellipsoid.scaleToGeodeticSurface(endPoint, scratch2);
+            finalPositions = addPosition(surfacePoint, left, shape, finalPositions, ellipsoid, height, 1, 1);
+        }
+
+        return finalPositions;
+    }
+
+    PolylineVolumeGeometryLibrary.removeDuplicatesFromShape = function(shapePositions) {
+        var length = shapePositions.length;
+        var cleanedPositions = [];
+        for ( var i0 = length - 1, i1 = 0; i1 < length; i0 = i1++) {
+            var v0 = shapePositions[i0];
+            var v1 = shapePositions[i1];
+
+            if (!Cartesian2.equals(v0, v1)) {
+                cleanedPositions.push(v1); // Shallow copy!
+            }
+        }
+
+        return cleanedPositions;
+    };
+
+    var nextScratch = new Cartesian3();
+    var prevScratch = new Cartesian3();
+    PolylineVolumeGeometryLibrary.angleIsGreaterThanPi = function(forward, backward, position, ellipsoid) {
+        var tangentPlane = new EllipsoidTangentPlane(position, ellipsoid);
+        var next = tangentPlane.projectPointOntoPlane(Cartesian3.add(position, forward, nextScratch), nextScratch);
+        var prev = tangentPlane.projectPointOntoPlane(Cartesian3.add(position, backward, prevScratch), prevScratch);
+
+        return ((prev.x * next.y) - (prev.y * next.x)) >= 0.0;
+    };
+
+    function latLonEquals(c0, c1) {
+        return ((CesiumMath.equalsEpsilon(c0.latitude, c1.latitude, CesiumMath.EPSILON6)) && (CesiumMath.equalsEpsilon(c0.longitude, c1.longitude, CesiumMath.EPSILON6)));
+    }
+    var carto0 = new Cartographic();
+    var carto1 = new Cartographic();
+    PolylineVolumeGeometryLibrary.removeDuplicatesFromPositions = function(positions, ellipsoid) {
+        var length = positions.length;
+        if (length < 2) {
+            return positions.slice(0);
+        }
+
+        var cleanedPositions = [];
+        cleanedPositions.push(positions[0]);
+
+        for (var i = 1; i < length; ++i) {
+            var v0 = positions[i - 1];
+            var v1 = positions[i];
+            var c0 = ellipsoid.cartesianToCartographic(v0, carto0);
+            var c1 = ellipsoid.cartesianToCartographic(v1, carto1);
+
+            if (!latLonEquals(c0, c1)) {
+                cleanedPositions.push(v1); // Shallow copy!
+            }
+        }
+
+        return cleanedPositions;
+    };
+
+    PolylineVolumeGeometryLibrary.computePositions = function(positions, shape2D, boundingRectangle, geometry, duplicatePoints) {
+        var ellipsoid = geometry._ellipsoid;
+        var heights = scaleToSurface(positions, ellipsoid);
+        var granularity = geometry._granularity;
+        var cornerType = geometry._cornerType;
+        var shapeForSides = duplicatePoints ? convertShapeTo3DDuplicate(shape2D, boundingRectangle) : convertShapeTo3D(shape2D, boundingRectangle);
+        var shapeForEnds = duplicatePoints ? convertShapeTo3D(shape2D, boundingRectangle) : undefined;
+        var heightOffset = boundingRectangle.height / 2;
+        var width = boundingRectangle.width / 2;
+        var length = positions.length;
+        var finalPositions = [];
+        var ends = duplicatePoints ? [] : undefined;
+
+        var forward = scratchCartesian1;
+        var backward = scratchCartesian2;
+        var cornerDirection = scratchCartesian3;
+        var surfaceNormal = scratchCartesian4;
+        var pivot = scratchCartesian5;
+        var start = scratchCartesian6;
+        var end = scratchCartesian7;
+        var left = scratchCartesian8;
+        var previousPosition = scratchCartesian9;
+
+        var position = positions[0];
+        var nextPosition = positions[1];
+        surfaceNormal = ellipsoid.geodeticSurfaceNormal(position, surfaceNormal);
+        forward = Cartesian3.subtract(nextPosition, position, forward);
+        forward = Cartesian3.normalize(forward, forward);
+        left = Cartesian3.cross(surfaceNormal, forward, left);
+        left = Cartesian3.normalize(left, left);
+        var h0 = heights[0];
+        var h1 = heights[1];
+        if (duplicatePoints) {
+            ends = addPosition(position, left, shapeForEnds, ends, ellipsoid, h0 + heightOffset, 1, 1);
+        }
+        previousPosition = Cartesian3.clone(position, previousPosition);
+        position = nextPosition;
+        backward = Cartesian3.negate(forward, backward);
+        var subdividedHeights;
+        var subdividedPositions;
+        for ( var i = 1; i < length - 1; i++) {
+            var repeat = duplicatePoints ? 2 : 1;
+            nextPosition = positions[i + 1];
+            forward = Cartesian3.subtract(nextPosition, position, forward);
+            forward = Cartesian3.normalize(forward, forward);
+            cornerDirection = Cartesian3.add(forward, backward, cornerDirection);
+            cornerDirection = Cartesian3.normalize(cornerDirection, cornerDirection);
+            surfaceNormal = ellipsoid.geodeticSurfaceNormal(position, surfaceNormal);
+            var doCorner = !Cartesian3.equalsEpsilon(Cartesian3.negate(cornerDirection, scratch1), surfaceNormal, CesiumMath.EPSILON2);
+            if (doCorner) {
+                cornerDirection = Cartesian3.cross(cornerDirection, surfaceNormal, cornerDirection);
+                cornerDirection = Cartesian3.cross(surfaceNormal, cornerDirection, cornerDirection);
+                cornerDirection = Cartesian3.normalize(cornerDirection, cornerDirection);
+                var scalar = 1 / Math.max(0.25, (Cartesian3.magnitude(Cartesian3.cross(cornerDirection, backward, scratch1))));
+                var leftIsOutside = PolylineVolumeGeometryLibrary.angleIsGreaterThanPi(forward, backward, position, ellipsoid);
+                if (leftIsOutside) {
+                    pivot = Cartesian3.add(position, Cartesian3.multiplyByScalar(cornerDirection, scalar * width, cornerDirection), pivot);
+                    start = Cartesian3.add(pivot, Cartesian3.multiplyByScalar(left, width, start), start);
+                    scratch2Array[0] = Cartesian3.clone(previousPosition, scratch2Array[0]);
+                    scratch2Array[1] = Cartesian3.clone(start, scratch2Array[1]);
+                    subdividedHeights = subdivideHeights(scratch2Array, h0 + heightOffset, h1 + heightOffset, granularity);
+                    subdividedPositions = PolylinePipeline.scaleToSurface(scratch2Array);
+                    finalPositions = addPositions(subdividedPositions, left, shapeForSides, finalPositions, ellipsoid, subdividedHeights, 1);
+                    left = Cartesian3.cross(surfaceNormal, forward, left);
+                    left = Cartesian3.normalize(left, left);
+                    end = Cartesian3.add(pivot, Cartesian3.multiplyByScalar(left, width, end), end);
+                    if (cornerType.value === CornerType.ROUNDED.value || cornerType.value === CornerType.BEVELED.value) {
+                        computeRoundCorner(pivot, start, end, cornerType, leftIsOutside, ellipsoid, finalPositions, shapeForSides, h1 + heightOffset, duplicatePoints);
+                    } else {
+                        cornerDirection = Cartesian3.negate(cornerDirection, cornerDirection);
+                        finalPositions = addPosition(position, cornerDirection, shapeForSides, finalPositions, ellipsoid, h1 + heightOffset, scalar, repeat);
+                    }
+                    previousPosition = Cartesian3.clone(end, previousPosition);
+                } else {
+                    pivot = Cartesian3.add(position, Cartesian3.multiplyByScalar(cornerDirection, scalar * width, cornerDirection), pivot);
+                    start = Cartesian3.add(pivot, Cartesian3.multiplyByScalar(left, -width, start), start);
+                    scratch2Array[0] = Cartesian3.clone(previousPosition, scratch2Array[0]);
+                    scratch2Array[1] = Cartesian3.clone(start, scratch2Array[1]);
+                    subdividedHeights = subdivideHeights(scratch2Array, h0 + heightOffset, h1 + heightOffset, granularity);
+                    subdividedPositions = PolylinePipeline.scaleToSurface(scratch2Array, granularity, ellipsoid);
+                    finalPositions = addPositions(subdividedPositions, left, shapeForSides, finalPositions, ellipsoid, subdividedHeights, 1);
+                    left = Cartesian3.cross(surfaceNormal, forward, left);
+                    left = Cartesian3.normalize(left, left);
+                    end = Cartesian3.add(pivot, Cartesian3.multiplyByScalar(left, -width, end), end);
+                    if (cornerType.value === CornerType.ROUNDED.value || cornerType.value === CornerType.BEVELED.value) {
+                        computeRoundCorner(pivot, start, end, cornerType, leftIsOutside, ellipsoid, finalPositions, shapeForSides, h1 + heightOffset, duplicatePoints);
+                    } else {
+                        finalPositions = addPosition(position, cornerDirection, shapeForSides, finalPositions, ellipsoid, h1 + heightOffset, scalar, repeat);
+                    }
+                    previousPosition = Cartesian3.clone(end, previousPosition);
+                }
+                backward = Cartesian3.negate(forward, backward);
+            } else {
+                finalPositions = addPosition(previousPosition, left, shapeForSides, finalPositions, ellipsoid, h0 + heightOffset, 1, 1);
+                previousPosition = position;
+            }
+            h0 = h1;
+            h1 = heights[i + 1];
+            position = nextPosition;
+        }
+
+        scratch2Array[0] = Cartesian3.clone(previousPosition, scratch2Array[0]);
+        scratch2Array[1] = Cartesian3.clone(position, scratch2Array[1]);
+        subdividedHeights = subdivideHeights(scratch2Array, h0 + heightOffset, h1 + heightOffset, granularity);
+        subdividedPositions = PolylinePipeline.scaleToSurface(scratch2Array, granularity, ellipsoid);
+        finalPositions = addPositions(subdividedPositions, left, shapeForSides, finalPositions, ellipsoid, subdividedHeights, 1);
+        if (duplicatePoints) {
+            ends = addPosition(position, left, shapeForEnds, ends, ellipsoid, h1 + heightOffset, 1, 1);
+        }
+
+        length = finalPositions.length;
+        var posLength = duplicatePoints ? length + ends.length : length;
+        var combinedPositions = new Float64Array(posLength);
+        combinedPositions.set(finalPositions);
+        if (duplicatePoints) {
+            combinedPositions.set(ends, length);
+        }
+
+        return combinedPositions;
+    };
+
+    return PolylineVolumeGeometryLibrary;
+});
+/*global define*/
 define('Core/CorridorGeometryLibrary',[
         './defined',
         './Cartesian2',
@@ -15875,6 +15926,7 @@ define('Core/CorridorGeometryLibrary',[
         './CornerType',
         './EllipsoidTangentPlane',
         './PolylinePipeline',
+        './PolylineVolumeGeometryLibrary',
         './Matrix3',
         './Quaternion',
         './Math'
@@ -15885,6 +15937,7 @@ define('Core/CorridorGeometryLibrary',[
         CornerType,
         EllipsoidTangentPlane,
         PolylinePipeline,
+        PolylineVolumeGeometryLibrary,
         Matrix3,
         Quaternion,
         CesiumMath) {
@@ -15913,24 +15966,9 @@ define('Core/CorridorGeometryLibrary',[
     var cartesian9 = new Cartesian3();
     var cartesian10 = new Cartesian3();
 
-    var originScratch = new Cartesian3();
-    var nextScratch = new Cartesian3();
-    var prevScratch = new Cartesian3();
-    function angleIsGreaterThanPi (forward, backward, position, ellipsoid) {
-        var tangentPlane = new EllipsoidTangentPlane(position, ellipsoid);
-        var origin = tangentPlane.projectPointOntoPlane(position, originScratch);
-        var next = tangentPlane.projectPointOntoPlane(Cartesian3.add(position, forward, nextScratch), nextScratch);
-        var prev = tangentPlane.projectPointOntoPlane(Cartesian3.add(position, backward, prevScratch), prevScratch);
-
-        prev = Cartesian2.subtract(prev, origin, prev);
-        next = Cartesian2.subtract(next, origin, next);
-
-        return ((prev.x * next.y) - (prev.y * next.x)) >= 0.0;
-    }
-
     var quaterion = new Quaternion();
     var rotMatrix = new Matrix3();
-    function computeRoundCorner (cornerPoint, startPoint, endPoint, cornerType, leftIsOutside, ellipsoid) {
+    function computeRoundCorner (cornerPoint, startPoint, endPoint, cornerType, leftIsOutside) {
         var angle = Cartesian3.angleBetween(Cartesian3.subtract(startPoint, cornerPoint, scratch1), Cartesian3.subtract(endPoint, cornerPoint, scratch2));
         var granularity = (cornerType.value === CornerType.BEVELED.value) ? 1 : Math.ceil(angle / CesiumMath.toRadians(5)) + 1;
 
@@ -15951,7 +15989,7 @@ define('Core/CorridorGeometryLibrary',[
         var index = 0;
         startPoint = Cartesian3.clone(startPoint, scratch1);
         for ( var i = 0; i < granularity; i++) {
-            startPoint = m.multiplyByVector(startPoint, startPoint);
+            startPoint = Matrix3.multiplyByVector(m, startPoint, startPoint);
             array[index++] = startPoint.x;
             array[index++] = startPoint.y;
             array[index++] = startPoint.z;
@@ -15969,7 +16007,7 @@ define('Core/CorridorGeometryLibrary',[
         startPoint = Cartesian3.fromArray(calculatedPositions[1], leftEdge.length - 3, startPoint);
         endPoint = Cartesian3.fromArray(calculatedPositions[0], 0, endPoint);
         cornerPoint = Cartesian3.multiplyByScalar(Cartesian3.add(startPoint, endPoint, cornerPoint), 0.5, cornerPoint);
-        var firstEndCap = computeRoundCorner(cornerPoint, startPoint, endPoint, CornerType.ROUNDED, false, ellipsoid);
+        var firstEndCap = computeRoundCorner(cornerPoint, startPoint, endPoint, CornerType.ROUNDED, false);
 
         var length = calculatedPositions.length - 1;
         var rightEdge = calculatedPositions[length - 1];
@@ -15977,12 +16015,12 @@ define('Core/CorridorGeometryLibrary',[
         startPoint = Cartesian3.fromArray(rightEdge, rightEdge.length - 3, startPoint);
         endPoint = Cartesian3.fromArray(leftEdge, 0, endPoint);
         cornerPoint = Cartesian3.multiplyByScalar(Cartesian3.add(startPoint, endPoint, cornerPoint), 0.5, cornerPoint);
-        var lastEndCap = computeRoundCorner(cornerPoint, startPoint, endPoint, CornerType.ROUNDED, false, ellipsoid);
+        var lastEndCap = computeRoundCorner(cornerPoint, startPoint, endPoint, CornerType.ROUNDED, false);
 
         return [firstEndCap, lastEndCap];
     }
 
-    function computeMiteredCorner (position, startPoint, leftCornerDirection, lastPoint, leftIsOutside, granularity, ellipsoid) {
+    function computeMiteredCorner (position, leftCornerDirection, lastPoint, leftIsOutside) {
         var cornerPoint = scratch1;
         if (leftIsOutside) {
             cornerPoint = Cartesian3.add(position, leftCornerDirection, cornerPoint);
@@ -16037,14 +16075,22 @@ define('Core/CorridorGeometryLibrary',[
         }
     };
 
+    function scaleToSurface(positions, ellipsoid) {
+        for(var i = 0; i < positions.length; i++) {
+            positions[i] = ellipsoid.scaleToGeodeticSurface(positions[i], positions[i]);
+        }
+        return positions;
+    }
+
     /**
      * @private
      */
     CorridorGeometryLibrary.computePositions = function (params) {
         var granularity = params.granularity;
         var positions = params.positions;
-        var width = params.width / 2;
         var ellipsoid = params.ellipsoid;
+        positions = scaleToSurface(positions, ellipsoid);
+        var width = params.width / 2;
         var cornerType = params.cornerType;
         var saveAttributes = params.saveAttributes;
         var normal = cartesian1;
@@ -16088,7 +16134,7 @@ define('Core/CorridorGeometryLibrary',[
                 cornerDirection = Cartesian3.cross(cornerDirection, normal, cornerDirection);
                 cornerDirection = Cartesian3.cross(normal, cornerDirection, cornerDirection);
                 var scalar = width / Math.max(0.25, Cartesian3.magnitude(Cartesian3.cross(cornerDirection, backward, scratch1)));
-                var leftIsOutside = angleIsGreaterThanPi(forward, backward, position, ellipsoid);
+                var leftIsOutside = PolylineVolumeGeometryLibrary.angleIsGreaterThanPi(forward, backward, position, ellipsoid);
                 cornerDirection = Cartesian3.multiplyByScalar(cornerDirection, scalar, cornerDirection);
                 if (leftIsOutside) {
                     rightPos = Cartesian3.add(position, cornerDirection, rightPos);
@@ -16107,9 +16153,9 @@ define('Core/CorridorGeometryLibrary',[
                     leftPos = Cartesian3.add(rightPos, Cartesian3.multiplyByScalar(left, width * 2, leftPos), leftPos);
                     previousPos = Cartesian3.add(rightPos, Cartesian3.multiplyByScalar(left, width, previousPos), previousPos);
                     if (cornerType.value === CornerType.ROUNDED.value || cornerType.value === CornerType.BEVELED.value) {
-                        corners.push({leftPositions : computeRoundCorner(rightPos, startPoint, leftPos, cornerType, leftIsOutside, ellipsoid)});
+                        corners.push({leftPositions : computeRoundCorner(rightPos, startPoint, leftPos, cornerType, leftIsOutside)});
                     } else {
-                        corners.push({leftPositions : computeMiteredCorner(position, startPoint, Cartesian3.negate(cornerDirection, cornerDirection), leftPos, leftIsOutside, granularity, ellipsoid)});
+                        corners.push({leftPositions : computeMiteredCorner(position, Cartesian3.negate(cornerDirection, cornerDirection), leftPos, leftIsOutside)});
                     }
                 } else {
                     leftPos = Cartesian3.add(position, cornerDirection, leftPos);
@@ -16128,9 +16174,9 @@ define('Core/CorridorGeometryLibrary',[
                     rightPos = Cartesian3.add(leftPos, Cartesian3.negate(Cartesian3.multiplyByScalar(left, width * 2, rightPos), rightPos), rightPos);
                     previousPos = Cartesian3.add(leftPos, Cartesian3.negate(Cartesian3.multiplyByScalar(left, width, previousPos), previousPos), previousPos);
                     if (cornerType.value === CornerType.ROUNDED.value || cornerType.value === CornerType.BEVELED.value) {
-                        corners.push({rightPositions : computeRoundCorner(leftPos, startPoint, rightPos, cornerType, leftIsOutside, ellipsoid)});
+                        corners.push({rightPositions : computeRoundCorner(leftPos, startPoint, rightPos, cornerType, leftIsOutside)});
                     } else {
-                        corners.push({rightPositions : computeMiteredCorner(position, startPoint, cornerDirection, rightPos, leftIsOutside, granularity, ellipsoid)});
+                        corners.push({rightPositions : computeMiteredCorner(position, cornerDirection, rightPos, leftIsOutside)});
                     }
                 }
                 backward = Cartesian3.negate(forward, backward);
@@ -16567,11 +16613,13 @@ define('Core/FeatureDetection',[
 });
 /*global define*/
 define('Core/ComponentDatatype',[
+        './defaultValue',
         './defined',
         './DeveloperError',
         './FeatureDetection',
         './Enumeration'
     ], function(
+        defaultValue,
         defined,
         DeveloperError,
         FeatureDetection,
@@ -16758,19 +16806,22 @@ define('Core/ComponentDatatype',[
             throw new DeveloperError('buffer is required.');
         }
 
+        byteOffset = defaultValue(byteOffset, 0);
+        length = defaultValue(length, (buffer.byteLength - byteOffset) / componentDatatype.sizeInBytes);
+
         switch (componentDatatype.value) {
         case ComponentDatatype.BYTE.value:
-            return new Int8Array(buffer, byteOffset);
+            return new Int8Array(buffer, byteOffset, length);
         case ComponentDatatype.UNSIGNED_BYTE.value:
-            return new Uint8Array(buffer, byteOffset);
+            return new Uint8Array(buffer, byteOffset, length);
         case ComponentDatatype.SHORT.value:
-            return new Int16Array(buffer, byteOffset);
+            return new Int16Array(buffer, byteOffset, length);
         case ComponentDatatype.UNSIGNED_SHORT.value:
-            return new Uint16Array(buffer, byteOffset);
+            return new Uint16Array(buffer, byteOffset, length);
         case ComponentDatatype.FLOAT.value:
-            return new Float32Array(buffer, byteOffset);
+            return new Float32Array(buffer, byteOffset, length);
         case ComponentDatatype.DOUBLE.value:
-            return new Float64Array(buffer, byteOffset);
+            return new Float64Array(buffer, byteOffset, length);
         default:
             throw new DeveloperError('componentDatatype is not a valid enumeration value.');
         }
@@ -18494,7 +18545,7 @@ define('Core/GeometryAttributes',['./defaultValue'], function(defaultValue) {
      * into the vertex buffer for better rendering performance.
      * </p>
      *
-     * @alias VertexFormat
+     * @alias GeometryAttributes
      * @constructor
      */
     var GeometryAttributes = function(options) {
@@ -19788,7 +19839,7 @@ define('Core/Color',[
 
         var namedColor = Color[color.toUpperCase()];
         if (defined(namedColor)) {
-            return namedColor.clone();
+            return Color.clone(namedColor);
         }
 
         var matches = rgbMatcher.exec(color);
@@ -22594,6 +22645,11 @@ define('Core/GeometryPipeline',[
 
         for ( var i = 0; i < values3D.length; i += 3) {
             var value = Cartesian3.fromArray(values3D, i, scratchProjectTo2DCartesian3);
+
+            if (Cartesian3.equals(value, Cartesian3.ZERO)) {
+                continue;
+            }
+
             var lonLat = ellipsoid.cartesianToCartographic(value, scratchProjectTo2DCartographic);
             var projectedLonLat = projection.project(lonLat, scratchProjectTo2DCartesian3);
 
@@ -22790,7 +22846,7 @@ define('Core/GeometryPipeline',[
             instance.geometry.boundingSphere = BoundingSphere.transform(boundingSphere, modelMatrix, boundingSphere);
         }
 
-        instance.modelMatrix = Matrix4.IDENTITY.clone();
+        instance.modelMatrix = Matrix4.clone(Matrix4.IDENTITY);
 
         return instance;
     };
