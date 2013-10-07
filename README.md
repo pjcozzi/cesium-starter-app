@@ -22,6 +22,10 @@ What's here?
 * [.settings](.settings/) - Directory with settings for the Eclipse project.
 * [.gitignore](.gitignore) - A small list of files not to include in the git repo.  Add to this as needed.
 
+### Branches
+
+The [viewer branch](https://github.com/pjcozzi/cesium-starter-app/tree/viewer) is the same as master except it creates a [Viewer](http://cesium.agi.com/Cesium/Build/Documentation/Viewer.html) widget instead of a [CesiumWidget](http://cesium.agi.com/Cesium/Build/Documentation/CesiumWidget.html), so it includes the timeline, imagery picker, etc. in addition to the 3D globe.
+
 Local server
 ------------
 
