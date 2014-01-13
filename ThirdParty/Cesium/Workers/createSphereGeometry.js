@@ -2790,11 +2790,19 @@ define('Core/Fullscreen',['./defined'], function(defined) {
             name = prefix + 'fullscreenchange';
             // event names do not have 'on' in the front, but the property on the document does
             if (defined(document['on' + name])) {
+                //except on IE
+                if (prefix === 'ms') {
+                    name = 'MSFullscreenChange';
+                }
                 _names.fullscreenchange = name;
             }
 
             name = prefix + 'fullscreenerror';
             if (defined(document['on' + name])) {
+                //except on IE
+                if (prefix === 'ms') {
+                    name = 'MSFullscreenError';
+                }
                 _names.fullscreenerror = name;
             }
         }
@@ -4648,6 +4656,55 @@ define('Core/Matrix3',[
     };
 
     /**
+     * Creates a Matrix3 from 9 consecutive elements in an array.
+     * @memberof Matrix3
+     *
+     * @param {Array} array The array whose 9 consecutive elements correspond to the positions of the matrix.  Assumes column-major order.
+     * @param {Number} [startingIndex=0] The offset into the array of the first element, which corresponds to first column first row position in the matrix.
+     * @param {Matrix3} [result] The object onto which to store the result.
+     *
+     * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
+     *
+     * @exception {DeveloperError} array is required.
+     *
+     * @example
+     * // Create the Matrix3:
+     * // [1.0, 2.0, 3.0]
+     * // [1.0, 2.0, 3.0]
+     * // [1.0, 2.0, 3.0]
+     *
+     * var v = [1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0];
+     * var m = Matrix3.fromArray(v);
+     *
+     * // Create same Matrix3 with using an offset into an array
+     * var v2 = [0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0];
+     * var m2 = Matrix3.fromArray(v2, 2);
+     */
+    Matrix3.fromArray = function(array, startingIndex, result) {
+                if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        if (!defined(result)) {
+            result = new Matrix3();
+        }
+
+        result[0] = array[startingIndex];
+        result[1] = array[startingIndex + 1];
+        result[2] = array[startingIndex + 2];
+        result[3] = array[startingIndex + 3];
+        result[4] = array[startingIndex + 4];
+        result[5] = array[startingIndex + 5];
+        result[6] = array[startingIndex + 6];
+        result[7] = array[startingIndex + 7];
+        result[8] = array[startingIndex + 8];
+        result[9] = array[startingIndex + 9];
+        return result;
+    };
+
+    /**
      * Creates a Matrix3 instance from a column-major order array.
      * @memberof Matrix3
      * @function
@@ -5972,6 +6029,62 @@ define('Core/Matrix4',[
     };
 
     /**
+     * Creates a Matrix4 from 16 consecutive elements in an array.
+     * @memberof Matrix4
+     *
+     * @param {Array} array The array whose 16 consecutive elements correspond to the positions of the matrix.  Assumes column-major order.
+     * @param {Number} [startingIndex=0] The offset into the array of the first element, which corresponds to first column first row position in the matrix.
+     * @param {Matrix4} [result] The object onto which to store the result.
+     *
+     * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
+     *
+     * @exception {DeveloperError} array is required.
+     *
+     * @example
+     * // Create the Matrix4:
+     * // [1.0, 2.0, 3.0, 4.0]
+     * // [1.0, 2.0, 3.0, 4.0]
+     * // [1.0, 2.0, 3.0, 4.0]
+     * // [1.0, 2.0, 3.0, 4.0]
+     *
+     * var v = [1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0, 4.0];
+     * var m = Matrix4.fromArray(v);
+     *
+     * // Create same Matrix4 with using an offset into an array
+     * var v2 = [0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0, 4.0];
+     * var m2 = Matrix4.fromArray(v2, 2);
+     */
+    Matrix4.fromArray = function(array, startingIndex, result) {
+                if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        if (!defined(result)) {
+            result = new Matrix4();
+        }
+
+        result[0] = array[startingIndex];
+        result[1] = array[startingIndex + 1];
+        result[2] = array[startingIndex + 2];
+        result[3] = array[startingIndex + 3];
+        result[4] = array[startingIndex + 4];
+        result[5] = array[startingIndex + 5];
+        result[6] = array[startingIndex + 6];
+        result[7] = array[startingIndex + 7];
+        result[8] = array[startingIndex + 8];
+        result[9] = array[startingIndex + 9];
+        result[10] = array[startingIndex + 10];
+        result[11] = array[startingIndex + 11];
+        result[12] = array[startingIndex + 12];
+        result[13] = array[startingIndex + 13];
+        result[14] = array[startingIndex + 14];
+        result[15] = array[startingIndex + 15];
+        return result;
+    };
+
+    /**
      * Computes a Matrix4 instance from a column-major order array.
      * @memberof Matrix4
      * @function
@@ -7130,6 +7243,104 @@ define('Core/Matrix4',[
     };
 
     /**
+     * Computes the product of two matrices assuming the matrices are
+     * affine transformation matrices, where the upper left 3x3 elements
+     * are a rotation matrix, and the upper three elements in the fourth
+     * column are the translation.  The bottom row is assumed to be [0, 0, 0, 1].
+     * The matrix is not verified to be in the proper form.
+     * This method is faster than computing the product for general 4x4
+     * matrices using {@link #multiply}.
+     * @memberof Matrix4
+     *
+     * @param {Matrix4} left The first matrix.
+     * @param {Matrix4} right The second matrix.
+     * @param {Matrix4} [result] The object onto which to store the result.
+     * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
+     *
+     * @exception {DeveloperError} left is required.
+     * @exception {DeveloperError} right is required.
+     *
+     * @example
+     * var m1 = new Matrix4(1.0, 6.0, 7.0, 0.0, 2.0, 5.0, 8.0, 0.0, 3.0, 4.0, 9.0, 0.0, 0.0, 0.0, 0.0, 1.0];
+     * var m2 = Transforms.eastNorthUpToFixedFrame(new Cartesian3(1.0, 1.0, 1.0));
+     * var m3 = Matrix4.multiplyTransformation(m1, m2);
+     */
+    Matrix4.multiplyTransformation = function(left, right, result) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        
+        var left0 = left[0];
+        var left1 = left[1];
+        var left2 = left[2];
+        var left4 = left[4];
+        var left5 = left[5];
+        var left6 = left[6];
+        var left8 = left[8];
+        var left9 = left[9];
+        var left10 = left[10];
+        var left12 = left[12];
+        var left13 = left[13];
+        var left14 = left[14];
+
+        var right0 = right[0];
+        var right1 = right[1];
+        var right2 = right[2];
+        var right4 = right[4];
+        var right5 = right[5];
+        var right6 = right[6];
+        var right8 = right[8];
+        var right9 = right[9];
+        var right10 = right[10];
+        var right12 = right[12];
+        var right13 = right[13];
+        var right14 = right[14];
+
+        var column0Row0 = left0 * right0 + left4 * right1 + left8 * right2;
+        var column0Row1 = left1 * right0 + left5 * right1 + left9 * right2;
+        var column0Row2 = left2 * right0 + left6 * right1 + left10 * right2;
+
+        var column1Row0 = left0 * right4 + left4 * right5 + left8 * right6;
+        var column1Row1 = left1 * right4 + left5 * right5 + left9 * right6;
+        var column1Row2 = left2 * right4 + left6 * right5 + left10 * right6;
+
+        var column2Row0 = left0 * right8 + left4 * right9 + left8 * right10;
+        var column2Row1 = left1 * right8 + left5 * right9 + left9 * right10;
+        var column2Row2 = left2 * right8 + left6 * right9 + left10 * right10;
+
+        var column3Row0 = left0 * right12 + left4 * right13 + left8 * right14 + left12;
+        var column3Row1 = left1 * right12 + left5 * right13 + left9 * right14 + left13;
+        var column3Row2 = left2 * right12 + left6 * right13 + left10 * right14 + left14;
+
+        if (!defined(result)) {
+            return new Matrix4(column0Row0, column1Row0, column2Row0, column3Row0,
+                               column0Row1, column1Row1, column2Row1, column3Row1,
+                               column0Row2, column1Row2, column2Row2, column3Row2,
+                               0.0, 0.0, 0.0, 1.0);
+        }
+        result[0] = column0Row0;
+        result[1] = column0Row1;
+        result[2] = column0Row2;
+        result[3] = 0.0;
+        result[4] = column1Row0;
+        result[5] = column1Row1;
+        result[6] = column1Row2;
+        result[7] = 0.0;
+        result[8] = column2Row0;
+        result[9] = column2Row1;
+        result[10] = column2Row2;
+        result[11] = 0.0;
+        result[12] = column3Row0;
+        result[13] = column3Row1;
+        result[14] = column3Row2;
+        result[15] = 1.0;
+        return result;
+    };
+
+    /**
      * Multiplies a transformation matrix (with a bottom row of <code>[0.0, 0.0, 0.0, 1.0]</code>)
      * by an implicit translation matrix defined by a {@link Cartesian3}.  This is an optimization
      * for <code>Matrix4.multiply(m, Matrix4.fromTranslation(position), m);</code> with less allocations and arithmetic operations.
@@ -7336,17 +7547,60 @@ define('Core/Matrix4',[
         return result;
     };
 
-    var scratchPoint = new Cartesian4(0.0, 0.0, 0.0, 1.0);
-
     /**
      * Computes the product of a matrix and a {@link Cartesian3}.  This is equivalent to calling {@link Matrix4.multiplyByVector}
-     * with a {@link Cartesian4} with a <code>w</code> component of one.
+     * with a {@link Cartesian4} with a <code>w</code> component of zero.
      * @memberof Matrix4
      *
      * @param {Matrix4} matrix The matrix.
      * @param {Cartesian3} cartesian The point.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     * @param {Cartesian3} [result] The object onto which to store the result.
+     * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
+     *
+     * @exception {DeveloperError} cartesian is required.
+     * @exception {DeveloperError} matrix is required.
+     *
+     * @example
+     * Cartesian3 p = new Cartesian3(1.0, 2.0, 3.0);
+     * Matrix4.multiplyByPointAsVector(matrix, p, result);
+     * // A shortcut for
+     * //   Cartesian3 p = ...
+     * //   Matrix4.multiplyByVector(matrix, new Cartesian4(p.x, p.y, p.z, 0.0), result);
+     */
+    Matrix4.multiplyByPointAsVector = function(matrix, cartesian, result) {
+                if (!defined(matrix)) {
+            throw new DeveloperError('matrix is required');
+        }
+        if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        var vX = cartesian.x;
+        var vY = cartesian.y;
+        var vZ = cartesian.z;
+
+        var x = matrix[0] * vX + matrix[4] * vY + matrix[8] * vZ;
+        var y = matrix[1] * vX + matrix[5] * vY + matrix[9] * vZ;
+        var z = matrix[2] * vX + matrix[6] * vY + matrix[10] * vZ;
+
+        if (!defined(result)) {
+            return new Cartesian3(x, y, z);
+        }
+        result.x = x;
+        result.y = y;
+        result.z = z;
+        return result;
+    };
+
+    /**
+     * Computes the product of a matrix and a {@link Cartesian3}. This is equivalent to calling {@link Matrix4.multiplyByVector}
+     * with a {@link Cartesian4} with a <code>w</code> component of 1, but returns a {@link Cartesian3} instead of a {@link Cartesian4}.
+     * @memberof Matrix4
+     *
+     * @param {Matrix4} matrix The matrix.
+     * @param {Cartesian3} cartesian The point.
+     * @param {Cartesian3} [result] The object onto which to store the result.
+     * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
      *
      * @exception {DeveloperError} cartesian is required.
      * @exception {DeveloperError} matrix is required.
@@ -7354,21 +7608,31 @@ define('Core/Matrix4',[
      * @example
      * Cartesian3 p = new Cartesian3(1.0, 2.0, 3.0);
      * Matrix4.multiplyByPoint(matrix, p, result);
-     * // A shortcut for
-     * //   Cartesian3 p = ...
-     * //   Matrix4.multiplyByVector(matrix, new Cartesian4(p.x, p.y, p.z, 1.0), result);
      */
     Matrix4.multiplyByPoint = function(matrix, cartesian, result) {
-                if (!defined(cartesian)) {
+                if (!defined(matrix)) {
+            throw new DeveloperError('matrix is required');
+        }
+
+        if (!defined(cartesian)) {
             throw new DeveloperError('cartesian is required');
         }
         
-        scratchPoint.x = cartesian.x;
-        scratchPoint.y = cartesian.y;
-        scratchPoint.z = cartesian.z;
-        // scratchPoint.w is one.  See above.
+        var vX = cartesian.x;
+        var vY = cartesian.y;
+        var vZ = cartesian.z;
 
-        return Matrix4.multiplyByVector(matrix, scratchPoint, result);
+        var x = matrix[0] * vX + matrix[4] * vY + matrix[8] * vZ + matrix[12];
+        var y = matrix[1] * vX + matrix[5] * vY + matrix[9] * vZ + matrix[13];
+        var z = matrix[2] * vX + matrix[6] * vY + matrix[10] * vZ + matrix[14];
+
+        if (!defined(result)) {
+            return new Cartesian3(x, y, z);
+        }
+        result.x = x;
+        result.y = y;
+        result.z = z;
+        return result;
     };
 
     /**
@@ -8825,8 +9089,8 @@ define('Core/BoundingSphere',[
         return Intersect.INSIDE;
     };
 
-    var transformCart4 = Cartesian4.clone(Cartesian4.UNIT_W);
     var columnScratch = new Cartesian3();
+
     /**
      * Applies a 4x4 affine transformation matrix to a bounding sphere.
      * @memberof BoundingSphere
@@ -8852,12 +9116,48 @@ define('Core/BoundingSphere',[
             result = new BoundingSphere();
         }
 
-        Matrix4.multiplyByPoint(transform, sphere.center, transformCart4);
-
-        result.center = Cartesian3.clone(transformCart4, result.center);
+        result.center = Matrix4.multiplyByPoint(transform, sphere.center, result.center);
         result.radius = Math.max(Cartesian3.magnitude(Matrix4.getColumn(transform, 0, columnScratch)),
                 Cartesian3.magnitude(Matrix4.getColumn(transform, 1, columnScratch)),
                 Cartesian3.magnitude(Matrix4.getColumn(transform, 2, columnScratch))) * sphere.radius;
+
+        return result;
+    };
+
+    /**
+     * Applies a 4x4 affine transformation matrix to a bounding sphere where there is no scale
+     * The transformation matrix is not verified to have a uniform scale of 1.
+     * This method is faster than computing the general bounding sphere transform using {@link #transform}.
+     * @memberof BoundingSphere
+     *
+     * @param {BoundingSphere} sphere The bounding sphere to apply the transformation to.
+     * @param {Matrix4} transform The transformation matrix to apply to the bounding sphere.
+     * @param {BoundingSphere} [result] The object onto which to store the result.
+     * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
+     *
+     * @exception {DeveloperError} sphere is required.
+     * @exception {DeveloperError} transform is required.
+     *
+     * @example
+     * var modelMatrix = Transforms.eastNorthUpToFixedFrame(positionOnEllipsoid);
+     * var boundingSphere = new BoundingSphere();
+     * var newBoundingSphere = BoundingSphere.transformWithoutScale(boundingSphere, modelMatrix);
+     */
+    BoundingSphere.transformWithoutScale = function(sphere, transform, result) {
+                if (!defined(sphere)) {
+            throw new DeveloperError('sphere is required.');
+        }
+
+        if (!defined(transform)) {
+            throw new DeveloperError('transform is required.');
+        }
+        
+        if (!defined(result)) {
+            result = new BoundingSphere();
+        }
+
+        result.center = Matrix4.multiplyByPoint(transform, sphere.center, result.center);
+        result.radius = sphere.radius;
 
         return result;
     };
@@ -9090,20 +9390,6 @@ define('Core/BoundingSphere',[
      */
     BoundingSphere.prototype.intersect = function(plane) {
         return BoundingSphere.intersect(this, plane);
-    };
-
-    /**
-     * Applies a 4x4 affine transformation matrix to this bounding sphere.
-     * @memberof BoundingSphere
-     *
-     * @param {Matrix4} transform The transformation matrix to apply to the bounding sphere.
-     * @param {BoundingSphere} [result] The object onto which to store the result.
-     * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
-     *
-     * @exception {DeveloperError} transform is required.
-     */
-    BoundingSphere.prototype.transform = function(transform, result) {
-        return BoundingSphere.transform(this, transform, result);
     };
 
     /**
@@ -13869,6 +14155,9 @@ define('Core/IntersectionTests',[
         return Cartesian3.add(origin, result, result);
     };
 
+    var scratchQ = new Cartesian3();
+    var scratchW = new Cartesian3();
+
     /**
      * Computes the intersection points of a ray with an ellipsoid.
      * @memberof IntersectionTests
@@ -13890,8 +14179,8 @@ define('Core/IntersectionTests',[
         }
 
         var inverseRadii = ellipsoid.getOneOverRadii();
-        var q = Cartesian3.multiplyComponents(inverseRadii, ray.origin);
-        var w = Cartesian3.multiplyComponents(inverseRadii, ray.direction);
+        var q = Cartesian3.multiplyComponents(inverseRadii, ray.origin, scratchQ);
+        var w = Cartesian3.multiplyComponents(inverseRadii, ray.direction, scratchW);
 
         var q2 = Cartesian3.magnitudeSquared(q);
         var qw = Cartesian3.dot(q, w);
@@ -15574,7 +15863,6 @@ define('Core/GeometryPipeline',[
     };
 
     var scratchCartesian3 = new Cartesian3();
-    var scratchCartesian4 = new Cartesian4();
 
     function transformPoint(matrix, attribute) {
         if (defined(attribute)) {
@@ -15582,8 +15870,8 @@ define('Core/GeometryPipeline',[
             var length = values.length;
             for (var i = 0; i < length; i += 3) {
                 Cartesian3.unpack(values, i, scratchCartesian3);
-                Matrix4.multiplyByPoint(matrix, scratchCartesian3, scratchCartesian4);
-                Cartesian3.pack(scratchCartesian4, values, i);
+                Matrix4.multiplyByPoint(matrix, scratchCartesian3, scratchCartesian3);
+                Cartesian3.pack(scratchCartesian3, values, i);
             }
         }
     }
