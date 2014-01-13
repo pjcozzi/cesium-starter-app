@@ -6,6 +6,10 @@
 
 A simple JavaScript starter app for creating apps with [Cesium](http://cesium.agi.com/), the open-source WebGL virtual globe and map engine.  Just fork this repo and start coding.
 
+**Cesium version**: [b24](http://cesiumjs.org/downloads.html).
+
+**License**: Apache 2.0.  Free for commercial and non-commercial use.  See [LICENSE.md](LICENSE.md).
+
 My primary use for this is to quickly start coding at hackathons without having to setup a repo with a server, Eclipse project, third-party includes, .gitignore, etc.  Feel free to overwrite this README.md in your repo with info on your project.
 
 Once you are up and running, copy and paste code examples from [Cesium Sandcastle](http://cesium.agi.com/tutorials.html).
@@ -61,17 +65,25 @@ If you use Eclipse as your JavaScript IDE, it is easy to important the `cesium-s
 Updating Cesium
 ---------------
 
-The built Cesium source is in [ThirdParty/Cesium/](ThirdParty/Cesium/).  I sync this up with the master branch in the [Cesium repo](https://github.com/AnalyticalGraphicsInc/cesium) once in a while.  With `cesium` and `cesium-starter-app` repo directories in the same parent directory, here's up to update:
+The built Cesium source is in [ThirdParty/Cesium/](ThirdParty/Cesium/).  I sync this up with the master branch in the [Cesium repo](https://github.com/AnalyticalGraphicsInc/cesium) once in a while.  With `cesium` and `cesium-starter-app` repo directories in the same parent directory, here's up to update (replace `b25` with the tag/commit to update to):
 ```
 cd cesium
-git checkout master
 git pull
+git checkout -b b25-starter b25
 
 ./Tools/apache-ant-1.8.2/bin/ant clean combine
 rm -rf ../cesium-starter-app/ThirdParty/Cesium/*
 cp -R Build/Cesium/* ../cesium-starter-app/ThirdParty/Cesium/
 ```
 Test the starter app in case any changes are needed to [index.html](index.html) or [App.js](Source/App.js).
+
+Also merge `master` to `viewer` so both `cesium-starter-app` branches are up to date.
+```
+git checkout viewer
+git merge master
+// Change starter app as needed
+git push
+```
 
 This uses the unminified version of Cesium.js, which is great for debugging but is quite large for production deployments.  To use the minified version, run `ant` with `minify` instead of `combine` before updating `cesium-starter-app`:
 ```
