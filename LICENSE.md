@@ -1,4 +1,4 @@
-Copyright 2013 Cesium Starter App Contributors
+Copyright 2013-2014 Analytical Graphics Inc. and Contributors
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
@@ -15,7 +15,7 @@ This project includes the following third-party code.
 
 http://cesium.agi.com/
 
-Copyright 2011-2013 Cesium Contributors
+Copyright 2011-2014 Cesium Contributors
 
 > Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 >
