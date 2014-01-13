@@ -13,7 +13,7 @@ This project includes the following third-party code.
 
 ### Cesium
 
-http://cesium.agi.com/
+http://cesiumjs.org/
 
 Copyright 2011-2014 Cesium Contributors
 
