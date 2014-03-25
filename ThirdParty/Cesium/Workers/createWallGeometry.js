@@ -1,7 +1,7 @@
 /**
  * Cesium - https://github.com/AnalyticalGraphicsInc/cesium
  *
- * Copyright 2011-2013 Cesium Contributors
+ * Copyright 2011-2014 Cesium Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ define('Core/defined',[],function() {
      * @exports defined
      *
      * @example
-     * if (defined(positions)) {
+     * if (Cesium.defined(positions)) {
      *      doSomething();
      * } else {
      *      doSomethingElse();
@@ -80,7 +80,7 @@ define('Core/defaultValue',[
      * @exports defaultValue
      *
      * @example
-     * param = defaultValue(param, 'default');
+     * param = Cesium.defaultValue(param, 'default');
      */
     var defaultValue = function(a, b) {
         if (a !== undefined) {
@@ -133,14 +133,20 @@ define('Core/DeveloperError',['./defined'], function(defined) {
          */
         this.message = message;
 
-        var e = new Error();
+        //Browsers such as IE don't have a stack property until you actually throw the error.
+        var stack;
+        try {
+            throw new Error();
+        } catch (e) {
+            stack = e.stack;
+        }
 
         /**
          * The stack trace of this exception, if available.
          * @type {String}
          * @constant
          */
-        this.stack = e.stack;
+        this.stack = stack;
     };
 
     DeveloperError.prototype.toString = function() {
@@ -151,6 +157,13 @@ define('Core/DeveloperError',['./defined'], function(defined) {
         }
 
         return str;
+    };
+
+    /**
+     * @private
+     */
+    DeveloperError.throwInstantiationError = function() {
+        throw new DeveloperError('This function defines an interface and should not be called directly.');
     };
 
     return DeveloperError;
@@ -212,8 +225,6 @@ define('Core/Cartesian3',[
      * @param {Spherical} spherical The Spherical to be converted to Cartesian3.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} spherical is required.
      */
     Cartesian3.fromSpherical = function(spherical, result) {
                 if (!defined(spherical)) {
@@ -285,8 +296,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian4} cartesian The Cartesian4 instance to create a Cartesian3 instance from.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian3.fromCartesian4 = Cartesian3.clone;
 
@@ -303,9 +312,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} value The value to pack.
      * @param {Array} array The array to pack into.
      * @param {Number} [startingIndex=0] The index into the array at which to start packing the elements.
-     *
-     * @exception {DeveloperError} value is required.
-     * @exception {DeveloperError} array is required.
      */
     Cartesian3.pack = function(value, array, startingIndex) {
                 if (!defined(value)) {
@@ -330,8 +336,6 @@ define('Core/Cartesian3',[
      * @param {Array} array The packed array.
      * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
      * @param {Cartesian3} [result] The object into which to store the result.
-     *
-     * @exception {DeveloperError} array is required.
      */
     Cartesian3.unpack = function(array, startingIndex, result) {
                 if (!defined(array)) {
@@ -359,16 +363,14 @@ define('Core/Cartesian3',[
      *
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
      *
-     * @exception {DeveloperError} array is required.
-     *
      * @example
      * // Create a Cartesian3 with (1.0, 2.0, 3.0)
      * var v = [1.0, 2.0, 3.0];
-     * var p = Cartesian3.fromArray(v);
+     * var p = Cesium.Cartesian3.fromArray(v);
      *
      * // Create a Cartesian3 with (1.0, 2.0, 3.0) using an offset into an array
      * var v2 = [0.0, 0.0, 1.0, 2.0, 3.0];
-     * var p2 = Cartesian3.fromArray(v2, 2);
+     * var p2 = Cesium.Cartesian3.fromArray(v2, 2);
      */
     Cartesian3.fromArray = Cartesian3.unpack;
 
@@ -378,8 +380,6 @@ define('Core/Cartesian3',[
      *
      * @param {Cartesian3} The cartesian to use.
      * @returns {Number} The value of the maximum component.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian3.getMaximumComponent = function(cartesian) {
                 if (!defined(cartesian)) {
@@ -395,8 +395,6 @@ define('Core/Cartesian3',[
      *
      * @param {Cartesian3} The cartesian to use.
      * @returns {Number} The value of the minimum component.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian3.getMinimumComponent = function(cartesian) {
                 if (!defined(cartesian)) {
@@ -414,9 +412,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} second A cartesian to compare.
      * @param {Cartesian3} [result] The object into which to store the result.
      * @returns {Cartesian3} A cartesian with the minimum components.
-     *
-     * @exception {DeveloperError} first is required.
-     * @exception {DeveloperError} second is required.
      */
     Cartesian3.getMinimumByComponent = function(first, second, result) {
                 if (!defined(first)) {
@@ -445,9 +440,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} second A cartesian to compare.
      * @param {Cartesian3} [result] The object into which to store the result.
      * @returns {Cartesian3} A cartesian with the maximum components.
-     *
-     * @exception {DeveloperError} first is required.
-     * @exception {DeveloperError} second is required.
      */
     Cartesian3.getMaximumByComponent = function(first, second, result) {
                 if (!defined(first)) {
@@ -473,8 +465,6 @@ define('Core/Cartesian3',[
      *
      * @param {Cartesian3} cartesian The Cartesian instance whose squared magnitude is to be computed.
      * @returns {Number} The squared magnitude.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian3.magnitudeSquared = function(cartesian) {
                 if (!defined(cartesian)) {
@@ -490,8 +480,6 @@ define('Core/Cartesian3',[
      *
      * @param {Cartesian3} cartesian The Cartesian instance whose magnitude is to be computed.
      * @returns {Number} The magnitude.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian3.magnitude = function(cartesian) {
         return Math.sqrt(Cartesian3.magnitudeSquared(cartesian));
@@ -508,11 +496,9 @@ define('Core/Cartesian3',[
      *
      * @returns {Number} The distance between two points.
      *
-     * @exception {DeveloperError} left and right are required.
-     *
      * @example
      * // Returns 1.0
-     * var d = Cartesian3.distance(new Cartesian3(1.0, 0.0, 0.0), new Cartesian3(2.0, 0.0, 0.0));
+     * var d = Cesium.Cartesian3.distance(new Cesium.Cartesian3(1.0, 0.0, 0.0), new Cesium.Cartesian3(2.0, 0.0, 0.0));
      */
     Cartesian3.distance = function(left, right) {
                 if (!defined(left) || !defined(right)) {
@@ -530,8 +516,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} cartesian The Cartesian to be normalized.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian3.normalize = function(cartesian, result) {
                 if (!defined(cartesian)) {
@@ -555,9 +539,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} left The first Cartesian.
      * @param {Cartesian3} right The second Cartesian.
      * @returns {Number} The dot product.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Cartesian3.dot = function(left, right) {
                 if (!defined(left)) {
@@ -578,9 +559,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} right The second Cartesian.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Cartesian3.multiplyComponents = function(left, right, result) {
                 if (!defined(left)) {
@@ -607,9 +585,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} right The second Cartesian.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Cartesian3.add = function(left, right, result) {
                 if (!defined(left)) {
@@ -636,9 +611,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} right The second Cartesian.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Cartesian3.subtract = function(left, right, result) {
                 if (!defined(left)) {
@@ -665,9 +637,6 @@ define('Core/Cartesian3',[
      * @param {Number} scalar The scalar to multiply with.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} scalar is required and must be a number.
      */
     Cartesian3.multiplyByScalar = function(cartesian, scalar, result) {
                 if (!defined(cartesian)) {
@@ -694,9 +663,6 @@ define('Core/Cartesian3',[
      * @param {Number} scalar The scalar to divide by.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} scalar is required and must be a number.
      */
     Cartesian3.divideByScalar = function(cartesian, scalar, result) {
                 if (!defined(cartesian)) {
@@ -722,8 +688,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} cartesian The Cartesian to be negated.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian3.negate = function(cartesian, result) {
                 if (!defined(cartesian)) {
@@ -746,8 +710,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} cartesian The Cartesian whose absolute value is to be computed.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian3.abs = function(cartesian, result) {
                 if (!defined(cartesian)) {
@@ -773,10 +735,6 @@ define('Core/Cartesian3',[
      * @param t The point along t at which to interpolate.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} start is required.
-     * @exception {DeveloperError} end is required.
-     * @exception {DeveloperError} t is required and must be a number.
      */
     Cartesian3.lerp = function(start, end, t, result) {
                 if (!defined(start)) {
@@ -803,9 +761,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} left The first Cartesian.
      * @param {Cartesian3} right The second Cartesian.
      * @returns {Number} The angle between the Cartesians.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Cartesian3.angleBetween = function(left, right) {
                 if (!defined(left)) {
@@ -830,8 +785,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} cartesian The Cartesian on which to find the most orthogonal axis.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The most orthogonal axis.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian3.mostOrthogonalAxis = function(cartesian, result) {
                 if (!defined(cartesian)) {
@@ -886,8 +839,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} [right] The second Cartesian.
      * @param {Number} epsilon The epsilon to use for equality testing.
      * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
-     *
-     * @exception {DeveloperError} epsilon is required and must be a number.
      */
     Cartesian3.equalsEpsilon = function(left, right, epsilon) {
                 if (typeof epsilon !== 'number') {
@@ -910,9 +861,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} right The second Cartesian.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The cross product.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Cartesian3.cross = function(left, right, result) {
                 if (!defined(left)) {
@@ -998,8 +946,6 @@ define('Core/Cartesian3',[
      * @param {Cartesian3} [right] The right hand side Cartesian.
      * @param {Number} epsilon The epsilon to use for equality testing.
      * @returns {Boolean} <code>true</code> if they are within the provided epsilon, <code>false</code> otherwise.
-     *
-     * @exception {DeveloperError} epsilon is required and must be a number.
      */
     Cartesian3.prototype.equalsEpsilon = function(right, epsilon) {
         return Cartesian3.equalsEpsilon(this, right, epsilon);
@@ -1016,804 +962,6 @@ define('Core/Cartesian3',[
     };
 
     return Cartesian3;
-});
-
-/*global define*/
-define('Core/Cartesian4',[
-        './defaultValue',
-        './defined',
-        './DeveloperError',
-        './freezeObject'
-    ], function(
-        defaultValue,
-        defined,
-        DeveloperError,
-        freezeObject) {
-    "use strict";
-
-    /**
-     * A 4D Cartesian point.
-     * @alias Cartesian4
-     * @constructor
-     *
-     * @param {Number} [x=0.0] The X component.
-     * @param {Number} [y=0.0] The Y component.
-     * @param {Number} [z=0.0] The Z component.
-     * @param {Number} [w=0.0] The W component.
-     *
-     * @see Cartesian2
-     * @see Cartesian3
-     * @see Packable
-     */
-    var Cartesian4 = function(x, y, z, w) {
-        /**
-         * The X component.
-         * @type {Number}
-         * @default 0.0
-         */
-        this.x = defaultValue(x, 0.0);
-
-        /**
-         * The Y component.
-         * @type {Number}
-         * @default 0.0
-         */
-        this.y = defaultValue(y, 0.0);
-
-        /**
-         * The Z component.
-         * @type {Number}
-         * @default 0.0
-         */
-        this.z = defaultValue(z, 0.0);
-
-        /**
-         * The W component.
-         * @type {Number}
-         * @default 0.0
-         */
-        this.w = defaultValue(w, 0.0);
-    };
-
-    /**
-     * Creates a Cartesian4 instance from x, y, z and w coordinates.
-     * @memberof Cartesian4
-     *
-     * @param {Number} x The x coordinate.
-     * @param {Number} y The y coordinate.
-     * @param {Number} z The z coordinate.
-     * @param {Number} w The w coordinate.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     */
-    Cartesian4.fromElements = function(x, y, z, w, result) {
-        if (!defined(result)) {
-            return new Cartesian4(x, y, z, w);
-        }
-
-        result.x = x;
-        result.y = y;
-        result.z = z;
-        result.w = w;
-        return result;
-    };
-
-    /**
-     * Duplicates a Cartesian4 instance.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} cartesian The Cartesian to duplicate.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided. (Returns undefined if cartesian is undefined)
-     */
-    Cartesian4.clone = function(cartesian, result) {
-        if (!defined(cartesian)) {
-            return undefined;
-        }
-
-        if (!defined(result)) {
-            return new Cartesian4(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
-        }
-
-        result.x = cartesian.x;
-        result.y = cartesian.y;
-        result.z = cartesian.z;
-        result.w = cartesian.w;
-        return result;
-    };
-
-
-    /**
-     * The number of elements used to pack the object into an array.
-     * @Type {Number}
-     */
-    Cartesian4.packedLength = 4;
-
-    /**
-     * Stores the provided instance into the provided array.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} value The value to pack.
-     * @param {Array} array The array to pack into.
-     * @param {Number} [startingIndex=0] The index into the array at which to start packing the elements.
-     *
-     * @exception {DeveloperError} value is required.
-     * @exception {DeveloperError} array is required.
-     */
-    Cartesian4.pack = function(value, array, startingIndex) {
-                if (!defined(value)) {
-            throw new DeveloperError('value is required');
-        }
-
-        if (!defined(array)) {
-            throw new DeveloperError('array is required');
-        }
-        
-        startingIndex = defaultValue(startingIndex, 0);
-
-        array[startingIndex++] = value.x;
-        array[startingIndex++] = value.y;
-        array[startingIndex++] = value.z;
-        array[startingIndex] = value.w;
-    };
-
-    /**
-     * Retrieves an instance from a packed array.
-     * @memberof Cartesian4
-     *
-     * @param {Array} array The packed array.
-     * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
-     * @param {Cartesian4} [result] The object into which to store the result.
-     *
-     * @exception {DeveloperError} array is required.
-     */
-    Cartesian4.unpack = function(array, startingIndex, result) {
-                if (!defined(array)) {
-            throw new DeveloperError('array is required');
-        }
-        
-        startingIndex = defaultValue(startingIndex, 0);
-
-        if (!defined(result)) {
-            result = new Cartesian4();
-        }
-        result.x = array[startingIndex++];
-        result.y = array[startingIndex++];
-        result.z = array[startingIndex++];
-        result.w = array[startingIndex];
-        return result;
-    };
-
-
-
-    /**
-     * Creates a Cartesian4 from four consecutive elements in an array.
-     * @memberof Cartesian4
-     *
-     * @param {Array} array The array whose four consecutive elements correspond to the x, y, z, and w components, respectively.
-     * @param {Number} [startingIndex=0] The offset into the array of the first element, which corresponds to the x component.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     *
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} array is required.
-     *
-     * @example
-     * // Create a Cartesian4 with (1.0, 2.0, 3.0, 4.0)
-     * var v = [1.0, 2.0, 3.0, 4.0];
-     * var p = Cartesian4.fromArray(v);
-     *
-     * // Create a Cartesian4 with (1.0, 2.0, 3.0, 4.0) using an offset into an array
-     * var v2 = [0.0, 0.0, 1.0, 2.0, 3.0, 4.0];
-     * var p2 = Cartesian4.fromArray(v2, 2);
-     */
-    Cartesian4.fromArray = Cartesian4.unpack;
-
-    /**
-     * Computes the value of the maximum component for the supplied Cartesian.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} The cartesian to use.
-     * @returns {Number} The value of the maximum component.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Cartesian4.getMaximumComponent = function(cartesian) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        
-        return Math.max(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
-    };
-
-    /**
-     * Computes the value of the minimum component for the supplied Cartesian.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} The cartesian to use.
-     * @returns {Number} The value of the minimum component.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Cartesian4.getMinimumComponent = function(cartesian) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        
-        return Math.min(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
-    };
-
-    /**
-     * Compares two Cartesians and computes a Cartesian which contains the minimum components of the supplied Cartesians.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} first A cartesian to compare.
-     * @param {Cartesian4} second A cartesian to compare.
-     * @param {Cartesian4} [result] The object into which to store the result.
-     * @returns {Cartesian4} A cartesian with the minimum components.
-     *
-     * @exception {DeveloperError} first is required.
-     * @exception {DeveloperError} second is required.
-     */
-    Cartesian4.getMinimumByComponent = function(first, second, result) {
-                if (!defined(first)) {
-            throw new DeveloperError('first is required.');
-        }
-        if (!defined(second)) {
-            throw new DeveloperError('second is required.');
-        }
-        
-        if (!defined(result)) {
-            result = new Cartesian4();
-        }
-
-        result.x = Math.min(first.x, second.x);
-        result.y = Math.min(first.y, second.y);
-        result.z = Math.min(first.z, second.z);
-        result.w = Math.min(first.w, second.w);
-
-        return result;
-    };
-
-    /**
-     * Compares two Cartesians and computes a Cartesian which contains the maximum components of the supplied Cartesians.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} first A cartesian to compare.
-     * @param {Cartesian4} second A cartesian to compare.
-     * @param {Cartesian4} [result] The object into which to store the result.
-     * @returns {Cartesian4} A cartesian with the maximum components.
-     *
-     * @exception {DeveloperError} first is required.
-     * @exception {DeveloperError} second is required.
-     */
-    Cartesian4.getMaximumByComponent = function(first, second, result) {
-                if (!defined(first)) {
-            throw new DeveloperError('first is required.');
-        }
-        if (!defined(second)) {
-            throw new DeveloperError('second is required.');
-        }
-        
-        if (!defined(result)) {
-            result = new Cartesian4();
-        }
-
-        result.x = Math.max(first.x, second.x);
-        result.y = Math.max(first.y, second.y);
-        result.z = Math.max(first.z, second.z);
-        result.w = Math.max(first.w, second.w);
-
-        return result;
-    };
-
-    /**
-     * Computes the provided Cartesian's squared magnitude.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} cartesian The Cartesian instance whose squared magnitude is to be computed.
-     * @returns {Number} The squared magnitude.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Cartesian4.magnitudeSquared = function(cartesian) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        
-        return cartesian.x * cartesian.x + cartesian.y * cartesian.y + cartesian.z * cartesian.z + cartesian.w * cartesian.w;
-    };
-
-    /**
-     * Computes the Cartesian's magnitude (length).
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} cartesian The Cartesian instance whose magnitude is to be computed.
-     * @returns {Number} The magnitude.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Cartesian4.magnitude = function(cartesian) {
-        return Math.sqrt(Cartesian4.magnitudeSquared(cartesian));
-    };
-
-    var distanceScratch = new Cartesian4();
-
-    /**
-     * Computes the 4-space distance between two points
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} left The first point to compute the distance from.
-     * @param {Cartesian4} right The second point to compute the distance to.
-     *
-     * @returns {Number} The distance between two points.
-     *
-     * @exception {DeveloperError} left and right are required.
-     *
-     * @example
-     * // Returns 1.0
-     * var d = Cartesian4.distance(new Cartesian4(1.0, 0.0, 0.0, 0.0), new Cartesian4(2.0, 0.0, 0.0, 0.0));
-     */
-    Cartesian4.distance = function(left, right) {
-                if (!defined(left) || !defined(right)) {
-            throw new DeveloperError('left and right are required.');
-        }
-        
-        Cartesian4.subtract(left, right, distanceScratch);
-        return Cartesian4.magnitude(distanceScratch);
-    };
-
-    /**
-     * Computes the normalized form of the supplied Cartesian.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} cartesian The Cartesian to be normalized.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Cartesian4.normalize = function(cartesian, result) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        
-        var magnitude = Cartesian4.magnitude(cartesian);
-        if (!defined(result)) {
-            return new Cartesian4(cartesian.x / magnitude, cartesian.y / magnitude, cartesian.z / magnitude, cartesian.w / magnitude);
-        }
-        result.x = cartesian.x / magnitude;
-        result.y = cartesian.y / magnitude;
-        result.z = cartesian.z / magnitude;
-        result.w = cartesian.w / magnitude;
-        return result;
-    };
-
-    /**
-     * Computes the dot (scalar) product of two Cartesians.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} left The first Cartesian.
-     * @param {Cartesian4} right The second Cartesian.
-     * @returns {Number} The dot product.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
-     */
-    Cartesian4.dot = function(left, right) {
-                if (!defined(left)) {
-            throw new DeveloperError('left is required');
-        }
-        if (!defined(right)) {
-            throw new DeveloperError('right is required');
-        }
-        
-        return left.x * right.x + left.y * right.y + left.z * right.z + left.w * right.w;
-    };
-
-    /**
-     * Computes the componentwise product of two Cartesians.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} left The first Cartesian.
-     * @param {Cartesian4} right The second Cartesian.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
-     */
-    Cartesian4.multiplyComponents = function(left, right, result) {
-                if (!defined(left)) {
-            throw new DeveloperError('left is required');
-        }
-        if (!defined(right)) {
-            throw new DeveloperError('right is required');
-        }
-        
-        if (!defined(result)) {
-            return new Cartesian4(left.x * right.x, left.y * right.y, left.z * right.z, left.w * right.w);
-        }
-        result.x = left.x * right.x;
-        result.y = left.y * right.y;
-        result.z = left.z * right.z;
-        result.w = left.w * right.w;
-        return result;
-    };
-
-    /**
-     * Computes the componentwise sum of two Cartesians.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} left The first Cartesian.
-     * @param {Cartesian4} right The second Cartesian.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
-     */
-    Cartesian4.add = function(left, right, result) {
-                if (!defined(left)) {
-            throw new DeveloperError('left is required');
-        }
-        if (!defined(right)) {
-            throw new DeveloperError('right is required');
-        }
-        
-        if (!defined(result)) {
-            return new Cartesian4(left.x + right.x, left.y + right.y, left.z + right.z, left.w + right.w);
-        }
-        result.x = left.x + right.x;
-        result.y = left.y + right.y;
-        result.z = left.z + right.z;
-        result.w = left.w + right.w;
-        return result;
-    };
-
-    /**
-     * Computes the componentwise difference of two Cartesians.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} left The first Cartesian.
-     * @param {Cartesian4} right The second Cartesian.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
-     */
-    Cartesian4.subtract = function(left, right, result) {
-                if (!defined(left)) {
-            throw new DeveloperError('left is required');
-        }
-        if (!defined(right)) {
-            throw new DeveloperError('right is required');
-        }
-        
-        if (!defined(result)) {
-            return new Cartesian4(left.x - right.x, left.y - right.y, left.z - right.z, left.w - right.w);
-        }
-        result.x = left.x - right.x;
-        result.y = left.y - right.y;
-        result.z = left.z - right.z;
-        result.w = left.w - right.w;
-        return result;
-    };
-
-    /**
-     * Multiplies the provided Cartesian componentwise by the provided scalar.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} cartesian The Cartesian to be scaled.
-     * @param {Number} scalar The scalar to multiply with.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} scalar is required and must be a number.
-     */
-    Cartesian4.multiplyByScalar = function(cartesian, scalar, result) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        if (typeof scalar !== 'number') {
-            throw new DeveloperError('scalar is required and must be a number.');
-        }
-        
-        if (!defined(result)) {
-            return new Cartesian4(cartesian.x * scalar, cartesian.y * scalar, cartesian.z * scalar, cartesian.w * scalar);
-        }
-        result.x = cartesian.x * scalar;
-        result.y = cartesian.y * scalar;
-        result.z = cartesian.z * scalar;
-        result.w = cartesian.w * scalar;
-        return result;
-    };
-
-    /**
-     * Divides the provided Cartesian componentwise by the provided scalar.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} cartesian The Cartesian to be divided.
-     * @param {Number} scalar The scalar to divide by.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} scalar is required and must be a number.
-     */
-    Cartesian4.divideByScalar = function(cartesian, scalar, result) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        if (typeof scalar !== 'number') {
-            throw new DeveloperError('scalar is required and must be a number.');
-        }
-        
-        if (!defined(result)) {
-            return new Cartesian4(cartesian.x / scalar, cartesian.y / scalar, cartesian.z / scalar, cartesian.w / scalar);
-        }
-        result.x = cartesian.x / scalar;
-        result.y = cartesian.y / scalar;
-        result.z = cartesian.z / scalar;
-        result.w = cartesian.w / scalar;
-        return result;
-    };
-
-    /**
-     * Negates the provided Cartesian.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} cartesian The Cartesian to be negated.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Cartesian4.negate = function(cartesian, result) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        
-        if (!defined(result)) {
-            return new Cartesian4(-cartesian.x, -cartesian.y, -cartesian.z, -cartesian.w);
-        }
-        result.x = -cartesian.x;
-        result.y = -cartesian.y;
-        result.z = -cartesian.z;
-        result.w = -cartesian.w;
-        return result;
-    };
-
-    /**
-     * Computes the absolute value of the provided Cartesian.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} cartesian The Cartesian whose absolute value is to be computed.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Cartesian4.abs = function(cartesian, result) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        
-        if (!defined(result)) {
-            return new Cartesian4(Math.abs(cartesian.x), Math.abs(cartesian.y), Math.abs(cartesian.z), Math.abs(cartesian.w));
-        }
-        result.x = Math.abs(cartesian.x);
-        result.y = Math.abs(cartesian.y);
-        result.z = Math.abs(cartesian.z);
-        result.w = Math.abs(cartesian.w);
-        return result;
-    };
-
-    var lerpScratch = new Cartesian4();
-    /**
-     * Computes the linear interpolation or extrapolation at t using the provided cartesians.
-     * @memberof Cartesian4
-     *
-     * @param start The value corresponding to t at 0.0.
-     * @param end The value corresponding to t at 1.0.
-     * @param t The point along t at which to interpolate.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} start is required.
-     * @exception {DeveloperError} end is required.
-     * @exception {DeveloperError} t is required and must be a number.
-     */
-    Cartesian4.lerp = function(start, end, t, result) {
-                if (!defined(start)) {
-            throw new DeveloperError('start is required.');
-        }
-        if (!defined(end)) {
-            throw new DeveloperError('end is required.');
-        }
-        if (typeof t !== 'number') {
-            throw new DeveloperError('t is required and must be a number.');
-        }
-        
-        Cartesian4.multiplyByScalar(end, t, lerpScratch);
-        result = Cartesian4.multiplyByScalar(start, 1.0 - t, result);
-        return Cartesian4.add(lerpScratch, result, result);
-    };
-
-    var mostOrthogonalAxisScratch = new Cartesian4();
-    /**
-     * Returns the axis that is most orthogonal to the provided Cartesian.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} cartesian The Cartesian on which to find the most orthogonal axis.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The most orthogonal axis.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     */
-    Cartesian4.mostOrthogonalAxis = function(cartesian, result) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required.');
-        }
-        
-        var f = Cartesian4.normalize(cartesian, mostOrthogonalAxisScratch);
-        Cartesian4.abs(f, f);
-
-        if (f.x <= f.y) {
-            if (f.x <= f.z) {
-                if (f.x <= f.w) {
-                    result = Cartesian4.clone(Cartesian4.UNIT_X, result);
-                } else {
-                    result = Cartesian4.clone(Cartesian4.UNIT_W, result);
-                }
-            } else if (f.z <= f.w) {
-                result = Cartesian4.clone(Cartesian4.UNIT_Z, result);
-            } else {
-                result = Cartesian4.clone(Cartesian4.UNIT_W, result);
-            }
-        } else if (f.y <= f.z) {
-            if (f.y <= f.w) {
-                result = Cartesian4.clone(Cartesian4.UNIT_Y, result);
-            } else {
-                result = Cartesian4.clone(Cartesian4.UNIT_W, result);
-            }
-        } else if (f.z <= f.w) {
-            result = Cartesian4.clone(Cartesian4.UNIT_Z, result);
-        } else {
-            result = Cartesian4.clone(Cartesian4.UNIT_W, result);
-        }
-
-        return result;
-    };
-
-    /**
-     * Compares the provided Cartesians componentwise and returns
-     * <code>true</code> if they are equal, <code>false</code> otherwise.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} [left] The first Cartesian.
-     * @param {Cartesian4} [right] The second Cartesian.
-     * @returns {Boolean} <code>true</code> if left and right are equal, <code>false</code> otherwise.
-     */
-    Cartesian4.equals = function(left, right) {
-        return (left === right) ||
-               ((defined(left)) &&
-                (defined(right)) &&
-                (left.x === right.x) &&
-                (left.y === right.y) &&
-                (left.z === right.z) &&
-                (left.w === right.w));
-    };
-
-    /**
-     * Compares the provided Cartesians componentwise and returns
-     * <code>true</code> if they are within the provided epsilon,
-     * <code>false</code> otherwise.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} [left] The first Cartesian.
-     * @param {Cartesian4} [right] The second Cartesian.
-     * @param {Number} epsilon The epsilon to use for equality testing.
-     * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
-     *
-     * @exception {DeveloperError} epsilon is required and must be a number.
-     */
-    Cartesian4.equalsEpsilon = function(left, right, epsilon) {
-                if (typeof epsilon !== 'number') {
-            throw new DeveloperError('epsilon is required and must be a number.');
-        }
-        
-        return (left === right) ||
-               ((defined(left)) &&
-                (defined(right)) &&
-                (Math.abs(left.x - right.x) <= epsilon) &&
-                (Math.abs(left.y - right.y) <= epsilon) &&
-                (Math.abs(left.z - right.z) <= epsilon) &&
-                (Math.abs(left.w - right.w) <= epsilon));
-    };
-
-    /**
-     * An immutable Cartesian4 instance initialized to (0.0, 0.0, 0.0, 0.0).
-     * @memberof Cartesian4
-     */
-    Cartesian4.ZERO = freezeObject(new Cartesian4(0.0, 0.0, 0.0, 0.0));
-
-    /**
-     * An immutable Cartesian4 instance initialized to (1.0, 0.0, 0.0, 0.0).
-     * @memberof Cartesian4
-     */
-    Cartesian4.UNIT_X = freezeObject(new Cartesian4(1.0, 0.0, 0.0, 0.0));
-
-    /**
-     * An immutable Cartesian4 instance initialized to (0.0, 1.0, 0.0, 0.0).
-     * @memberof Cartesian4
-     */
-    Cartesian4.UNIT_Y = freezeObject(new Cartesian4(0.0, 1.0, 0.0, 0.0));
-
-    /**
-     * An immutable Cartesian4 instance initialized to (0.0, 0.0, 1.0, 0.0).
-     * @memberof Cartesian4
-     */
-    Cartesian4.UNIT_Z = freezeObject(new Cartesian4(0.0, 0.0, 1.0, 0.0));
-
-    /**
-     * An immutable Cartesian4 instance initialized to (0.0, 0.0, 0.0, 1.0).
-     * @memberof Cartesian4
-     */
-    Cartesian4.UNIT_W = freezeObject(new Cartesian4(0.0, 0.0, 0.0, 1.0));
-
-    /**
-     * Duplicates this Cartesian4 instance.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     */
-    Cartesian4.prototype.clone = function(result) {
-        return Cartesian4.clone(this, result);
-    };
-
-    /**
-     * Compares this Cartesian against the provided Cartesian componentwise and returns
-     * <code>true</code> if they are equal, <code>false</code> otherwise.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} [right] The right hand side Cartesian.
-     * @returns {Boolean} <code>true</code> if they are equal, <code>false</code> otherwise.
-     */
-    Cartesian4.prototype.equals = function(right) {
-        return Cartesian4.equals(this, right);
-    };
-
-    /**
-     * Compares this Cartesian against the provided Cartesian componentwise and returns
-     * <code>true</code> if they are within the provided epsilon,
-     * <code>false</code> otherwise.
-     * @memberof Cartesian4
-     *
-     * @param {Cartesian4} [right] The right hand side Cartesian.
-     * @param {Number} epsilon The epsilon to use for equality testing.
-     * @returns {Boolean} <code>true</code> if they are within the provided epsilon, <code>false</code> otherwise.
-     *
-     * @exception {DeveloperError} epsilon is required and must be a number.
-     */
-    Cartesian4.prototype.equalsEpsilon = function(right, epsilon) {
-        return Cartesian4.equalsEpsilon(this, right, epsilon);
-    };
-
-    /**
-     * Creates a string representing this Cartesian in the format '(x, y)'.
-     * @memberof Cartesian4
-     *
-     * @returns {String} A string representing the provided Cartesian in the format '(x, y)'.
-     */
-    Cartesian4.prototype.toString = function() {
-        return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
-    };
-
-    return Cartesian4;
 });
 
 /*
@@ -2248,7 +1396,6 @@ define('Core/Math',[
      * @param value The number whose hyperbolic sine is to be returned.
      *
      * @returns The hyperbolic sine of {@code value}.
-     *
      */
     CesiumMath.sinh = function(value) {
         var part1 = Math.pow(Math.E, value);
@@ -2429,7 +1576,7 @@ define('Core/Math',[
      *
      * @example
      * // Convert 270 degrees to -90 degrees longitude
-     * var longitude = CesiumMath.convertLongitudeRange(CesiumMath.toRadians(270.0));
+     * var longitude = Cesium.Math.convertLongitudeRange(Cesium.Math.toRadians(270.0));
      */
     CesiumMath.convertLongitudeRange = function(angle) {
         var twoPi = CesiumMath.TWO_PI;
@@ -2502,7 +1649,7 @@ define('Core/Math',[
      *
      * @example
      * //Compute 7!, which is equal to 5040
-     * var computedFactorial = CesiumMath.factorial(7);
+     * var computedFactorial = Cesium.Math.factorial(7);
      *
      * @exception {DeveloperError} A number greater than or equal to 0 is required.
      */
@@ -2533,8 +1680,8 @@ define('Core/Math',[
      * @returns {Number} The incremented number.
      *
      * @example
-     * var n = CesiumMath.incrementWrap(5, 10, 0); // returns 6
-     * var n = CesiumMath.incrementWrap(10, 10, 0); // returns 0
+     * var n = Cesium.Math.incrementWrap(5, 10, 0); // returns 6
+     * var n = Cesium.Math.incrementWrap(10, 10, 0); // returns 0
      *
      * @exception {DeveloperError} Maximum value must be greater than minimum value.
      */
@@ -2564,8 +1711,8 @@ define('Core/Math',[
      * @exception {DeveloperError} A number greater than or equal to 0 is required.
      *
      * @example
-     * var t = CesiumMath.isPowerOfTwo(16); // true
-     * var f = CesiumMath.isPowerOfTwo(20); // false
+     * var t = Cesium.Math.isPowerOfTwo(16); // true
+     * var f = Cesium.Math.isPowerOfTwo(20); // false
      */
     CesiumMath.isPowerOfTwo = function(n) {
                 if (typeof n !== 'number' || n < 0) {
@@ -2587,8 +1734,8 @@ define('Core/Math',[
      * @exception {DeveloperError} A number greater than or equal to 0 is required.
      *
      * @example
-     * var n = CesiumMath.nextPowerOfTwo(29); // 32
-     * var m = CesiumMath.nextPowerOfTwo(32); // 32
+     * var n = Cesium.Math.nextPowerOfTwo(29); // 32
+     * var m = Cesium.Math.nextPowerOfTwo(32); // 32
      */
     CesiumMath.nextPowerOfTwo = function(n) {
                 if (typeof n !== 'number' || n < 0) {
@@ -2630,8 +1777,6 @@ define('Core/Math',[
      * @memberof CesiumMath
      *
      * @param {Number} seed An integer used as the seed.
-     *
-     * @exception {DeveloperError} seed is required.
      */
     CesiumMath.setRandomNumberSeed = function(seed) {
                 if (!defined(seed)) {
@@ -2784,13 +1929,12 @@ define('Core/Cartographic',[
      * @param {Cartographic} [right] The second cartographic.
      * @param {Number} epsilon The epsilon to use for equality testing.
      * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
-     *
-     * @exception {DeveloperError} epsilon is required and must be a number.
      */
     Cartographic.equalsEpsilon = function(left, right, epsilon) {
-        if (typeof epsilon !== 'number') {
+                if (typeof epsilon !== 'number') {
             throw new DeveloperError('epsilon is required and must be a number.');
         }
+        
         return (left === right) ||
                ((defined(left)) &&
                 (defined(right)) &&
@@ -2805,13 +1949,12 @@ define('Core/Cartographic',[
      *
      * @param {Cartographic} cartographic The cartographic to stringify.
      * @returns {String} A string representing the provided cartographic in the format '(longitude, latitude, height)'.
-     *
-     * @exception {DeveloperError} cartographic is required.
      */
     Cartographic.toString = function(cartographic) {
-        if (!defined(cartographic)) {
+                if (!defined(cartographic)) {
             throw new DeveloperError('cartographic is required');
         }
+        
         return '(' + cartographic.longitude + ', ' + cartographic.latitude + ', ' + cartographic.height + ')';
     };
 
@@ -2854,8 +1997,6 @@ define('Core/Cartographic',[
      * @param {Cartographic} [right] The second cartographic.
      * @param {Number} epsilon The epsilon to use for equality testing.
      * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
-     *
-     * @exception {DeveloperError} epsilon is required and must be a number.
      */
     Cartographic.prototype.equalsEpsilon = function(right, epsilon) {
         return Cartographic.equalsEpsilon(this, right, epsilon);
@@ -2875,10 +2016,42 @@ define('Core/Cartographic',[
 });
 
 /*global define*/
+define('Core/defineProperties',['./defined'], function(defined) {
+    "use strict";
+
+    var definePropertyWorks = (function() {
+        try {
+            return 'x' in Object.defineProperty({}, 'x', {});
+        } catch (e) {
+            return false;
+        }
+    })();
+
+    /**
+     * Defines properties on an object, using Object.defineProperties if available,
+     * otherwise returns the object unchanged.  This function should be used in
+     * setup code to prevent errors from completely halting JavaScript execution
+     * in legacy browsers.
+     *
+     * @private
+     *
+     * @exports defineProperties
+     */
+    var defineProperties = Object.defineProperties;
+    if (!definePropertyWorks || !defined(defineProperties)) {
+        defineProperties = function(o) {
+            return o;
+        };
+    }
+
+    return defineProperties;
+});
+/*global define*/
 define('Core/Ellipsoid',[
         './freezeObject',
         './defaultValue',
         './defined',
+        './defineProperties',
         './DeveloperError',
         './Math',
         './Cartesian3',
@@ -2887,6 +2060,7 @@ define('Core/Ellipsoid',[
          freezeObject,
          defaultValue,
          defined,
+         defineProperties,
          DeveloperError,
          CesiumMath,
          Cartesian3,
@@ -2919,10 +2093,10 @@ define('Core/Ellipsoid',[
         y = defaultValue(y, 0.0);
         z = defaultValue(z, 0.0);
 
-        if (x < 0.0 || y < 0.0 || z < 0.0) {
+                if (x < 0.0 || y < 0.0 || z < 0.0) {
             throw new DeveloperError('All radii components must be greater than or equal to zero.');
         }
-
+        
         this._radii = new Cartesian3(x, y, z);
 
         this._radiiSquared = new Cartesian3(x * x,
@@ -2947,6 +2121,79 @@ define('Core/Ellipsoid',[
 
         this._centerToleranceSquared = CesiumMath.EPSILON1;
     };
+
+    defineProperties(Ellipsoid.prototype, {
+        /**
+         * Gets the radii of the ellipsoid.
+         * @memberof Ellipsoid.prototype
+         * @type {Cartesian3}
+         */
+        radii : {
+            get: function() {
+                return this._radii;
+            }
+        },
+        /**
+         * Gets the squared radii of the ellipsoid.
+         * @memberof Ellipsoid.prototype
+         * @type {Cartesian3}
+         */
+        radiiSquared : {
+            get : function() {
+                return this._radiiSquared;
+            }
+        },
+        /**
+         * Gets the radii of the ellipsoid raise to the fourth power.
+         * @memberof Ellipsoid.prototype
+         * @type {Cartesian3}
+         */
+        radiiToTheFourth : {
+            get : function() {
+                return this._radiiToTheFourth;
+            }
+        },
+        /**
+         * Gets one over the radii of the ellipsoid.
+         * @memberof Ellipsoid.prototype
+         * @type {Cartesian3}
+         */
+        oneOverRadii : {
+            get : function() {
+                return this._oneOverRadii;
+            }
+        },
+        /**
+         * Gets one over the squared radii of the ellipsoid.
+         * @memberof Ellipsoid.prototype
+         * @type {Cartesian3}
+         */
+        oneOverRadiiSquared : {
+            get : function() {
+                return this._oneOverRadiiSquared;
+            }
+        },
+        /**
+         * Gets the minimum radius of the ellipsoid.
+         * @memberof Ellipsoid.prototype
+         * @type {Number}
+         */
+        minimumRadius : {
+            get : function() {
+                return this._minimumRadius;
+            }
+        },
+        /**
+         * Gets the maximum radius of the ellipsoid.
+         * @memberof Ellipsoid.prototype
+         * @type {Number}
+         */
+        maximumRadius : {
+            get : function() {
+                return this._maximumRadius;
+            }
+        }
+    });
 
     /**
      * Duplicates an Ellipsoid instance.
@@ -3019,62 +2266,6 @@ define('Core/Ellipsoid',[
     Ellipsoid.MOON = freezeObject(new Ellipsoid(CesiumMath.LUNAR_RADIUS, CesiumMath.LUNAR_RADIUS, CesiumMath.LUNAR_RADIUS));
 
     /**
-     * @memberof Ellipsoid
-     * @returns {Cartesian3} The radii of the ellipsoid.
-     */
-    Ellipsoid.prototype.getRadii = function() {
-        return this._radii;
-    };
-
-    /**
-     * @memberof Ellipsoid
-     * @returns {Cartesian3} The squared radii of the ellipsoid.
-     */
-    Ellipsoid.prototype.getRadiiSquared = function() {
-        return this._radiiSquared;
-    };
-
-    /**
-     * @memberof Ellipsoid
-     * @returns {Cartesian3} The radii of the ellipsoid raised to the fourth power.
-     */
-    Ellipsoid.prototype.getRadiiToTheFourth = function() {
-        return this._radiiToTheFourth;
-    };
-
-    /**
-     * @memberof Ellipsoid
-     * @returns {Cartesian3} One over the radii of the ellipsoid.
-     */
-    Ellipsoid.prototype.getOneOverRadii = function() {
-        return this._oneOverRadii;
-    };
-
-    /**
-     * @memberof Ellipsoid
-     * @returns {Cartesian3} One over the squared radii of the ellipsoid.
-     */
-    Ellipsoid.prototype.getOneOverRadiiSquared = function() {
-        return this._oneOverRadiiSquared;
-    };
-
-    /**
-     * @memberof Ellipsoid
-     * @returns {Cartesian3} The minimum radius of the ellipsoid.
-     */
-    Ellipsoid.prototype.getMinimumRadius = function() {
-        return this._minimumRadius;
-    };
-
-    /**
-     * @memberof Ellipsoid
-     * @returns {Cartesian3} The maximum radius of the ellipsoid.
-     */
-    Ellipsoid.prototype.getMaximumRadius = function() {
-        return this._maximumRadius;
-    };
-
-    /**
      * Duplicates an Ellipsoid instance.
      *
      * @memberof Ellipsoid
@@ -3094,8 +2285,6 @@ define('Core/Ellipsoid',[
      * @param {Cartesian3} cartesian The Cartesian for which to to determine the geocentric normal.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if none was provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Ellipsoid.prototype.geocentricSurfaceNormal = Cartesian3.normalize;
 
@@ -3106,14 +2295,12 @@ define('Core/Ellipsoid',[
      * @param {Cartographic} cartographic The cartographic position for which to to determine the geodetic normal.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if none was provided.
-     *
-     * @exception {DeveloperError} cartographic is required.
      */
     Ellipsoid.prototype.geodeticSurfaceNormalCartographic = function(cartographic, result) {
-        if (!defined(cartographic)) {
+                if (!defined(cartographic)) {
             throw new DeveloperError('cartographic is required.');
         }
-
+        
         var longitude = cartographic.longitude;
         var latitude = cartographic.latitude;
         var cosLatitude = Math.cos(latitude);
@@ -3138,8 +2325,6 @@ define('Core/Ellipsoid',[
      * @param {Cartesian3} cartesian The Cartesian position for which to to determine the surface normal.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if none was provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Ellipsoid.prototype.geodeticSurfaceNormal = function(cartesian, result) {
         result = Cartesian3.multiplyComponents(cartesian, this._oneOverRadiiSquared, result);
@@ -3157,12 +2342,10 @@ define('Core/Ellipsoid',[
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if none was provided.
      *
-     * @exception {DeveloperError} cartographic is required.
-     *
      * @example
      * //Create a Cartographic and determine it's Cartesian representation on a WGS84 ellipsoid.
-     * var position = new Cartographic(Math.toRadians(21), Math.toRadians(78), 5000);
-     * var cartesianPosition = Ellipsoid.WGS84.cartographicToCartesian(position);
+     * var position = new Cesium.Cartographic(Cesium.Math.toRadians(21), Cesium.Math.toRadians(78), 5000);
+     * var cartesianPosition = Cesium.Ellipsoid.WGS84.cartographicToCartesian(position);
      */
     Ellipsoid.prototype.cartographicToCartesian = function(cartographic, result) {
         //`cartographic is required` is thrown from geodeticSurfaceNormalCartographic.
@@ -3184,20 +2367,18 @@ define('Core/Ellipsoid',[
      * @param {Array} [result] The object onto which to store the result.
      * @returns {Array} The modified result parameter or a new Array instance if none was provided.
      *
-     * @exception {DeveloperError} cartographics is required.
-     *
      * @example
      * //Convert an array of Cartographics and determine their Cartesian representation on a WGS84 ellipsoid.
-     * var positions = [new Cartographic(Math.toRadians(21), Math.toRadians(78), 0),
-     *                  new Cartographic(Math.toRadians(21.321), Math.toRadians(78.123), 100),
-     *                  new Cartographic(Math.toRadians(21.645), Math.toRadians(78.456), 250)
-     * var cartesianPositions = Ellipsoid.WGS84.cartographicArrayToCartesianArray(positions);
+     * var positions = [new Cesium.Cartographic(Cesium.Math.toRadians(21), Cesium.Math.toRadians(78), 0),
+     *                  new Cesium.Cartographic(Cesium.Math.toRadians(21.321), Cesium.Math.toRadians(78.123), 100),
+     *                  new Cesium.Cartographic(Cesium.Math.toRadians(21.645), Cesium.Math.toRadians(78.456), 250)
+     * var cartesianPositions = Cesium.Ellipsoid.WGS84.cartographicArrayToCartesianArray(positions);
      */
     Ellipsoid.prototype.cartographicArrayToCartesianArray = function(cartographics, result) {
-        if (!defined(cartographics)) {
+                if (!defined(cartographics)) {
             throw new DeveloperError('cartographics is required.');
         }
-
+        
         var length = cartographics.length;
         if (!defined(result)) {
             result = new Array(length);
@@ -3223,12 +2404,10 @@ define('Core/Ellipsoid',[
      * @param {Cartographic} [result] The object onto which to store the result.
      * @returns {Cartographic} The modified result parameter, new Cartographic instance if none was provided, or undefined if the cartesian is at the center of the ellipsoid.
      *
-     * @exception {DeveloperError} cartesian is required.
-     *
      * @example
      * //Create a Cartesian and determine it's Cartographic representation on a WGS84 ellipsoid.
-     * var position = new Cartesian(17832.12, 83234.52, 952313.73);
-     * var cartographicPosition = Ellipsoid.WGS84.cartesianToCartographic(position);
+     * var position = new Cesium.Cartesian(17832.12, 83234.52, 952313.73);
+     * var cartographicPosition = Cesium.Ellipsoid.WGS84.cartesianToCartographic(position);
      */
     Ellipsoid.prototype.cartesianToCartographic = function(cartesian, result) {
         //`cartesian is required.` is thrown from scaleToGeodeticSurface
@@ -3262,20 +2441,18 @@ define('Core/Ellipsoid',[
      * @param {Array} [result] The object onto which to store the result.
      * @returns {Array} The modified result parameter or a new Array instance if none was provided.
      *
-     * @exception {DeveloperError} cartesians is required.
-     *
      * @example
      * //Create an array of Cartesians and determine their Cartographic representation on a WGS84 ellipsoid.
-     * var positions = [new Cartesian(17832.12, 83234.52, 952313.73),
-     *                  new Cartesian(17832.13, 83234.53, 952313.73),
-     *                  new Cartesian(17832.14, 83234.54, 952313.73)]
-     * var cartographicPositions = Ellipsoid.WGS84.cartesianArrayToCartographicArray(positions);
+     * var positions = [new Cesium.Cartesian(17832.12, 83234.52, 952313.73),
+     *                  new Cesium.Cartesian(17832.13, 83234.53, 952313.73),
+     *                  new Cesium.Cartesian(17832.14, 83234.54, 952313.73)]
+     * var cartographicPositions = Cesium.Ellipsoid.WGS84.cartesianArrayToCartographicArray(positions);
      */
     Ellipsoid.prototype.cartesianArrayToCartographicArray = function(cartesians, result) {
-        if (!defined(cartesians)) {
+                if (!defined(cartesians)) {
             throw new DeveloperError('cartesians is required.');
         }
-
+        
         var length = cartesians.length;
         if (!defined(result)) {
             result = new Array(length);
@@ -3300,14 +2477,12 @@ define('Core/Ellipsoid',[
      * @param {Cartesian3} cartesian The Cartesian position to scale.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter, a new Cartesian3 instance if none was provided, or undefined if the position is at the center.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Ellipsoid.prototype.scaleToGeodeticSurface = function(cartesian, result) {
-        if (!defined(cartesian)) {
+                if (!defined(cartesian)) {
             throw new DeveloperError('cartesian is required.');
         }
-
+        
         var positionX = cartesian.x;
         var positionY = cartesian.y;
         var positionZ = cartesian.z;
@@ -3404,14 +2579,12 @@ define('Core/Ellipsoid',[
      * @param {Cartesian3} cartesian The Cartesian position to scale.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if none was provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Ellipsoid.prototype.scaleToGeocentricSurface = function(cartesian, result) {
-        if (!defined(cartesian)) {
+                if (!defined(cartesian)) {
             throw new DeveloperError('cartesian is required.');
         }
-
+        
         var positionX = cartesian.x;
         var positionY = cartesian.y;
         var positionZ = cartesian.z;
@@ -3426,7 +2599,7 @@ define('Core/Ellipsoid',[
 
     /**
      * Transforms a Cartesian X, Y, Z position to the ellipsoid-scaled space by multiplying
-     * its components by the result of {@link Ellipsoid#getOneOverRadii}.
+     * its components by the result of {@link Ellipsoid#oneOverRadii}.
      *
      * @memberof Ellipsoid
      *
@@ -3442,7 +2615,7 @@ define('Core/Ellipsoid',[
 
     /**
      * Transforms a Cartesian X, Y, Z position from the ellipsoid-scaled space by multiplying
-     * its components by the result of {@link Ellipsoid#getRadii}.
+     * its components by the result of {@link Ellipsoid#radii}.
      *
      * @memberof Ellipsoid
      *
@@ -3487,12 +2660,14 @@ define('Core/Ellipsoid',[
 define('Core/GeographicProjection',[
         './defaultValue',
         './defined',
+        './defineProperties',
         './Cartesian3',
         './Cartographic',
         './Ellipsoid'
     ], function(
         defaultValue,
         defined,
+        defineProperties,
         Cartesian3,
         Cartographic,
         Ellipsoid) {
@@ -3500,7 +2675,7 @@ define('Core/GeographicProjection',[
 
     /**
      * A simple map projection where longitude and latitude are linearly mapped to X and Y by multiplying
-     * them by the {@link Ellipsoid#getMaximumRadius}.  This projection
+     * them by the {@link Ellipsoid#maximumRadius}.  This projection
      * is commonly known as geographic, equirectangular, equidistant cylindrical, or plate carrée.  It
      * is also known as EPSG:4326.
      *
@@ -3514,20 +2689,22 @@ define('Core/GeographicProjection',[
      */
     var GeographicProjection = function(ellipsoid) {
         this._ellipsoid = defaultValue(ellipsoid, Ellipsoid.WGS84);
-        this._semimajorAxis = this._ellipsoid.getMaximumRadius();
+        this._semimajorAxis = this._ellipsoid.maximumRadius;
         this._oneOverSemimajorAxis = 1.0 / this._semimajorAxis;
     };
 
-    /**
-     * Gets the {@link Ellipsoid}.
-     *
-     * @memberof GeographicProjection
-     *
-     * @returns {Ellipsoid} The ellipsoid.
-     */
-    GeographicProjection.prototype.getEllipsoid = function() {
-        return this._ellipsoid;
-    };
+    defineProperties(GeographicProjection.prototype, {
+        /**
+         * Gets the {@link Ellipsoid}.
+         * @memberof GeographicProjection.prototype
+         * @type {Ellipsoid}
+         */
+        ellipsoid : {
+            get : function() {
+                return this._ellipsoid;
+            }
+        }
+    });
 
     /**
      * Projects a set of {@link Cartographic} coordinates, in radians, to map coordinates, in meters.
@@ -3610,8 +2787,8 @@ define('Core/Enumeration',['./defined'], function(defined) {
      * @example
      * // Create an object with two enumerations.
      * var filter = {
-     *     NEAREST : new Enumeration(0x2600, 'NEAREST'),
-     *     LINEAR : new Enumeration(0x2601, 'LINEAR')
+     *     NEAREST : new Cesium.Enumeration(0x2600, 'NEAREST'),
+     *     LINEAR : new Cesium.Enumeration(0x2601, 'LINEAR')
      * };
      */
     var Enumeration = function(value, name, properties) {
@@ -3738,6 +2915,747 @@ define('Core/Interval',['./defaultValue'], function(defaultValue) {
 });
 
 /*global define*/
+define('Core/Cartesian4',[
+        './defaultValue',
+        './defined',
+        './DeveloperError',
+        './freezeObject'
+    ], function(
+        defaultValue,
+        defined,
+        DeveloperError,
+        freezeObject) {
+    "use strict";
+
+    /**
+     * A 4D Cartesian point.
+     * @alias Cartesian4
+     * @constructor
+     *
+     * @param {Number} [x=0.0] The X component.
+     * @param {Number} [y=0.0] The Y component.
+     * @param {Number} [z=0.0] The Z component.
+     * @param {Number} [w=0.0] The W component.
+     *
+     * @see Cartesian2
+     * @see Cartesian3
+     * @see Packable
+     */
+    var Cartesian4 = function(x, y, z, w) {
+        /**
+         * The X component.
+         * @type {Number}
+         * @default 0.0
+         */
+        this.x = defaultValue(x, 0.0);
+
+        /**
+         * The Y component.
+         * @type {Number}
+         * @default 0.0
+         */
+        this.y = defaultValue(y, 0.0);
+
+        /**
+         * The Z component.
+         * @type {Number}
+         * @default 0.0
+         */
+        this.z = defaultValue(z, 0.0);
+
+        /**
+         * The W component.
+         * @type {Number}
+         * @default 0.0
+         */
+        this.w = defaultValue(w, 0.0);
+    };
+
+    /**
+     * Creates a Cartesian4 instance from x, y, z and w coordinates.
+     * @memberof Cartesian4
+     *
+     * @param {Number} x The x coordinate.
+     * @param {Number} y The y coordinate.
+     * @param {Number} z The z coordinate.
+     * @param {Number} w The w coordinate.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.fromElements = function(x, y, z, w, result) {
+        if (!defined(result)) {
+            return new Cartesian4(x, y, z, w);
+        }
+
+        result.x = x;
+        result.y = y;
+        result.z = z;
+        result.w = w;
+        return result;
+    };
+
+    /**
+     * Duplicates a Cartesian4 instance.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} cartesian The Cartesian to duplicate.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided. (Returns undefined if cartesian is undefined)
+     */
+    Cartesian4.clone = function(cartesian, result) {
+        if (!defined(cartesian)) {
+            return undefined;
+        }
+
+        if (!defined(result)) {
+            return new Cartesian4(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
+        }
+
+        result.x = cartesian.x;
+        result.y = cartesian.y;
+        result.z = cartesian.z;
+        result.w = cartesian.w;
+        return result;
+    };
+
+
+    /**
+     * The number of elements used to pack the object into an array.
+     * @Type {Number}
+     */
+    Cartesian4.packedLength = 4;
+
+    /**
+     * Stores the provided instance into the provided array.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} value The value to pack.
+     * @param {Array} array The array to pack into.
+     * @param {Number} [startingIndex=0] The index into the array at which to start packing the elements.
+     */
+    Cartesian4.pack = function(value, array, startingIndex) {
+                if (!defined(value)) {
+            throw new DeveloperError('value is required');
+        }
+
+        if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        array[startingIndex++] = value.x;
+        array[startingIndex++] = value.y;
+        array[startingIndex++] = value.z;
+        array[startingIndex] = value.w;
+    };
+
+    /**
+     * Retrieves an instance from a packed array.
+     * @memberof Cartesian4
+     *
+     * @param {Array} array The packed array.
+     * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
+     * @param {Cartesian4} [result] The object into which to store the result.
+     */
+    Cartesian4.unpack = function(array, startingIndex, result) {
+                if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        if (!defined(result)) {
+            result = new Cartesian4();
+        }
+        result.x = array[startingIndex++];
+        result.y = array[startingIndex++];
+        result.z = array[startingIndex++];
+        result.w = array[startingIndex];
+        return result;
+    };
+
+
+
+    /**
+     * Creates a Cartesian4 from four consecutive elements in an array.
+     * @memberof Cartesian4
+     *
+     * @param {Array} array The array whose four consecutive elements correspond to the x, y, z, and w components, respectively.
+     * @param {Number} [startingIndex=0] The offset into the array of the first element, which corresponds to the x component.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     *
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     *
+     * @example
+     * // Create a Cartesian4 with (1.0, 2.0, 3.0, 4.0)
+     * var v = [1.0, 2.0, 3.0, 4.0];
+     * var p = Cesium.Cartesian4.fromArray(v);
+     *
+     * // Create a Cartesian4 with (1.0, 2.0, 3.0, 4.0) using an offset into an array
+     * var v2 = [0.0, 0.0, 1.0, 2.0, 3.0, 4.0];
+     * var p2 = Cesium.Cartesian4.fromArray(v2, 2);
+     */
+    Cartesian4.fromArray = Cartesian4.unpack;
+
+    /**
+     * Computes the value of the maximum component for the supplied Cartesian.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} The cartesian to use.
+     * @returns {Number} The value of the maximum component.
+     */
+    Cartesian4.getMaximumComponent = function(cartesian) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        return Math.max(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
+    };
+
+    /**
+     * Computes the value of the minimum component for the supplied Cartesian.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} The cartesian to use.
+     * @returns {Number} The value of the minimum component.
+     */
+    Cartesian4.getMinimumComponent = function(cartesian) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        return Math.min(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
+    };
+
+    /**
+     * Compares two Cartesians and computes a Cartesian which contains the minimum components of the supplied Cartesians.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} first A cartesian to compare.
+     * @param {Cartesian4} second A cartesian to compare.
+     * @param {Cartesian4} [result] The object into which to store the result.
+     * @returns {Cartesian4} A cartesian with the minimum components.
+     */
+    Cartesian4.getMinimumByComponent = function(first, second, result) {
+                if (!defined(first)) {
+            throw new DeveloperError('first is required.');
+        }
+        if (!defined(second)) {
+            throw new DeveloperError('second is required.');
+        }
+        
+        if (!defined(result)) {
+            result = new Cartesian4();
+        }
+
+        result.x = Math.min(first.x, second.x);
+        result.y = Math.min(first.y, second.y);
+        result.z = Math.min(first.z, second.z);
+        result.w = Math.min(first.w, second.w);
+
+        return result;
+    };
+
+    /**
+     * Compares two Cartesians and computes a Cartesian which contains the maximum components of the supplied Cartesians.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} first A cartesian to compare.
+     * @param {Cartesian4} second A cartesian to compare.
+     * @param {Cartesian4} [result] The object into which to store the result.
+     * @returns {Cartesian4} A cartesian with the maximum components.
+     */
+    Cartesian4.getMaximumByComponent = function(first, second, result) {
+                if (!defined(first)) {
+            throw new DeveloperError('first is required.');
+        }
+        if (!defined(second)) {
+            throw new DeveloperError('second is required.');
+        }
+        
+        if (!defined(result)) {
+            result = new Cartesian4();
+        }
+
+        result.x = Math.max(first.x, second.x);
+        result.y = Math.max(first.y, second.y);
+        result.z = Math.max(first.z, second.z);
+        result.w = Math.max(first.w, second.w);
+
+        return result;
+    };
+
+    /**
+     * Computes the provided Cartesian's squared magnitude.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} cartesian The Cartesian instance whose squared magnitude is to be computed.
+     * @returns {Number} The squared magnitude.
+     */
+    Cartesian4.magnitudeSquared = function(cartesian) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        return cartesian.x * cartesian.x + cartesian.y * cartesian.y + cartesian.z * cartesian.z + cartesian.w * cartesian.w;
+    };
+
+    /**
+     * Computes the Cartesian's magnitude (length).
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} cartesian The Cartesian instance whose magnitude is to be computed.
+     * @returns {Number} The magnitude.
+     */
+    Cartesian4.magnitude = function(cartesian) {
+        return Math.sqrt(Cartesian4.magnitudeSquared(cartesian));
+    };
+
+    var distanceScratch = new Cartesian4();
+
+    /**
+     * Computes the 4-space distance between two points
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} left The first point to compute the distance from.
+     * @param {Cartesian4} right The second point to compute the distance to.
+     *
+     * @returns {Number} The distance between two points.
+     *
+     * @example
+     * // Returns 1.0
+     * var d = Cesium.Cartesian4.distance(new Cesium.Cartesian4(1.0, 0.0, 0.0, 0.0), new Cesium.Cartesian4(2.0, 0.0, 0.0, 0.0));
+     */
+    Cartesian4.distance = function(left, right) {
+                if (!defined(left) || !defined(right)) {
+            throw new DeveloperError('left and right are required.');
+        }
+        
+        Cartesian4.subtract(left, right, distanceScratch);
+        return Cartesian4.magnitude(distanceScratch);
+    };
+
+    /**
+     * Computes the normalized form of the supplied Cartesian.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} cartesian The Cartesian to be normalized.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.normalize = function(cartesian, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        var magnitude = Cartesian4.magnitude(cartesian);
+        if (!defined(result)) {
+            return new Cartesian4(cartesian.x / magnitude, cartesian.y / magnitude, cartesian.z / magnitude, cartesian.w / magnitude);
+        }
+        result.x = cartesian.x / magnitude;
+        result.y = cartesian.y / magnitude;
+        result.z = cartesian.z / magnitude;
+        result.w = cartesian.w / magnitude;
+        return result;
+    };
+
+    /**
+     * Computes the dot (scalar) product of two Cartesians.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} left The first Cartesian.
+     * @param {Cartesian4} right The second Cartesian.
+     * @returns {Number} The dot product.
+     */
+    Cartesian4.dot = function(left, right) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        
+        return left.x * right.x + left.y * right.y + left.z * right.z + left.w * right.w;
+    };
+
+    /**
+     * Computes the componentwise product of two Cartesians.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} left The first Cartesian.
+     * @param {Cartesian4} right The second Cartesian.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.multiplyComponents = function(left, right, result) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        
+        if (!defined(result)) {
+            return new Cartesian4(left.x * right.x, left.y * right.y, left.z * right.z, left.w * right.w);
+        }
+        result.x = left.x * right.x;
+        result.y = left.y * right.y;
+        result.z = left.z * right.z;
+        result.w = left.w * right.w;
+        return result;
+    };
+
+    /**
+     * Computes the componentwise sum of two Cartesians.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} left The first Cartesian.
+     * @param {Cartesian4} right The second Cartesian.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.add = function(left, right, result) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        
+        if (!defined(result)) {
+            return new Cartesian4(left.x + right.x, left.y + right.y, left.z + right.z, left.w + right.w);
+        }
+        result.x = left.x + right.x;
+        result.y = left.y + right.y;
+        result.z = left.z + right.z;
+        result.w = left.w + right.w;
+        return result;
+    };
+
+    /**
+     * Computes the componentwise difference of two Cartesians.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} left The first Cartesian.
+     * @param {Cartesian4} right The second Cartesian.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.subtract = function(left, right, result) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        
+        if (!defined(result)) {
+            return new Cartesian4(left.x - right.x, left.y - right.y, left.z - right.z, left.w - right.w);
+        }
+        result.x = left.x - right.x;
+        result.y = left.y - right.y;
+        result.z = left.z - right.z;
+        result.w = left.w - right.w;
+        return result;
+    };
+
+    /**
+     * Multiplies the provided Cartesian componentwise by the provided scalar.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} cartesian The Cartesian to be scaled.
+     * @param {Number} scalar The scalar to multiply with.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.multiplyByScalar = function(cartesian, scalar, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        if (typeof scalar !== 'number') {
+            throw new DeveloperError('scalar is required and must be a number.');
+        }
+        
+        if (!defined(result)) {
+            return new Cartesian4(cartesian.x * scalar, cartesian.y * scalar, cartesian.z * scalar, cartesian.w * scalar);
+        }
+        result.x = cartesian.x * scalar;
+        result.y = cartesian.y * scalar;
+        result.z = cartesian.z * scalar;
+        result.w = cartesian.w * scalar;
+        return result;
+    };
+
+    /**
+     * Divides the provided Cartesian componentwise by the provided scalar.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} cartesian The Cartesian to be divided.
+     * @param {Number} scalar The scalar to divide by.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.divideByScalar = function(cartesian, scalar, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        if (typeof scalar !== 'number') {
+            throw new DeveloperError('scalar is required and must be a number.');
+        }
+        
+        if (!defined(result)) {
+            return new Cartesian4(cartesian.x / scalar, cartesian.y / scalar, cartesian.z / scalar, cartesian.w / scalar);
+        }
+        result.x = cartesian.x / scalar;
+        result.y = cartesian.y / scalar;
+        result.z = cartesian.z / scalar;
+        result.w = cartesian.w / scalar;
+        return result;
+    };
+
+    /**
+     * Negates the provided Cartesian.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} cartesian The Cartesian to be negated.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.negate = function(cartesian, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        if (!defined(result)) {
+            return new Cartesian4(-cartesian.x, -cartesian.y, -cartesian.z, -cartesian.w);
+        }
+        result.x = -cartesian.x;
+        result.y = -cartesian.y;
+        result.z = -cartesian.z;
+        result.w = -cartesian.w;
+        return result;
+    };
+
+    /**
+     * Computes the absolute value of the provided Cartesian.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} cartesian The Cartesian whose absolute value is to be computed.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.abs = function(cartesian, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        if (!defined(result)) {
+            return new Cartesian4(Math.abs(cartesian.x), Math.abs(cartesian.y), Math.abs(cartesian.z), Math.abs(cartesian.w));
+        }
+        result.x = Math.abs(cartesian.x);
+        result.y = Math.abs(cartesian.y);
+        result.z = Math.abs(cartesian.z);
+        result.w = Math.abs(cartesian.w);
+        return result;
+    };
+
+    var lerpScratch = new Cartesian4();
+    /**
+     * Computes the linear interpolation or extrapolation at t using the provided cartesians.
+     * @memberof Cartesian4
+     *
+     * @param start The value corresponding to t at 0.0.
+     * @param end The value corresponding to t at 1.0.
+     * @param t The point along t at which to interpolate.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.lerp = function(start, end, t, result) {
+                if (!defined(start)) {
+            throw new DeveloperError('start is required.');
+        }
+        if (!defined(end)) {
+            throw new DeveloperError('end is required.');
+        }
+        if (typeof t !== 'number') {
+            throw new DeveloperError('t is required and must be a number.');
+        }
+        
+        Cartesian4.multiplyByScalar(end, t, lerpScratch);
+        result = Cartesian4.multiplyByScalar(start, 1.0 - t, result);
+        return Cartesian4.add(lerpScratch, result, result);
+    };
+
+    var mostOrthogonalAxisScratch = new Cartesian4();
+    /**
+     * Returns the axis that is most orthogonal to the provided Cartesian.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} cartesian The Cartesian on which to find the most orthogonal axis.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The most orthogonal axis.
+     */
+    Cartesian4.mostOrthogonalAxis = function(cartesian, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required.');
+        }
+        
+        var f = Cartesian4.normalize(cartesian, mostOrthogonalAxisScratch);
+        Cartesian4.abs(f, f);
+
+        if (f.x <= f.y) {
+            if (f.x <= f.z) {
+                if (f.x <= f.w) {
+                    result = Cartesian4.clone(Cartesian4.UNIT_X, result);
+                } else {
+                    result = Cartesian4.clone(Cartesian4.UNIT_W, result);
+                }
+            } else if (f.z <= f.w) {
+                result = Cartesian4.clone(Cartesian4.UNIT_Z, result);
+            } else {
+                result = Cartesian4.clone(Cartesian4.UNIT_W, result);
+            }
+        } else if (f.y <= f.z) {
+            if (f.y <= f.w) {
+                result = Cartesian4.clone(Cartesian4.UNIT_Y, result);
+            } else {
+                result = Cartesian4.clone(Cartesian4.UNIT_W, result);
+            }
+        } else if (f.z <= f.w) {
+            result = Cartesian4.clone(Cartesian4.UNIT_Z, result);
+        } else {
+            result = Cartesian4.clone(Cartesian4.UNIT_W, result);
+        }
+
+        return result;
+    };
+
+    /**
+     * Compares the provided Cartesians componentwise and returns
+     * <code>true</code> if they are equal, <code>false</code> otherwise.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} [left] The first Cartesian.
+     * @param {Cartesian4} [right] The second Cartesian.
+     * @returns {Boolean} <code>true</code> if left and right are equal, <code>false</code> otherwise.
+     */
+    Cartesian4.equals = function(left, right) {
+        return (left === right) ||
+               ((defined(left)) &&
+                (defined(right)) &&
+                (left.x === right.x) &&
+                (left.y === right.y) &&
+                (left.z === right.z) &&
+                (left.w === right.w));
+    };
+
+    /**
+     * Compares the provided Cartesians componentwise and returns
+     * <code>true</code> if they are within the provided epsilon,
+     * <code>false</code> otherwise.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} [left] The first Cartesian.
+     * @param {Cartesian4} [right] The second Cartesian.
+     * @param {Number} epsilon The epsilon to use for equality testing.
+     * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
+     */
+    Cartesian4.equalsEpsilon = function(left, right, epsilon) {
+                if (typeof epsilon !== 'number') {
+            throw new DeveloperError('epsilon is required and must be a number.');
+        }
+        
+        return (left === right) ||
+               ((defined(left)) &&
+                (defined(right)) &&
+                (Math.abs(left.x - right.x) <= epsilon) &&
+                (Math.abs(left.y - right.y) <= epsilon) &&
+                (Math.abs(left.z - right.z) <= epsilon) &&
+                (Math.abs(left.w - right.w) <= epsilon));
+    };
+
+    /**
+     * An immutable Cartesian4 instance initialized to (0.0, 0.0, 0.0, 0.0).
+     * @memberof Cartesian4
+     */
+    Cartesian4.ZERO = freezeObject(new Cartesian4(0.0, 0.0, 0.0, 0.0));
+
+    /**
+     * An immutable Cartesian4 instance initialized to (1.0, 0.0, 0.0, 0.0).
+     * @memberof Cartesian4
+     */
+    Cartesian4.UNIT_X = freezeObject(new Cartesian4(1.0, 0.0, 0.0, 0.0));
+
+    /**
+     * An immutable Cartesian4 instance initialized to (0.0, 1.0, 0.0, 0.0).
+     * @memberof Cartesian4
+     */
+    Cartesian4.UNIT_Y = freezeObject(new Cartesian4(0.0, 1.0, 0.0, 0.0));
+
+    /**
+     * An immutable Cartesian4 instance initialized to (0.0, 0.0, 1.0, 0.0).
+     * @memberof Cartesian4
+     */
+    Cartesian4.UNIT_Z = freezeObject(new Cartesian4(0.0, 0.0, 1.0, 0.0));
+
+    /**
+     * An immutable Cartesian4 instance initialized to (0.0, 0.0, 0.0, 1.0).
+     * @memberof Cartesian4
+     */
+    Cartesian4.UNIT_W = freezeObject(new Cartesian4(0.0, 0.0, 0.0, 1.0));
+
+    /**
+     * Duplicates this Cartesian4 instance.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.prototype.clone = function(result) {
+        return Cartesian4.clone(this, result);
+    };
+
+    /**
+     * Compares this Cartesian against the provided Cartesian componentwise and returns
+     * <code>true</code> if they are equal, <code>false</code> otherwise.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} [right] The right hand side Cartesian.
+     * @returns {Boolean} <code>true</code> if they are equal, <code>false</code> otherwise.
+     */
+    Cartesian4.prototype.equals = function(right) {
+        return Cartesian4.equals(this, right);
+    };
+
+    /**
+     * Compares this Cartesian against the provided Cartesian componentwise and returns
+     * <code>true</code> if they are within the provided epsilon,
+     * <code>false</code> otherwise.
+     * @memberof Cartesian4
+     *
+     * @param {Cartesian4} [right] The right hand side Cartesian.
+     * @param {Number} epsilon The epsilon to use for equality testing.
+     * @returns {Boolean} <code>true</code> if they are within the provided epsilon, <code>false</code> otherwise.
+     */
+    Cartesian4.prototype.equalsEpsilon = function(right, epsilon) {
+        return Cartesian4.equalsEpsilon(this, right, epsilon);
+    };
+
+    /**
+     * Creates a string representing this Cartesian in the format '(x, y)'.
+     * @memberof Cartesian4
+     *
+     * @returns {String} A string representing the provided Cartesian in the format '(x, y)'.
+     */
+    Cartesian4.prototype.toString = function() {
+        return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
+    };
+
+    return Cartesian4;
+});
+
+/*global define*/
 define('Core/Matrix3',[
         './Cartesian3',
         './defaultValue',
@@ -3831,8 +3749,6 @@ define('Core/Matrix3',[
      *
      * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
      *
-     * @exception {DeveloperError} array is required.
-     *
      * @example
      * // Create the Matrix3:
      * // [1.0, 2.0, 3.0]
@@ -3840,11 +3756,11 @@ define('Core/Matrix3',[
      * // [1.0, 2.0, 3.0]
      *
      * var v = [1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0];
-     * var m = Matrix3.fromArray(v);
+     * var m = Cesium.Matrix3.fromArray(v);
      *
      * // Create same Matrix3 with using an offset into an array
      * var v2 = [0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0];
-     * var m2 = Matrix3.fromArray(v2, 2);
+     * var m2 = Cesium.Matrix3.fromArray(v2, 2);
      */
     Matrix3.fromArray = function(array, startingIndex, result) {
                 if (!defined(array)) {
@@ -3878,8 +3794,6 @@ define('Core/Matrix3',[
      * @param {Array} values The column-major order array.
      * @param {Matrix3} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} values is required.
      */
     Matrix3.fromColumnMajorArray = function(values, result) {
                 if (!defined(values)) {
@@ -3897,8 +3811,6 @@ define('Core/Matrix3',[
      * @param {Array} values The row-major order array.
      * @param {Matrix3} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} values is required.
      */
     Matrix3.fromRowMajorArray = function(values, result) {
                 if (!defined(values)) {
@@ -3983,14 +3895,12 @@ define('Core/Matrix3',[
      * @param {Matrix3} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix3 instance if one was not provided.
      *
-     * @exception {DeveloperError} scale is required.
-     *
      * @example
      * // Creates
      * //   [7.0, 0.0, 0.0]
      * //   [0.0, 8.0, 0.0]
      * //   [0.0, 0.0, 9.0]
-     * var m = Matrix3.fromScale(new Cartesian3(7.0, 8.0, 9.0));
+     * var m = Cesium.Matrix3.fromScale(new Cesium.Cartesian3(7.0, 8.0, 9.0));
      */
     Matrix3.fromScale = function(scale, result) {
                 if (!defined(scale)) {
@@ -4024,14 +3934,12 @@ define('Core/Matrix3',[
      * @param {Matrix3} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix3 instance if one was not provided.
      *
-     * @exception {DeveloperError} scale is required.
-     *
      * @example
      * // Creates
      * //   [2.0, 0.0, 0.0]
      * //   [0.0, 2.0, 0.0]
      * //   [0.0, 0.0, 2.0]
-     * var m = Matrix3.fromUniformScale(2.0);
+     * var m = Cesium.Matrix3.fromUniformScale(2.0);
      */
     Matrix3.fromUniformScale = function(scale, result) {
                 if (typeof scale !== 'number') {
@@ -4065,13 +3973,11 @@ define('Core/Matrix3',[
      *
      * @returns The modified result parameter, or a new Matrix3 instance if one was not provided.
      *
-     * @exception {DeveloperError} angle is required.
-     *
      * @example
      * // Rotate a point 45 degrees counterclockwise around the x-axis.
-     * var p = new Cartesian3(5, 6, 7);
-     * var m = Matrix3.fromRotationX(CesiumMath.toRadians(45.0));
-     * var rotated = Matrix3.multiplyByVector(m, p);
+     * var p = new Cesium.Cartesian3(5, 6, 7);
+     * var m = Cesium.Matrix3.fromRotationX(Cesium.Math.toRadians(45.0));
+     * var rotated = Cesium.Matrix3.multiplyByVector(m, p);
      */
     Matrix3.fromRotationX = function(angle, result) {
                 if (!defined(angle)) {
@@ -4109,13 +4015,11 @@ define('Core/Matrix3',[
      *
      * @returns The modified result parameter, or a new Matrix3 instance if one was not provided.
      *
-     * @exception {DeveloperError} angle is required.
-     *
      * @example
      * // Rotate a point 45 degrees counterclockwise around the y-axis.
-     * var p = new Cartesian3(5, 6, 7);
-     * var m = Matrix3.fromRotationY(CesiumMath.toRadians(45.0));
-     * var rotated = Matrix3.multiplyByVector(m, p);
+     * var p = new Cesium.Cartesian3(5, 6, 7);
+     * var m = Cesium.Matrix3.fromRotationY(Cesium.Math.toRadians(45.0));
+     * var rotated = Cesium.Matrix3.multiplyByVector(m, p);
      */
     Matrix3.fromRotationY = function(angle, result) {
                 if (!defined(angle)) {
@@ -4153,13 +4057,11 @@ define('Core/Matrix3',[
      *
      * @returns The modified result parameter, or a new Matrix3 instance if one was not provided.
      *
-     * @exception {DeveloperError} angle is required.
-     *
      * @example
      * // Rotate a point 45 degrees counterclockwise around the z-axis.
-     * var p = new Cartesian3(5, 6, 7);
-     * var m = Matrix3.fromRotationZ(CesiumMath.toRadians(45.0));
-     * var rotated = Matrix3.multiplyByVector(m, p);
+     * var p = new Cesium.Cartesian3(5, 6, 7);
+     * var m = Cesium.Matrix3.fromRotationZ(Cesium.Math.toRadians(45.0));
+     * var rotated = Cesium.Matrix3.multiplyByVector(m, p);
      */
     Matrix3.fromRotationZ = function(angle, result) {
                 if (!defined(angle)) {
@@ -4197,8 +4099,6 @@ define('Core/Matrix3',[
      * @param {Matrix3} matrix The matrix to use..
      * @param {Array} [result] The Array onto which to store the result.
      * @returns {Array} The modified Array parameter or a new Array instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
      */
     Matrix3.toArray = function(matrix, result) {
                 if (!defined(matrix)) {
@@ -4228,21 +4128,21 @@ define('Core/Matrix3',[
      * @param {Number} column The zero-based index of the column.
      * @returns {Number} The index of the element at the provided row and column.
      *
-     * @exception {DeveloperError} row is required and must be 0, 1, or 2.
-     * @exception {DeveloperError} column is required and must be 0, 1, or 2.
+     * @exception {DeveloperError} row must be 0, 1, or 2.
+     * @exception {DeveloperError} column must be 0, 1, or 2.
      *
      * @example
-     * var myMatrix = new Matrix3();
-     * var column1Row0Index = Matrix3.getElementIndex(1, 0);
+     * var myMatrix = new Cesium.Matrix3();
+     * var column1Row0Index = Cesium.Matrix3.getElementIndex(1, 0);
      * var column1Row0 = myMatrix[column1Row0Index]
      * myMatrix[column1Row0Index] = 10.0;
      */
     Matrix3.getElementIndex = function(column, row) {
                 if (typeof row !== 'number' || row < 0 || row > 2) {
-            throw new DeveloperError('row is required and must be 0, 1, or 2.');
+            throw new DeveloperError('row must be 0, 1, or 2.');
         }
         if (typeof column !== 'number' || column < 0 || column > 2) {
-            throw new DeveloperError('column is required and must be 0, 1, or 2.');
+            throw new DeveloperError('column must be 0, 1, or 2.');
         }
         
         return column * 3 + row;
@@ -4257,8 +4157,7 @@ define('Core/Matrix3',[
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, or 2.
+     * @exception {DeveloperError} index must be 0, 1, or 2.
      *
      * @see Cartesian3
      */
@@ -4268,7 +4167,7 @@ define('Core/Matrix3',[
         }
 
         if (typeof index !== 'number' || index < 0 || index > 2) {
-            throw new DeveloperError('index is required and must be 0, 1, or 2.');
+            throw new DeveloperError('index must be 0, 1, or 2.');
         }
         
         var startIndex = index * 3;
@@ -4295,9 +4194,7 @@ define('Core/Matrix3',[
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, or 2.
+     * @exception {DeveloperError} index must be 0, 1, or 2.
      *
      * @see Cartesian3
      */
@@ -4309,7 +4206,7 @@ define('Core/Matrix3',[
             throw new DeveloperError('cartesian is required');
         }
         if (typeof index !== 'number' || index < 0 || index > 2) {
-            throw new DeveloperError('index is required and must be 0, 1, or 2.');
+            throw new DeveloperError('index must be 0, 1, or 2.');
         }
         
         result = Matrix3.clone(matrix, result);
@@ -4329,8 +4226,7 @@ define('Core/Matrix3',[
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, or 2.
+     * @exception {DeveloperError} index must be 0, 1, or 2.
      *
      * @see Cartesian3
      */
@@ -4340,7 +4236,7 @@ define('Core/Matrix3',[
         }
 
         if (typeof index !== 'number' || index < 0 || index > 2) {
-            throw new DeveloperError('index is required and must be 0, 1, or 2.');
+            throw new DeveloperError('index must be 0, 1, or 2.');
         }
         
         var x = matrix[index];
@@ -4366,9 +4262,7 @@ define('Core/Matrix3',[
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, or 2.
+     * @exception {DeveloperError} index must be 0, 1, or 2.
      *
      * @see Cartesian3
      */
@@ -4380,7 +4274,7 @@ define('Core/Matrix3',[
             throw new DeveloperError('cartesian is required');
         }
         if (typeof index !== 'number' || index < 0 || index > 2) {
-            throw new DeveloperError('index is required and must be 0, 1, or 2.');
+            throw new DeveloperError('index must be 0, 1, or 2.');
         }
         
         result = Matrix3.clone(matrix, result);
@@ -4398,9 +4292,6 @@ define('Core/Matrix3',[
      * @param {Matrix3} right The second matrix.
      * @param {Matrix3} [result] The object onto which to store the result.
      * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Matrix3.multiply = function(left, right, result) {
                 if (!defined(left)) {
@@ -4447,9 +4338,6 @@ define('Core/Matrix3',[
      * @param {Cartesian3} cartesian The column.
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} cartesian is required.
      */
     Matrix3.multiplyByVector = function(matrix, cartesian, result) {
                 if (!defined(matrix)) {
@@ -4484,16 +4372,13 @@ define('Core/Matrix3',[
      * @param {Number} scalar The number to multiply by.
      * @param {Matrix3} [result] The object onto which to store the result.
      * @returns {Matrix3} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} scalar is required and must be a number.
      */
     Matrix3.multiplyByScalar = function(matrix, scalar, result) {
                 if (!defined(matrix)) {
             throw new DeveloperError('matrix is required');
         }
         if (typeof scalar !== 'number') {
-            throw new DeveloperError('scalar is required and must be a number');
+            throw new DeveloperError('scalar must be a number');
         }
         
         if (!defined(result)) {
@@ -4520,8 +4405,6 @@ define('Core/Matrix3',[
      * @param {Matrix3} matrix The matrix to negate.
      * @param {Matrix3} [result] The object onto which to store the result.
      * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
      */
     Matrix3.negate = function(matrix, result) {
                 if (!defined(matrix)) {
@@ -4552,8 +4435,6 @@ define('Core/Matrix3',[
      * @param {Matrix3} matrix The matrix to transpose.
      * @param {Matrix3} [result] The object onto which to store the result.
      * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
      */
     Matrix3.transpose = function(matrix, result) {
                 if (!defined(matrix)) {
@@ -4690,18 +4571,18 @@ define('Core/Matrix3',[
      * @example
      * var a = //... symetric matrix
      * var result = {
-     *     unitary : new Matrix3(),
-     *     diagonal : new Matrix3()
+     *     unitary : new Cesium.Matrix3(),
+     *     diagonal : new Cesium.Matrix3()
      * };
-     * Matrix3.getEigenDecomposition(a, result);
+     * Cesium.Matrix3.getEigenDecomposition(a, result);
      *
-     * var unitaryTranspose = Matrix3.transpose(result.unitary);
-     * var b = Matrix.multiply(result.unitary, result.diagonal);
-     * Matrix3.multiply(b, unitaryTranspose, b); // b is now equal to a
+     * var unitaryTranspose = Cesium.Matrix3.transpose(result.unitary);
+     * var b = Cesium.Matrix3.multiply(result.unitary, result.diagonal);
+     * Cesium.Matrix3.multiply(b, unitaryTranspose, b); // b is now equal to a
      *
-     * var lambda = Matrix3.getColumn(result.diagonal, 0).x;  // first eigenvalue
-     * var v = Matrix3.getColumn(result.unitary, 0);          // first eigenvector
-     * var c = Cartesian3.multiplyByScalar(v, lambda);        // equal to Matrix3.multiplyByVector(a, v)
+     * var lambda = Cesium.Matrix3.getColumn(result.diagonal, 0).x;  // first eigenvalue
+     * var v = Cesium.Matrix3.getColumn(result.unitary, 0);          // first eigenvector
+     * var c = Cesium.Cartesian3.multiplyByScalar(v, lambda);        // equal to Cesium.Matrix3.multiplyByVector(a, v)
      */
     Matrix3.getEigenDecomposition = function(matrix, result) {
                 if (!defined(matrix)) {
@@ -4749,8 +4630,6 @@ define('Core/Matrix3',[
      * @param {Matrix3} matrix The matrix with signed elements.
      * @param {Matrix3} [result] The object onto which to store the result.
      * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
      */
     Matrix3.abs = function(matrix, result) {
                 if (!defined(matrix)) {
@@ -4781,14 +4660,12 @@ define('Core/Matrix3',[
      *
      * @param {Matrix3} matrix The matrix to use.
      * @returns {Number} The value of the determinant of the matrix.
-     *
-     * @exception {DeveloperError} matrix is required.
      */
     Matrix3.determinant = function(matrix) {
-        if (!defined(matrix)) {
+                if (!defined(matrix)) {
             throw new DeveloperError('matrix is required');
         }
-
+        
         var m11 = matrix[0];
         var m21 = matrix[3];
         var m31 = matrix[6];
@@ -4810,14 +4687,13 @@ define('Core/Matrix3',[
      * @param {Matrix3} [result] The object onto which to store the result.
      * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
      * @exception {DeveloperError} matrix is not invertible.
      */
     Matrix3.inverse = function(matrix, result) {
-        if (!defined(matrix)) {
+                if (!defined(matrix)) {
             throw new DeveloperError('matrix is required');
         }
-
+        
         var m11 = matrix[0];
         var m21 = matrix[1];
         var m31 = matrix[2];
@@ -4875,12 +4751,10 @@ define('Core/Matrix3',[
      * @param {Matrix3} [right] The second matrix.
      * @param {Number} epsilon The epsilon to use for equality testing.
      * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
-     *
-     * @exception {DeveloperError} epsilon is required and must be a number.
      */
     Matrix3.equalsEpsilon = function(left, right, epsilon) {
                 if (typeof epsilon !== 'number') {
-            throw new DeveloperError('epsilon is required and must be a number');
+            throw new DeveloperError('epsilon must be a number');
         }
         
         return (left === right) ||
@@ -4991,8 +4865,6 @@ define('Core/Matrix3',[
      * @param {Matrix3} [right] The right hand side matrix.
      * @param {Number} epsilon The epsilon to use for equality testing.
      * @returns {Boolean} <code>true</code> if they are within the provided epsilon, <code>false</code> otherwise.
-     *
-     * @exception {DeveloperError} epsilon is required and must be a number.
      */
     Matrix3.prototype.equalsEpsilon = function(right, epsilon) {
         return Matrix3.equalsEpsilon(this, right, epsilon);
@@ -5050,14 +4922,20 @@ define('Core/RuntimeError',['./defined'], function(defined) {
          */
         this.message = message;
 
-        var e = new Error();
+        //Browsers such as IE don't have a stack property until you actually throw the error.
+        var stack;
+        try {
+            throw new Error();
+        } catch (e) {
+            stack = e.stack;
+        }
 
         /**
          * The stack trace of this exception, if available.
          * @type {String}
          * @constant
          */
-        this.stack = e.stack;
+        this.stack = stack;
     };
 
     RuntimeError.prototype.toString = function() {
@@ -5204,8 +5082,6 @@ define('Core/Matrix4',[
      *
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
      *
-     * @exception {DeveloperError} array is required.
-     *
      * @example
      * // Create the Matrix4:
      * // [1.0, 2.0, 3.0, 4.0]
@@ -5214,11 +5090,11 @@ define('Core/Matrix4',[
      * // [1.0, 2.0, 3.0, 4.0]
      *
      * var v = [1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0, 4.0];
-     * var m = Matrix4.fromArray(v);
+     * var m = Cesium.Matrix4.fromArray(v);
      *
      * // Create same Matrix4 with using an offset into an array
      * var v2 = [0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0, 4.0];
-     * var m2 = Matrix4.fromArray(v2, 2);
+     * var m2 = Cesium.Matrix4.fromArray(v2, 2);
      */
     Matrix4.fromArray = function(array, startingIndex, result) {
                 if (!defined(array)) {
@@ -5258,12 +5134,10 @@ define('Core/Matrix4',[
      * @param {Array} values The column-major order array.
      * @param {Matrix4} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} values is required.
      */
     Matrix4.fromColumnMajorArray = function(values, result) {
                 if (!defined(values)) {
-            throw new DeveloperError('values parameter is required');
+            throw new DeveloperError('values is required');
         }
         
         return Matrix4.clone(values, result);
@@ -5277,8 +5151,6 @@ define('Core/Matrix4',[
      * @param {Array} values The row-major order array.
      * @param {Matrix4} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} values is required.
      */
     Matrix4.fromRowMajorArray = function(values, result) {
                 if (!defined(values)) {
@@ -5319,9 +5191,6 @@ define('Core/Matrix4',[
      * @param {Cartesian3} translation The upper right portion of the matrix representing the translation.
      * @param {Matrix4} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} rotation is required.
-     * @exception {DeveloperError} translation is required.
      */
     Matrix4.fromRotationTranslation = function(rotation, translation, result) {
                 if (!defined(rotation)) {
@@ -5371,15 +5240,11 @@ define('Core/Matrix4',[
      * @param {Matrix4} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix4 instance if one was not provided.
      *
-     * @exception {DeveloperError} translation is required.
-     * @exception {DeveloperError} rotation is required.
-     * @exception {DeveloperError} scale is required.
-     *
      * @example
-     * result = Matrix4.fromTranslationQuaternionRotationScale(
-     *   new Cartesian3(1.0, 2.0, 3.0), // translation
-     *   Quaternion.IDENTITY,           // rotation
-     *   new Cartesian3(7.0, 8.0, 9.0), // scale
+     * result = Cesium.Matrix4.fromTranslationQuaternionRotationScale(
+     *   new Cesium.Cartesian3(1.0, 2.0, 3.0), // translation
+     *   Cesium.Quaternion.IDENTITY,           // rotation
+     *   new Cesium.Cartesian3(7.0, 8.0, 9.0), // scale
      *   result);
      */
     Matrix4.fromTranslationQuaternionRotationScale = function(translation, rotation, scale, result) {
@@ -5453,8 +5318,6 @@ define('Core/Matrix4',[
      * @returns The modified result parameter, or a new Matrix4 instance if one was not provided.
      *
      * @see Matrix4.multiplyByTranslation
-     *
-     * @exception {DeveloperError} translation is required.
      */
     Matrix4.fromTranslation = function(translation, result) {
         return Matrix4.fromRotationTranslation(Matrix3.IDENTITY, translation, result);
@@ -5468,15 +5331,13 @@ define('Core/Matrix4',[
      * @param {Matrix4} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix4 instance if one was not provided.
      *
-     * @exception {DeveloperError} scale is required.
-     *
      * @example
      * // Creates
      * //   [7.0, 0.0, 0.0, 0.0]
      * //   [0.0, 8.0, 0.0, 0.0]
      * //   [0.0, 0.0, 9.0, 0.0]
      * //   [0.0, 0.0, 0.0, 1.0]
-     * var m = Matrix4.fromScale(new Cartesian3(7.0, 8.0, 9.0));
+     * var m = Cesium.Matrix4.fromScale(new Cartesian3(7.0, 8.0, 9.0));
      */
     Matrix4.fromScale = function(scale, result) {
                 if (!defined(scale)) {
@@ -5518,15 +5379,13 @@ define('Core/Matrix4',[
      * @param {Matrix4} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix4 instance if one was not provided.
      *
-     * @exception {DeveloperError} scale is required.
-     *
      * @example
      * // Creates
      * //   [2.0, 0.0, 0.0, 0.0]
      * //   [0.0, 2.0, 0.0, 0.0]
      * //   [0.0, 0.0, 2.0, 0.0]
      * //   [0.0, 0.0, 0.0, 1.0]
-     * var m = Matrix4.fromScale(2.0);
+     * var m = Cesium.Matrix4.fromScale(2.0);
      */
     Matrix4.fromUniformScale = function(scale, result) {
                 if (typeof scale !== 'number') {
@@ -5570,11 +5429,6 @@ define('Core/Matrix4',[
      * @param {Camera} camera The camera to use.
      * @param {Matrix4} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} camera is required.
-     * @exception {DeveloperError} camera.eye is required.
-     * @exception {DeveloperError} camera.target is required.
-     * @exception {DeveloperError} camera.up is required.
      */
     Matrix4.fromCamera = function(camera, result) {
                 if (!defined(camera)) {
@@ -5735,13 +5589,6 @@ define('Core/Matrix4',[
     * @param {Number} far The distance to the far plane in meters.
     * @param {Matrix4} [result] The object in which the result will be stored, if undefined a new instance will be created.
     * @returns The modified result parameter, or a new Matrix4 instance if one was not provided.
-    *
-    * @exception {DeveloperError} left is required.
-    * @exception {DeveloperError} right is required.
-    * @exception {DeveloperError} bottom is required.
-    * @exception {DeveloperError} top is required.
-    * @exception {DeveloperError} near is required.
-    * @exception {DeveloperError} far is required.
     */
     Matrix4.computeOrthographicOffCenter = function(left, right, bottom, top, near, far, result) {
                 if (!defined(left)) {
@@ -5812,13 +5659,6 @@ define('Core/Matrix4',[
      * @param {Number} far The distance to the far plane in meters.
      * @param {Matrix4} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
-     * @exception {DeveloperError} bottom is required.
-     * @exception {DeveloperError} top is required.
-     * @exception {DeveloperError} near is required.
-     * @exception {DeveloperError} far is required.
      */
     Matrix4.computePerspectiveOffCenter = function(left, right, bottom, top, near, far, result) {
                 if (!defined(left)) {
@@ -5886,12 +5726,6 @@ define('Core/Matrix4',[
      * @param {Number} far The distance to the far plane in meters.
      * @param {Matrix4} [result] The object in which the result will be stored, if undefined a new instance will be created.
      * @returns The modified result parameter, or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
-     * @exception {DeveloperError} bottom is required.
-     * @exception {DeveloperError} top is required.
-     * @exception {DeveloperError} near is required.
      */
     Matrix4.computeInfinitePerspectiveOffCenter = function(left, right, bottom, top, near, result) {
                 if (!defined(left)) {
@@ -5959,7 +5793,7 @@ define('Core/Matrix4',[
      *
      * @example
      * // Example 1.  Create viewport transformation using an explicit viewport and depth range.
-     * var m = Matrix4.computeViewportTransformation({
+     * var m = Cesium.Matrix4.computeViewportTransformation({
      *     x : 0.0,
      *     y : 0.0,
      *     width : 1024.0,
@@ -5967,7 +5801,7 @@ define('Core/Matrix4',[
      * }, 0.0, 1.0);
      *
      * // Example 2.  Create viewport transformation using the context's viewport.
-     * var m = Matrix4.computeViewportTransformation(context.getViewport());
+     * var m = Cesium.Matrix4.computeViewportTransformation(context.getViewport());
      */
     Matrix4.computeViewportTransformation = function(viewport, nearDepthRange, farDepthRange, result) {
         viewport = defaultValue(viewport, defaultValue.EMPTY_OBJECT);
@@ -6024,19 +5858,16 @@ define('Core/Matrix4',[
      * @param {Array} [result] The Array onto which to store the result.
      * @returns {Array} The modified Array parameter or a new Array instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     *
      * @example
      * //create an array from an instance of Matrix4
      * // m = [10.0, 14.0, 18.0, 22.0]
      * //     [11.0, 15.0, 19.0, 23.0]
      * //     [12.0, 16.0, 20.0, 24.0]
      * //     [13.0, 17.0, 21.0, 25.0]
-     * var a = Matrix4.toArray(m);
+     * var a = Cesium.Matrix4.toArray(m);
      *
      * // m remains the same
      * //creates a = [10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0]
-     *
      */
     Matrix4.toArray = function(matrix, result) {
                 if (!defined(matrix)) {
@@ -6076,21 +5907,21 @@ define('Core/Matrix4',[
      * @param {Number} column The zero-based index of the column.
      * @returns {Number} The index of the element at the provided row and column.
      *
-     * @exception {DeveloperError} row is required and must be 0, 1, 2, or 3.
-     * @exception {DeveloperError} column is required and must be 0, 1, 2, or 3.
+     * @exception {DeveloperError} row must be 0, 1, 2, or 3.
+     * @exception {DeveloperError} column must be 0, 1, 2, or 3.
      *
      * @example
-     * var myMatrix = new Matrix4();
-     * var column1Row0Index = Matrix4.getElementIndex(1, 0);
+     * var myMatrix = new Cesium.Matrix4();
+     * var column1Row0Index = Cesium.Matrix4.getElementIndex(1, 0);
      * var column1Row0 = myMatrix[column1Row0Index]
      * myMatrix[column1Row0Index] = 10.0;
      */
     Matrix4.getElementIndex = function(column, row) {
                 if (typeof row !== 'number' || row < 0 || row > 3) {
-            throw new DeveloperError('row is required and must be 0, 1, 2, or 3.');
+            throw new DeveloperError('row must be 0, 1, 2, or 3.');
         }
         if (typeof column !== 'number' || column < 0 || column > 3) {
-            throw new DeveloperError('column is required and must be 0, 1, 2, or 3.');
+            throw new DeveloperError('column must be 0, 1, 2, or 3.');
         }
         
         return column * 4 + row;
@@ -6105,8 +5936,7 @@ define('Core/Matrix4',[
      * @param {Cartesian4} [result] The object onto which to store the result.
      * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, 2, or 3.
+     * @exception {DeveloperError} index must be 0, 1, 2, or 3.
      *
      * @see Cartesian4
      *
@@ -6118,14 +5948,13 @@ define('Core/Matrix4',[
      * //     [22.0, 23.0, 24.0, 25.0]
      *
      * //Example 1: Creates an instance of Cartesian
-     * var a = Matrix4.getColumn(m, 2);
+     * var a = Cesium.Matrix4.getColumn(m, 2);
      *
      * //Example 2: Sets values for Cartesian instance
-     * var a = new Cartesian4();
-     * Matrix4.getColumn(m, 2, a);
+     * var a = new Cesium.Cartesian4();
+     * Cesium.Matrix4.getColumn(m, 2, a);
      *
      * // a.x = 12.0; a.y = 16.0; a.z = 20.0; a.w = 24.0;
-     *
      */
     Matrix4.getColumn = function(matrix, index, result) {
                 if (!defined(matrix)) {
@@ -6133,7 +5962,7 @@ define('Core/Matrix4',[
         }
 
         if (typeof index !== 'number' || index < 0 || index > 3) {
-            throw new DeveloperError('index is required and must be 0, 1, 2, or 3.');
+            throw new DeveloperError('index must be 0, 1, 2, or 3.');
         }
         
         var startIndex = index * 4;
@@ -6162,9 +5991,7 @@ define('Core/Matrix4',[
      * @param {Cartesian4} [result] The object onto which to store the result.
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, 2, or 3.
+     * @exception {DeveloperError} index must be 0, 1, 2, or 3.
      *
      * @see Cartesian4
      *
@@ -6175,14 +6002,13 @@ define('Core/Matrix4',[
      * //     [18.0, 19.0, 20.0, 21.0]
      * //     [22.0, 23.0, 24.0, 25.0]
      *
-     * var a = Matrix4.setColumn(m, 2, new Cartesian4(99.0, 98.0, 97.0, 96.0));
+     * var a = Cesium.Matrix4.setColumn(m, 2, new Cartesian4(99.0, 98.0, 97.0, 96.0));
      *
      * // m remains the same
      * // a = [10.0, 11.0, 99.0, 13.0]
      * //     [14.0, 15.0, 98.0, 17.0]
      * //     [18.0, 19.0, 97.0, 21.0]
      * //     [22.0, 23.0, 96.0, 25.0]
-     *
      */
     Matrix4.setColumn = function(matrix, index, cartesian, result) {
                 if (!defined(matrix)) {
@@ -6192,7 +6018,7 @@ define('Core/Matrix4',[
             throw new DeveloperError('cartesian is required');
         }
         if (typeof index !== 'number' || index < 0 || index > 3) {
-            throw new DeveloperError('index is required and must be 0, 1, 2, or 3.');
+            throw new DeveloperError('index must be 0, 1, 2, or 3.');
         }
         
         result = Matrix4.clone(matrix, result);
@@ -6213,8 +6039,7 @@ define('Core/Matrix4',[
      * @param {Cartesian4} [result] The object onto which to store the result.
      * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, 2, or 3.
+     * @exception {DeveloperError} index must be 0, 1, 2, or 3.
      *
      * @see Cartesian4
      *
@@ -6226,11 +6051,11 @@ define('Core/Matrix4',[
      * //     [22.0, 23.0, 24.0, 25.0]
      *
      * //Example 1: Returns an instance of Cartesian
-     * var a = Matrix4.getRow(m, 2);
+     * var a = Cesium.Matrix4.getRow(m, 2);
      *
      * //Example 1: Sets values for a Cartesian instance
      * var a = new Cartesian4();
-     * Matrix4.getRow(m, 2, a);
+     * Cesium.Matrix4.getRow(m, 2, a);
      *
      * // a.x = 18.0; a.y = 19.0; a.z = 20.0; a.w = 21.0;
      */
@@ -6240,7 +6065,7 @@ define('Core/Matrix4',[
         }
 
         if (typeof index !== 'number' || index < 0 || index > 3) {
-            throw new DeveloperError('index is required and must be 0, 1, 2, or 3.');
+            throw new DeveloperError('index must be 0, 1, 2, or 3.');
         }
         
         var x = matrix[index];
@@ -6268,9 +6093,7 @@ define('Core/Matrix4',[
      * @param {Cartesian4} [result] The object onto which to store the result.
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} index is required and must be 0, 1, 2, or 3.
+     * @exception {DeveloperError} index must be 0, 1, 2, or 3.
      *
      * @see Cartesian4
      *
@@ -6281,14 +6104,13 @@ define('Core/Matrix4',[
      * //     [18.0, 19.0, 20.0, 21.0]
      * //     [22.0, 23.0, 24.0, 25.0]
      *
-     * var a = Matrix4.setRow(m, 2, new Cartesian4(99.0, 98.0, 97.0, 96.0));
+     * var a = Cesium.Matrix4.setRow(m, 2, new Cartesian4(99.0, 98.0, 97.0, 96.0));
      *
      * // m remains the same
      * // a = [10.0, 11.0, 12.0, 13.0]
      * //     [14.0, 15.0, 16.0, 17.0]
      * //     [99.0, 98.0, 97.0, 96.0]
      * //     [22.0, 23.0, 24.0, 25.0]
-     *
      */
     Matrix4.setRow = function(matrix, index, cartesian, result) {
                 if (!defined(matrix)) {
@@ -6298,7 +6120,7 @@ define('Core/Matrix4',[
             throw new DeveloperError('cartesian is required');
         }
         if (typeof index !== 'number' || index < 0 || index > 3) {
-            throw new DeveloperError('index is required and must be 0, 1, 2, or 3.');
+            throw new DeveloperError('index must be 0, 1, 2, or 3.');
         }
         
         result = Matrix4.clone(matrix, result);
@@ -6317,9 +6139,6 @@ define('Core/Matrix4',[
      * @param {Matrix4} right The second matrix.
      * @param {Matrix4} [result] The object onto which to store the result.
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Matrix4.multiply = function(left, right, result) {
                 if (!defined(left)) {
@@ -6423,13 +6242,10 @@ define('Core/Matrix4',[
      * @param {Matrix4} [result] The object onto which to store the result.
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
      *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
-     *
      * @example
-     * var m1 = new Matrix4(1.0, 6.0, 7.0, 0.0, 2.0, 5.0, 8.0, 0.0, 3.0, 4.0, 9.0, 0.0, 0.0, 0.0, 0.0, 1.0];
-     * var m2 = Transforms.eastNorthUpToFixedFrame(new Cartesian3(1.0, 1.0, 1.0));
-     * var m3 = Matrix4.multiplyTransformation(m1, m2);
+     * var m1 = new Cesium.Matrix4(1.0, 6.0, 7.0, 0.0, 2.0, 5.0, 8.0, 0.0, 3.0, 4.0, 9.0, 0.0, 0.0, 0.0, 0.0, 1.0];
+     * var m2 = Cesium.Transforms.eastNorthUpToFixedFrame(new Cesium.Cartesian3(1.0, 1.0, 1.0));
+     * var m3 = Cesium.Matrix4.multiplyTransformation(m1, m2);
      */
     Matrix4.multiplyTransformation = function(left, right, result) {
                 if (!defined(left)) {
@@ -6519,14 +6335,11 @@ define('Core/Matrix4',[
      *
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} translation is required.
-     *
      * @see Matrix4#fromTranslation
      *
      * @example
-     * // Instead of Matrix4.multiply(m, Matrix4.fromTranslation(position), m);
-     * Matrix4.multiplyByTranslation(m, position, m);
+     * // Instead of Matrix4.multiply(m, Cesium.Matrix4.fromTranslation(position), m);
+     * Cesium.Matrix4.multiplyByTranslation(m, position, m);
      */
     Matrix4.multiplyByTranslation = function(matrix, translation, result) {
                 if (!defined(matrix)) {
@@ -6585,15 +6398,12 @@ define('Core/Matrix4',[
      *
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} scale is required.
-     *
      * @see Matrix4#fromUniformScale
      * @see Matrix4#multiplyByScale
      *
      * @example
-     * // Instead of Matrix4.multiply(m, Matrix4.fromUniformScale(scale), m);
-     * Matrix4.multiplyByUniformScale(m, scale, m);
+     * // Instead of Matrix4.multiply(m, Cesium.Matrix4.fromUniformScale(scale), m);
+     * Cesium.Matrix4.multiplyByUniformScale(m, scale, m);
      */
     Matrix4.multiplyByUniformScale = function(matrix, scale, result) {
                 if (typeof scale !== 'number') {
@@ -6619,15 +6429,12 @@ define('Core/Matrix4',[
      *
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} scale is required.
-     *
      * @see Matrix4#fromScale
      * @see Matrix4#multiplyByUniformScale
      *
      * @example
-     * // Instead of Matrix4.multiply(m, Matrix4.fromScale(scale), m);
-     * Matrix4.multiplyByUniformScale(m, scale, m);
+     * // Instead of Matrix4.multiply(m, Cesium.Matrix4.fromScale(scale), m);
+     * Cesium.Matrix4.multiplyByUniformScale(m, scale, m);
      */
     Matrix4.multiplyByScale = function(matrix, scale, result) {
                 if (!defined(matrix)) {
@@ -6681,9 +6488,6 @@ define('Core/Matrix4',[
      * @param {Cartesian4} cartesian The vector.
      * @param {Cartesian4} [result] The object onto which to store the result.
      * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} cartesian is required.
      */
     Matrix4.multiplyByVector = function(matrix, cartesian, result) {
                 if (!defined(matrix)) {
@@ -6723,15 +6527,12 @@ define('Core/Matrix4',[
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
      *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} matrix is required.
-     *
      * @example
-     * Cartesian3 p = new Cartesian3(1.0, 2.0, 3.0);
-     * Matrix4.multiplyByPointAsVector(matrix, p, result);
+     * var p = new Cesium.Cartesian3(1.0, 2.0, 3.0);
+     * Cesium.Matrix4.multiplyByPointAsVector(matrix, p, result);
      * // A shortcut for
      * //   Cartesian3 p = ...
-     * //   Matrix4.multiplyByVector(matrix, new Cartesian4(p.x, p.y, p.z, 0.0), result);
+     * //   Cesium.Matrix4.multiplyByVector(matrix, new Cesium.Cartesian4(p.x, p.y, p.z, 0.0), result);
      */
     Matrix4.multiplyByPointAsVector = function(matrix, cartesian, result) {
                 if (!defined(matrix)) {
@@ -6768,12 +6569,9 @@ define('Core/Matrix4',[
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
      *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} matrix is required.
-     *
      * @example
-     * Cartesian3 p = new Cartesian3(1.0, 2.0, 3.0);
-     * Matrix4.multiplyByPoint(matrix, p, result);
+     * var p = new Cesium.Cartesian3(1.0, 2.0, 3.0);
+     * Cesium.Matrix4.multiplyByPoint(matrix, p, result);
      */
     Matrix4.multiplyByPoint = function(matrix, cartesian, result) {
                 if (!defined(matrix)) {
@@ -6810,9 +6608,6 @@ define('Core/Matrix4',[
      * @param {Matrix4} [result] The object onto which to store the result.
      * @returns {Matrix4} The modified result parameter or a new Cartesian4 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     * @exception {DeveloperError} scalar is required and must be a number.
-     *
      * @example
      * //create a Matrix4 instance which is a scaled version of the supplied Matrix4
      * // m = [10.0, 11.0, 12.0, 13.0]
@@ -6820,21 +6615,20 @@ define('Core/Matrix4',[
      * //     [18.0, 19.0, 20.0, 21.0]
      * //     [22.0, 23.0, 24.0, 25.0]
      *
-     * var a = Matrix4.multiplyByScalar(m, -2);
+     * var a = Cesium.Matrix4.multiplyByScalar(m, -2);
      *
      * // m remains the same
      * // a = [-20.0, -22.0, -24.0, -26.0]
      * //     [-28.0, -30.0, -32.0, -34.0]
      * //     [-36.0, -38.0, -40.0, -42.0]
      * //     [-44.0, -46.0, -48.0, -50.0]
-     *
      */
     Matrix4.multiplyByScalar = function(matrix, scalar, result) {
                 if (!defined(matrix)) {
             throw new DeveloperError('matrix is required');
         }
         if (typeof scalar !== 'number') {
-            throw new DeveloperError('scalar is required and must be a number');
+            throw new DeveloperError('scalar must be a number');
         }
         
         if (!defined(result)) {
@@ -6870,8 +6664,6 @@ define('Core/Matrix4',[
      * @param {Matrix4} [result] The object onto which to store the result.
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     *
      * @example
      * //create a new Matrix4 instance which is a negation of a Matrix4
      * // m = [10.0, 11.0, 12.0, 13.0]
@@ -6879,14 +6671,13 @@ define('Core/Matrix4',[
      * //     [18.0, 19.0, 20.0, 21.0]
      * //     [22.0, 23.0, 24.0, 25.0]
      *
-     * var a = Matrix4.negate(m);
+     * var a = Cesium.Matrix4.negate(m);
      *
      * // m remains the same
      * // a = [-10.0, -11.0, -12.0, -13.0]
      * //     [-14.0, -15.0, -16.0, -17.0]
      * //     [-18.0, -19.0, -20.0, -21.0]
      * //     [-22.0, -23.0, -24.0, -25.0]
-     *
      */
     Matrix4.negate = function(matrix, result) {
                 if (!defined(matrix)) {
@@ -6926,8 +6717,6 @@ define('Core/Matrix4',[
      * @param {Matrix4} [result] The object onto which to store the result.
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     *
      * @example
      * //returns transpose of a Matrix4
      * // m = [10.0, 11.0, 12.0, 13.0]
@@ -6935,14 +6724,13 @@ define('Core/Matrix4',[
      * //     [18.0, 19.0, 20.0, 21.0]
      * //     [22.0, 23.0, 24.0, 25.0]
      *
-     * var a = Matrix4.negate(m);
+     * var a = Cesium.Matrix4.negate(m);
      *
      * // m remains the same
      * // a = [10.0, 14.0, 18.0, 22.0]
      * //     [11.0, 15.0, 19.0, 23.0]
      * //     [12.0, 16.0, 20.0, 24.0]
      * //     [13.0, 17.0, 21.0, 25.0]
-     *
      */
     Matrix4.transpose = function(matrix, result) {
                 if (!defined(matrix)) {
@@ -6989,8 +6777,6 @@ define('Core/Matrix4',[
      * @param {Matrix4} matrix The matrix with signed elements.
      * @param {Matrix4} [result] The object onto which to store the result.
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
      */
     Matrix4.abs = function(matrix, result) {
                 if (!defined(matrix)) {
@@ -7047,14 +6833,13 @@ define('Core/Matrix4',[
      * //     [12.0, 16.0, 20.0, 24.0]
      * //     [13.0, 17.0, 21.0, 25.0]
      *
-     * if(Matrix4.equals(a,b)) {
+     * if(Cesium.Matrix4.equals(a,b)) {
      *      console.log("Both matrices are equal");
      * } else {
      *      console.log("They are not equal");
      * }
      *
      * //Prints "Both matrices are equal" on the console
-     *
      */
     Matrix4.equals = function(left, right) {
         return (left === right) ||
@@ -7089,8 +6874,6 @@ define('Core/Matrix4',[
      * @param {Number} epsilon The epsilon to use for equality testing.
      * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
      *
-     * @exception {DeveloperError} epsilon is required and must be a number.
-     *
      * @example
      * //compares two Matrix4 instances
      *
@@ -7104,18 +6887,17 @@ define('Core/Matrix4',[
      * //     [12.0, 16.0, 20.0, 24.0]
      * //     [13.0, 17.0, 21.0, 25.0]
      *
-     * if(Matrix4.equalsEpsilon(a,b,0.1)){
+     * if(Cesium.Matrix4.equalsEpsilon(a,b,0.1)){
      *      console.log("Difference between both the matrices is less than 0.1");
      * } else {
      *      console.log("Difference between both the matrices is not less than 0.1");
      * }
      *
      * //Prints "Difference between both the matrices is not less than 0.1" on the console
-     *
      */
     Matrix4.equalsEpsilon = function(left, right, epsilon) {
                 if (typeof epsilon !== 'number') {
-            throw new DeveloperError('epsilon is required and must be a number');
+            throw new DeveloperError('epsilon must be a number');
         }
         
         return (left === right) ||
@@ -7147,8 +6929,6 @@ define('Core/Matrix4',[
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     *
      * @see Cartesian3
      */
     Matrix4.getTranslation = function(matrix, result) {
@@ -7173,8 +6953,6 @@ define('Core/Matrix4',[
      * @param {Matrix3} [result] The object onto which to store the result.
      * @returns {Matrix3} The modified result parameter or a new Cartesian3 instance if one was not provided.
      *
-     * @exception {DeveloperError} matrix is required.
-     *
      * @see Matrix3
      *
      * @example
@@ -7185,13 +6963,12 @@ define('Core/Matrix4',[
      * //     [12.0, 16.0, 20.0, 24.0]
      * //     [13.0, 17.0, 21.0, 25.0]
      *
-     * var b = new Matrix3();
-     * Matrix4.getRotation(m,b);
+     * var b = new Cesium.Matrix3();
+     * Cesium.Matrix4.getRotation(m,b);
      *
      * // b = [10.0, 14.0, 18.0]
      * //     [11.0, 15.0, 19.0]
      * //     [12.0, 16.0, 20.0]
-     *
      */
     Matrix4.getRotation = function(matrix, result) {
                 if (!defined(matrix)) {
@@ -7226,7 +7003,6 @@ define('Core/Matrix4',[
       * @param {Matrix4} [result] The object onto which to store the result.
       * @returns {Matrix4} The modified result parameter or a new Cartesian3 instance if one was not provided.
       *
-      * @exception {DeveloperError} matrix is required.
       * @exception {RuntimeError} matrix is not invertible because its determinate is zero.
       */
     Matrix4.inverse = function(matrix, result) {
@@ -7351,8 +7127,6 @@ define('Core/Matrix4',[
      * @param {Matrix4} matrix The matrix to invert.
      * @param {Matrix4} [result] The object onto which to store the result.
      * @returns {Matrix4} The modified result parameter or a new Cartesian3 instance if one was not provided.
-     *
-     * @exception {DeveloperError} matrix is required.
      */
     Matrix4.inverseTransformation = function(matrix, result) {
                 if (!defined(matrix)) {
@@ -7545,8 +7319,6 @@ define('Core/Matrix4',[
      * @param {Matrix4} [right] The right hand side matrix.
      * @param {Number} epsilon The epsilon to use for equality testing.
      * @returns {Boolean} <code>true</code> if they are within the provided epsilon, <code>false</code> otherwise.
-     *
-     * @exception {DeveloperError} epsilon is required and must be a number.
      */
     Matrix4.prototype.equalsEpsilon = function(right, epsilon) {
         return Matrix4.equalsEpsilon(this, right, epsilon);
@@ -7571,24 +7343,22 @@ define('Core/Matrix4',[
 
 /*global define*/
 define('Core/BoundingSphere',[
+        './Cartesian3',
+        './Cartographic',
         './defaultValue',
         './defined',
         './DeveloperError',
-        './Cartesian3',
-        './Cartesian4',
-        './Cartographic',
         './Ellipsoid',
         './GeographicProjection',
         './Intersect',
         './Interval',
         './Matrix4'
     ], function(
+        Cartesian3,
+        Cartographic,
         defaultValue,
         defined,
         DeveloperError,
-        Cartesian3,
-        Cartesian4,
-        Cartographic,
         Ellipsoid,
         GeographicProjection,
         Intersect,
@@ -7670,7 +7440,7 @@ define('Core/BoundingSphere',[
         var zMax = Cartesian3.clone(currentPos, fromPointsZMax);
 
         var numPositions = positions.length;
-        for ( var i = 1; i < numPositions; i++) {
+        for (var i = 1; i < numPositions; i++) {
             Cartesian3.clone(positions[i], currentPos);
 
             var x = currentPos.x;
@@ -7902,11 +7672,11 @@ define('Core/BoundingSphere',[
      * // Compute the bounding sphere from 3 positions, each specified relative to a center.
      * // In addition to the X, Y, and Z coordinates, the points array contains two additional
      * // elements per point which are ignored for the purpose of computing the bounding sphere.
-     * var center = new Cartesian3(1.0, 2.0, 3.0);
+     * var center = new Cesium.Cartesian3(1.0, 2.0, 3.0);
      * var points = [1.0, 2.0, 3.0, 0.1, 0.2,
      *               4.0, 5.0, 6.0, 0.1, 0.2,
      *               7.0, 8.0, 9.0, 0.1, 0.2];
-     * var sphere = BoundingSphere.fromVertices(points, center, 5);
+     * var sphere = Cesium.BoundingSphere.fromVertices(points, center, 5);
      */
     BoundingSphere.fromVertices = function(positions, center, stride, result) {
         if (!defined(result)) {
@@ -8070,11 +7840,9 @@ define('Core/BoundingSphere',[
      *
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
      *
-     * @exception {DeveloperError} corner and oppositeCorner are required.
-     *
      * @example
      * // Create a bounding sphere around the unit cube
-     * var sphere = BoundingSphere.fromCornerPoints(new Cartesian3(-0.5, -0.5, -0.5), new Cartesian3(0.5, 0.5, 0.5));
+     * var sphere = Cesium.BoundingSphere.fromCornerPoints(new Cesium.Cartesian3(-0.5, -0.5, -0.5), new Cesium.Cartesian3(0.5, 0.5, 0.5));
      */
     BoundingSphere.fromCornerPoints = function(corner, oppositeCorner, result) {
                 if (!defined(corner) || !defined(oppositeCorner)) {
@@ -8102,10 +7870,8 @@ define('Core/BoundingSphere',[
      *
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
      *
-     * @exception {DeveloperError} ellipsoid is required.
-     *
      * @example
-     * var boundingSphere = BoundingSphere.fromEllipsoid(ellipsoid);
+     * var boundingSphere = Cesium.BoundingSphere.fromEllipsoid(ellipsoid);
      */
     BoundingSphere.fromEllipsoid = function(ellipsoid, result) {
                 if (!defined(ellipsoid)) {
@@ -8117,7 +7883,7 @@ define('Core/BoundingSphere',[
         }
 
         Cartesian3.clone(Cartesian3.ZERO, result.center);
-        result.radius = ellipsoid.getMaximumRadius();
+        result.radius = ellipsoid.maximumRadius;
         return result;
     };
 
@@ -8153,9 +7919,6 @@ define('Core/BoundingSphere',[
      * @param {BoundingSphere} right A sphere to enclose in a bounding sphere.
      * @param {BoundingSphere} [result] The object onto which to store the result.
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     BoundingSphere.union = function(left, right, result) {
                 if (!defined(left)) {
@@ -8194,9 +7957,6 @@ define('Core/BoundingSphere',[
      * @param {Cartesian3} point A point to enclose in a bounding sphere.
      * @param {BoundingSphere} [result] The object onto which to store the result.
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
-     *
-     * @exception {DeveloperError} sphere is required.
-     * @exception {DeveloperError} point is required.
      */
     BoundingSphere.expand = function(sphere, point, result) {
                 if (!defined(sphere)) {
@@ -8228,9 +7988,6 @@ define('Core/BoundingSphere',[
      * @returns {Intersect} {Intersect.INSIDE} if the entire sphere is on the side of the plane the normal
      *                     is pointing, {Intersect.OUTSIDE} if the entire sphere is on the opposite side,
      *                     and {Intersect.INTERSETING} if the sphere intersects the plane.
-     *
-     * @exception {DeveloperError} sphere is required.
-     * @exception {DeveloperError} plane is required.
      */
     BoundingSphere.intersect = function(sphere, plane) {
                 if (!defined(sphere)) {
@@ -8265,9 +8022,6 @@ define('Core/BoundingSphere',[
      * @param {Matrix4} transform The transformation matrix to apply to the bounding sphere.
      * @param {BoundingSphere} [result] The object onto which to store the result.
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
-     *
-     * @exception {DeveloperError} sphere is required.
-     * @exception {DeveloperError} transform is required.
      */
     BoundingSphere.transform = function(sphere, transform, result) {
                 if (!defined(sphere)) {
@@ -8301,13 +8055,10 @@ define('Core/BoundingSphere',[
      * @param {BoundingSphere} [result] The object onto which to store the result.
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
      *
-     * @exception {DeveloperError} sphere is required.
-     * @exception {DeveloperError} transform is required.
-     *
      * @example
-     * var modelMatrix = Transforms.eastNorthUpToFixedFrame(positionOnEllipsoid);
-     * var boundingSphere = new BoundingSphere();
-     * var newBoundingSphere = BoundingSphere.transformWithoutScale(boundingSphere, modelMatrix);
+     * var modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(positionOnEllipsoid);
+     * var boundingSphere = new Cesium.BoundingSphere();
+     * var newBoundingSphere = Cesium.BoundingSphere.transformWithoutScale(boundingSphere, modelMatrix);
      */
     BoundingSphere.transformWithoutScale = function(sphere, transform, result) {
                 if (!defined(sphere)) {
@@ -8342,10 +8093,6 @@ define('Core/BoundingSphere',[
      * @param {Cartesian3} direction The direction from position.
      * @param {Cartesian2} [result] A Cartesian2 to store the nearest and farthest distances.
      * @returns {Interval} The nearest and farthest distances on the bounding sphere from position in direction.
-     *
-     * @exception {DeveloperError} sphere is required.
-     * @exception {DeveloperError} position is required.
-     * @exception {DeveloperError} direction is required.
      */
     BoundingSphere.getPlaneDistances = function(sphere, position, direction, result) {
                 if (!defined(sphere)) {
@@ -8392,8 +8139,6 @@ define('Core/BoundingSphere',[
      * @param {Object} [projection=GeographicProjection] The projection to 2D.
      * @param {BoundingSphere} [result] The object onto which to store the result.
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
-     *
-     * @exception {DeveloperError} sphere is required.
      */
     BoundingSphere.projectTo2D = function(sphere, projection, result) {
                 if (!defined(sphere)) {
@@ -8402,7 +8147,7 @@ define('Core/BoundingSphere',[
         
         projection = defaultValue(projection, projectTo2DProjection);
 
-        var ellipsoid = projection.getEllipsoid();
+        var ellipsoid = projection.ellipsoid;
         var center = sphere.center;
         var radius = sphere.radius;
 
@@ -8520,8 +8265,6 @@ define('Core/BoundingSphere',[
      * @param {BoundingSphere} right The sphere to enclose in this bounding sphere.
      * @param {BoundingSphere} [result] The object onto which to store the result.
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
-     *
-     * @exception {DeveloperError} sphere is required.
      */
     BoundingSphere.prototype.union = function(right, result) {
         return BoundingSphere.union(this, right, result);
@@ -8534,8 +8277,6 @@ define('Core/BoundingSphere',[
      * @param {Cartesian3} point A point to enclose in a bounding sphere.
      * @param {BoundingSphere} [result] The object onto which to store the result.
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if one was not provided.
-     *
-     * @exception {DeveloperError} point is required.
      */
     BoundingSphere.prototype.expand = function(point, result) {
         return BoundingSphere.expand(this, point, result);
@@ -8551,8 +8292,6 @@ define('Core/BoundingSphere',[
      * @returns {Intersect} {Intersect.INSIDE} if the entire sphere is on the side of the plane the normal
      *                     is pointing, {Intersect.OUTSIDE} if the entire sphere is on the opposite side,
      *                     and {Intersect.INTERSETING} if the sphere intersects the plane.
-     *
-     * @exception {DeveloperError} plane is required.
      */
     BoundingSphere.prototype.intersect = function(plane) {
         return BoundingSphere.intersect(this, plane);
@@ -8570,9 +8309,6 @@ define('Core/BoundingSphere',[
      * @param {Cartesian3} direction The direction from position.
      * @param {Cartesian2} [result] A Cartesian2 to store the nearest and farthest distances.
      * @returns {Interval} The nearest and farthest distances on the bounding sphere from position in direction.
-     *
-     * @exception {DeveloperError} position is required.
-     * @exception {DeveloperError} direction is required.
      */
     BoundingSphere.prototype.getPlaneDistances = function(position, direction, result) {
         return BoundingSphere.getPlaneDistances(this, position, direction, result);
@@ -8738,10 +8474,10 @@ define('Core/Fullscreen',['./defined'], function(defined) {
      *
      * @example
      * // Put the entire page into fullscreen.
-     * Fullscreen.requestFullscreen(document.body)
+     * Cesium.Fullscreen.requestFullscreen(document.body)
      *
      * // Place only the Cesium canvas into fullscreen.
-     * Fullscreen.requestFullscreen(scene.getCanvas())
+     * Cesium.Fullscreen.requestFullscreen(scene.canvas)
      */
     Fullscreen.requestFullscreen = function(element) {
         if (!Fullscreen.supportsFullscreen()) {
@@ -8932,12 +8668,21 @@ define('Core/FeatureDetection',[
     var internetExplorerVersionResult;
     function isInternetExplorer() {
         if (!defined(isInternetExplorerResult)) {
-            var fields = (/ MSIE ([\.0-9]+)/).exec(navigator.userAgent);
-            if (fields === null) {
-                isInternetExplorerResult = false;
+            var fields;
+            if (navigator.appName === 'Microsoft Internet Explorer') {
+                fields = /MSIE ([0-9]{1,}[\.0-9]{0,})/.exec(navigator.userAgent);
+                if (fields !== null) {
+                    isInternetExplorerResult = true;
+                    internetExplorerVersionResult = extractVersion(fields[1]);
+                }
+            } else if (navigator.appName === 'Netscape') {
+                fields = /Trident\/.*rv:([0-9]{1,}[\.0-9]{0,})/.exec(navigator.userAgent);
+                if (fields !== null) {
+                    isInternetExplorerResult = true;
+                    internetExplorerVersionResult = extractVersion(fields[1]);
+                }
             } else {
-                isInternetExplorerResult = true;
-                internetExplorerVersionResult = extractVersion(fields[1]);
+                isInternetExplorerResult = false;
             }
         }
         return isInternetExplorerResult;
@@ -8964,31 +8709,6 @@ define('Core/FeatureDetection',[
         internetExplorerVersion : internetExplorerVersion
     };
 
-    var supportsCrossOriginImagery;
-
-    /**
-     * Detects whether the current browser supports the use of cross-origin
-     * requests to load streaming imagery.
-     *
-     * @returns true if the browser can load cross-origin streaming imagery, false if not.
-     *
-     * @see <a href='http://www.w3.org/TR/cors/'>Cross-Origin Resource Sharing</a>
-     */
-    FeatureDetection.supportsCrossOriginImagery = function() {
-        if (!defined(supportsCrossOriginImagery)) {
-            if (isSafari() && webkitVersion()[0] < 536) {
-                // versions of Safari below this incorrectly throw a DOM error when calling
-                // readPixels on a canvas containing a cross-origin image.
-                supportsCrossOriginImagery = false;
-            } else {
-                // any other versions of browsers that incorrectly block
-                // readPixels on canvas containing crossOrigin images?
-                supportsCrossOriginImagery = 'withCredentials' in new XMLHttpRequest();
-            }
-        }
-        return supportsCrossOriginImagery;
-    };
-
     /**
      * Detects whether the current browser supports the full screen standard.
      *
@@ -9010,6 +8730,33 @@ define('Core/FeatureDetection',[
      */
     FeatureDetection.supportsTypedArrays = function() {
         return typeof ArrayBuffer !== 'undefined';
+    };
+
+    var supportsTransferringArrayBuffersResult;
+
+    /**
+     * Detects whether the current browser can transfer an ArrayBuffer
+     * to / from a web worker.
+     *
+     * @returns true if the browser can transfer ArrayBuffers; otherwise, false.
+     */
+    FeatureDetection.supportsTransferringArrayBuffers = function() {
+        if (!defined(supportsTransferringArrayBuffersResult)) {
+            if (!FeatureDetection.supportsTypedArrays()) {
+                supportsTransferringArrayBuffersResult = false;
+                return;
+            }
+
+            var arrayBuffer = new ArrayBuffer(1);
+            try {
+                /*global postMessage*/
+                postMessage({ value : arrayBuffer }, [arrayBuffer]);
+                supportsTransferringArrayBuffersResult = true;
+            } catch(e) {
+                supportsTransferringArrayBuffersResult = false;
+            }
+        }
+        return supportsTransferringArrayBuffersResult;
     };
 
     return FeatureDetection;
@@ -9127,8 +8874,8 @@ define('Core/ComponentDatatype',[
      * @returns {Boolean} <code>true</code> if the provided component datatype is a valid enumeration value; otherwise, <code>false</code>.
      *
      * @example
-     * if (!ComponentDatatype.validate(componentDatatype)) {
-     *   throw new DeveloperError('componentDatatype must be a valid enumeration value.');
+     * if (!Cesium.ComponentDatatype.validate(componentDatatype)) {
+     *   throw new Cesium.DeveloperError('componentDatatype must be a valid enumeration value.');
      * }
      */
     ComponentDatatype.validate = function(componentDatatype) {
@@ -9150,23 +8897,20 @@ define('Core/ComponentDatatype',[
      *
      * @returns {Int8Array|Uint8Array|Int16Array|Uint16Array|Float32Array|Float64Array} A typed array.
      *
-     * @exception {DeveloperError} componentDatatype is required.
-     * @exception {DeveloperError} valuesOrLength is required.
      * @exception {DeveloperError} componentDatatype is not a valid enumeration value.
      *
      * @example
      * // creates a Float32Array with length of 100
-     * var typedArray = ComponentDatatype.createTypedArray(ComponentDatatype.FLOAT, 100);
+     * var typedArray = Cesium.ComponentDatatype.createTypedArray(Cesium.ComponentDatatype.FLOAT, 100);
      */
     ComponentDatatype.createTypedArray = function(componentDatatype, valuesOrLength) {
-        if (!defined(componentDatatype)) {
+                if (!defined(componentDatatype)) {
             throw new DeveloperError('componentDatatype is required.');
         }
-
         if (!defined(valuesOrLength)) {
             throw new DeveloperError('valuesOrLength is required.');
         }
-
+        
         switch (componentDatatype.value) {
         case ComponentDatatype.BYTE.value:
             return new Int8Array(valuesOrLength);
@@ -9196,19 +8940,16 @@ define('Core/ComponentDatatype',[
      *
      * @returns {Int8Array|Uint8Array|Int16Array|Uint16Array|Float32Array|Float64Array} A typed array view of the buffer.
      *
-     * @exception {DeveloperError} componentDatatype is required.
-     * @exception {DeveloperError} buffer is required.
      * @exception {DeveloperError} componentDatatype is not a valid enumeration value.
      */
     ComponentDatatype.createArrayBufferView = function(componentDatatype, buffer, byteOffset, length) {
-        if (!defined(componentDatatype)) {
+                if (!defined(componentDatatype)) {
             throw new DeveloperError('componentDatatype is required.');
         }
-
         if (!defined(buffer)) {
             throw new DeveloperError('buffer is required.');
         }
-
+        
         byteOffset = defaultValue(byteOffset, 0);
         length = defaultValue(length, (buffer.byteLength - byteOffset) / componentDatatype.sizeInBytes);
 
@@ -9287,11 +9028,9 @@ define('Core/IndexDatatype',[
      *
      * @returns {Number} The size in bytes.
      *
-     * @exception {DeveloperError} indexDatatype is required and must be a valid IndexDatatype constant.
-     *
      * @example
      * // Returns 2
-     * var size = IndexDatatype.getSizeInBytes(IndexDatatype.UNSIGNED_SHORT);
+     * var size = Cesium.IndexDatatype.getSizeInBytes(Cesium.IndexDatatype.UNSIGNED_SHORT);
      */
     IndexDatatype.getSizeInBytes = function(indexDatatype) {
         switch(indexDatatype) {
@@ -9303,8 +9042,8 @@ define('Core/IndexDatatype',[
                 return Uint32Array.BYTES_PER_ELEMENT;
         }
 
-        throw new DeveloperError('indexDatatype is required and must be a valid IndexDatatype constant.');
-    };
+                throw new DeveloperError('indexDatatype is required and must be a valid IndexDatatype constant.');
+            };
 
     /**
      * Validates that the provided index datatype is a valid {@link IndexDatatype}.
@@ -9314,8 +9053,8 @@ define('Core/IndexDatatype',[
      * @returns {Boolean} <code>true</code> if the provided index datatype is a valid value; otherwise, <code>false</code>.
      *
      * @example
-     * if (!IndexDatatype.validate(indexDatatype)) {
-     *   throw new DeveloperError('indexDatatype must be a valid value.');
+     * if (!Cesium.IndexDatatype.validate(indexDatatype)) {
+     *   throw new Cesium.DeveloperError('indexDatatype must be a valid value.');
      * }
      */
     IndexDatatype.validate = function(indexDatatype) {
@@ -9334,16 +9073,14 @@ define('Core/IndexDatatype',[
      *
      * @returns {Array} A <code>Uint16Array</code> or <code>Uint32Array</code> constructed with <code>indicesLengthOrArray</code>.
      *
-     * @exception {DeveloperError} center is required.
-     *
      * @example
-     * this.indices = IndexDatatype.createTypedArray(positions.length / 3, numberOfIndices);
+     * this.indices = Cesium.IndexDatatype.createTypedArray(positions.length / 3, numberOfIndices);
      */
     IndexDatatype.createTypedArray = function(numberOfVertices, indicesLengthOrArray) {
-        if (!defined(numberOfVertices)) {
+                if (!defined(numberOfVertices)) {
             throw new DeveloperError('numberOfVertices is required.');
         }
-
+        
         if (numberOfVertices > CesiumMath.SIXTY_FOUR_KILOBYTES) {
             return new Uint32Array(indicesLengthOrArray);
         }
@@ -9358,13 +9095,11 @@ define('Core/IndexDatatype',[
 define('Core/Geometry',[
         './defaultValue',
         './defined',
-        './DeveloperError',
-        './BoundingSphere'
+        './DeveloperError'
     ], function(
         defaultValue,
         defined,
-        DeveloperError,
-        BoundingSphere) {
+        DeveloperError) {
     "use strict";
 
     /**
@@ -9388,8 +9123,6 @@ define('Core/Geometry',[
      * @param {Array} [options.indices] Optional index data that determines the primitives in the geometry.
      * @param {BoundingSphere} [options.boundingSphere] An optional bounding sphere that fully enclosed the geometry.
 
-     * @exception {DeveloperError} options.attributes is required.
-     * @exception {DeveloperError} options.primitiveType is required.
      *
      * @example
      * // Create geometry with a position attribute and indexed lines.
@@ -9399,17 +9132,17 @@ define('Core/Geometry',[
      *   0.0, 7500000.0, 0.0
      * ]);
      *
-     * var geometry = new Geometry({
+     * var geometry = new Cesium.Geometry({
      *   attributes : {
-     *     position : new GeometryAttribute({
-     *       componentDatatype : ComponentDatatype.DOUBLE,
+     *     position : new Cesium.GeometryAttribute({
+     *       componentDatatype : Cesium.ComponentDatatype.DOUBLE,
      *       componentsPerAttribute : 3,
      *       values : positions
      *     })
      *   },
      *   indices : new Uint16Array([0, 1, 1, 2, 2, 0]),
-     *   primitiveType : PrimitiveType.LINES,
-     *   boundingSphere : BoundingSphere.fromVertices(positions)
+     *   primitiveType : Cesium.PrimitiveType.LINES,
+     *   boundingSphere : Cesium.BoundingSphere.fromVertices(positions)
      * });
      *
      * @demo <a href="http://cesiumjs.org/Cesium/Apps/Sandcastle/index.html?src=Geometry%20and%20Appearances.html">Geometry and Appearances Demo</a>
@@ -9426,14 +9159,13 @@ define('Core/Geometry',[
     var Geometry = function(options) {
         options = defaultValue(options, defaultValue.EMPTY_OBJECT);
 
-        if (!defined(options.attributes)) {
+                if (!defined(options.attributes)) {
             throw new DeveloperError('options.attributes is required.');
         }
-
         if (!defined(options.primitiveType)) {
             throw new DeveloperError('options.primitiveType is required.');
         }
-
+        
         /**
          * Attributes, which make up the geometry's vertices.  Each property in this object corresponds to a
          * {@link GeometryAttribute} containing the attribute's data.
@@ -9472,8 +9204,8 @@ define('Core/Geometry',[
          * @default undefined
          *
          * @example
-         * geometry.attributes.position = new GeometryAttribute({
-         *   componentDatatype : ComponentDatatype.FLOAT,
+         * geometry.attributes.position = new Cesium.GeometryAttribute({
+         *   componentDatatype : Cesium.ComponentDatatype.FLOAT,
          *   componentsPerAttribute : 3,
          *   values : new Float32Array()
          * });
@@ -9524,16 +9256,14 @@ define('Core/Geometry',[
      *
      * @returns {Number} The number of vertices in the geometry.
      *
-     * @exception {DeveloperError} geometries is required.
-     *
      * @example
-     * var numVertices = Geometry.computeNumberOfVertices(geometry);
+     * var numVertices = Cesium.Geometry.computeNumberOfVertices(geometry);
      */
     Geometry.computeNumberOfVertices = function(geometry) {
-        if (!defined(geometry)) {
+                if (!defined(geometry)) {
             throw new DeveloperError('geometry is required.');
         }
-
+        
         var numberOfVertices = -1;
         for ( var property in geometry.attributes) {
             if (geometry.attributes.hasOwnProperty(property) &&
@@ -9579,16 +9309,13 @@ define('Core/GeometryAttribute',[
      * @param {Boolean} [options.normalize=false] When <code>true</code> and <code>componentDatatype</code> is an integer format, indicate that the components should be mapped to the range [0, 1] (unsigned) or [-1, 1] (signed) when they are accessed as floating-point for rendering.
      * @param {Array} [options.values=undefined] The values for the attributes stored in a typed array.
      *
-     * @exception {DeveloperError} options.componentDatatype is required.
-     * @exception {DeveloperError} options.componentsPerAttribute is required.
      * @exception {DeveloperError} options.componentsPerAttribute must be between 1 and 4.
-     * @exception {DeveloperError} options.values is required.
      *
      * @example
-     * var geometry = new Geometry({
+     * var geometry = new Cesium.Geometry({
      *   attributes : {
-     *     position : new GeometryAttribute({
-     *       componentDatatype : ComponentDatatype.FLOAT,
+     *     position : new Cesium.GeometryAttribute({
+     *       componentDatatype : Cesium.ComponentDatatype.FLOAT,
      *       componentsPerAttribute : 3,
      *       values : [
      *         0.0, 0.0, 0.0,
@@ -9597,7 +9324,7 @@ define('Core/GeometryAttribute',[
      *       ]
      *     })
      *   },
-     *   primitiveType : PrimitiveType.LINE_LOOP
+     *   primitiveType : Cesium.PrimitiveType.LINE_LOOP
      * });
      *
      * @see Geometry
@@ -9605,25 +9332,22 @@ define('Core/GeometryAttribute',[
     var GeometryAttribute = function(options) {
         options = defaultValue(options, defaultValue.EMPTY_OBJECT);
 
-        if (!defined(options.componentDatatype)) {
+                if (!defined(options.componentDatatype)) {
             throw new DeveloperError('options.componentDatatype is required.');
         }
-
         if (!defined(options.componentsPerAttribute)) {
             throw new DeveloperError('options.componentsPerAttribute is required.');
         }
-
         if (options.componentsPerAttribute < 1 || options.componentsPerAttribute > 4) {
             throw new DeveloperError('options.componentsPerAttribute must be between 1 and 4.');
         }
-
         if (!defined(options.values)) {
             throw new DeveloperError('options.values is required.');
         }
-
+        
         /**
          * The datatype of each component in the attribute, e.g., individual elements in
-         * {@see GeometryAttribute#values}.
+         * {@link GeometryAttribute#values}.
          *
          * @type ComponentDatatype
          *
@@ -9641,7 +9365,7 @@ define('Core/GeometryAttribute',[
          * @default undefined
          *
          * @example
-         * attribute.componentDatatype : ComponentDatatype.FLOAT,
+         * attribute.componentDatatype : Cesium.ComponentDatatype.FLOAT,
          * attribute.componentsPerAttribute : 3,
          * attribute.values = new Float32Array([
          *   0.0, 0.0, 0.0,
@@ -9656,7 +9380,7 @@ define('Core/GeometryAttribute',[
          * indicate that the components should be mapped to the range [0, 1] (unsigned)
          * or [-1, 1] (signed) when they are accessed as floating-point for rendering.
          * <p>
-         * This is commonly used when storing colors using {@ ComponentDatatype.UNSIGNED_BYTE}.
+         * This is commonly used when storing colors using {@link ComponentDatatype.UNSIGNED_BYTE}.
          * </p>
          *
          * @type Boolean
@@ -9664,14 +9388,14 @@ define('Core/GeometryAttribute',[
          * @default false
          *
          * @example
-         * attribute.componentDatatype : ComponentDatatype.UNSIGNED_BYTE,
+         * attribute.componentDatatype : Cesium.ComponentDatatype.UNSIGNED_BYTE,
          * attribute.componentsPerAttribute : 4,
          * attribute.normalize = true;
          * attribute.values = new Uint8Array([
-         *   Color.floatToByte(color.red)
-         *   Color.floatToByte(color.green)
-         *   Color.floatToByte(color.blue)
-         *   Color.floatToByte(color.alpha)
+         *   Cesium.Color.floatToByte(color.red)
+         *   Cesium.Color.floatToByte(color.green)
+         *   Cesium.Color.floatToByte(color.blue)
+         *   Cesium.Color.floatToByte(color.alpha)
          * ]);
          */
         this.normalize = defaultValue(options.normalize, false);
@@ -9686,7 +9410,7 @@ define('Core/GeometryAttribute',[
          * @default undefined
          *
          * @example
-         * attribute.componentDatatype : ComponentDatatype.FLOAT,
+         * attribute.componentDatatype : Cesium.ComponentDatatype.FLOAT,
          * attribute.componentsPerAttribute : 3,
          * attribute.values = new Float32Array([
          *   0.0, 0.0, 0.0,
@@ -9900,7 +9624,7 @@ define('Core/VertexFormat',[
      *
      * @example
      * // Create a vertex format with position and 2D texture coordinate attributes.
-     * var format = new VertexFormat({
+     * var format = new Cesium.VertexFormat({
      *   position : true,
      *   st : true
      * });
@@ -10305,19 +10029,20 @@ define('ThirdParty/Uri',[],function() {
 		this.path = output.join('/');
 	};
 
-	/**
-	 * Resolves a relative URI against an absolute base URI.
-	 * Convenience method.
-	 * @param {String} uri the relative URI to resolve
-	 * @param {String} baseURI the base URI (must be absolute) to resolve against
-	 */
-	URI.resolve = function(sURI, sBaseURI) {
-		var uri = cache[sURI] || (cache[sURI] = new URI(sURI));
-		var baseURI = cache[sBaseURI] || (cache[sBaseURI] = new URI(sBaseURI));
-		return uri.resolve(baseURI).toString();
-	};
+	// We don't like this function because it builds up a cache that is never cleared.
+//	/**
+//	 * Resolves a relative URI against an absolute base URI.
+//	 * Convenience method.
+//	 * @param {String} uri the relative URI to resolve
+//	 * @param {String} baseURI the base URI (must be absolute) to resolve against
+//	 */
+//	URI.resolve = function(sURI, sBaseURI) {
+//		var uri = cache[sURI] || (cache[sURI] = new URI(sURI));
+//		var baseURI = cache[sBaseURI] || (cache[sBaseURI] = new URI(sBaseURI));
+//		return uri.resolve(baseURI).toString();
+//	};
 
-	var cache = {};
+//	var cache = {};
 
 	/**
 	 * Serialises the URI to a string.
@@ -10498,20 +10223,16 @@ define('Core/binarySearch',[
      *        of the index before which the itemToFind should be inserted in order to maintain the
      *        sorted order of the array.
      *
-     * @exception {DeveloperError} <code>array</code> is required.
-     * @exception {DeveloperError} <code>toFind</code> is required.
-     * @exception {DeveloperError} <code>comparator</code> is required.
-     *
      * @example
      * // Create a comparator function to search through an array of numbers.
      * var comparator = function (a, b) {
      *     return a - b;
      * };
      * var numbers = [0, 2, 4, 6, 8];
-     * var index = binarySearch(numbers, 6, comparator); // 3
+     * var index = Cesium.binarySearch(numbers, 6, comparator); // 3
      */
     var binarySearch = function(array, itemToFind, comparator) {
-        if (!defined(array)) {
+                if (!defined(array)) {
             throw new DeveloperError('array is required.');
         }
         if (!defined(itemToFind)) {
@@ -10520,7 +10241,7 @@ define('Core/binarySearch',[
         if (!defined(comparator)) {
             throw new DeveloperError('comparator is required.');
         }
-
+        
         var low = 0;
         var high = array.length - 1;
         var i;
@@ -10641,12 +10362,36 @@ define('Core/TimeConstants',[],function() {
 });
 
 /*global define*/
+define('Core/isArray',['./defined'
+    ], function(
+        defined) {
+    "use strict";
+
+    /**
+     * Tests an object to see if it is an array.
+     * @exports isArray
+     *
+     * @param {Object} value The value to test.
+     * @returns {Boolean} true if the value is an array, false otherwise.
+     */
+    var isArray = Array.isArray;
+    if (!defined(isArray)) {
+        isArray = function(value) {
+            return Object.prototype.toString.call(value) === '[object Array]';
+        };
+    }
+
+    return isArray;
+});
+/*global define*/
 define('Core/LeapSecond',[
         './defined',
-        './DeveloperError'
+        './DeveloperError',
+        './isArray'
     ], function(
         defined,
-        DeveloperError) {
+        DeveloperError,
+        isArray) {
     "use strict";
 
     /**
@@ -10659,16 +10404,13 @@ define('Core/LeapSecond',[
      * @param {JulianDate} date A Julian date representing the time of the leap second.
      * @param {Number} offset The cumulative number of seconds, that TAI is ahead of UTC at provided date.
      *
-     * @exception {DeveloperError} <code>date</code> is required.
-     * @exception {DeveloperError} <code>offset</code> is required.
-     *
      * @see JulianDate
      * @see TimeStandard
      *
      * @example
      * // Example 1. Construct a LeapSecond using a JulianDate
      * var date = new Date('January 1, 1990 00:00:00 UTC');
-     * var leapSecond = new LeapSecond(JulianDate.fromDate(date), 25.0);
+     * var leapSecond = new Cesium.LeapSecond(Cesium.JulianDate.fromDate(date), 25.0);
      * var offset = leapSecond.offset;    // 25.0
      *
      * //////////////////////////////////////////////////////////////////
@@ -10678,14 +10420,13 @@ define('Core/LeapSecond',[
      * var leapSecond = new LeapSecond(date, 25.0);
      */
     var LeapSecond = function(date, offset) {
-        if (!defined(date)) {
+                if (!defined(date)) {
             throw new DeveloperError('date is required.');
         }
-
         if (offset === null || isNaN(offset)) {
             throw new DeveloperError('offset is required and must be a number.');
         }
-
+        
         /**
          * The Julian date at which this leap second occurs.
          *
@@ -10713,16 +10454,17 @@ define('Core/LeapSecond',[
      * @see LeapSecond.setLeapSeconds
      *
      * @example
-     * LeapSecond.setLeapSeconds([
-     *                            new LeapSecond(new JulianDate(2453736, 43233.0, TimeStandard.TAI), 33), // January 1, 2006 00:00:00 UTC
-     *                            new LeapSecond(new JulianDate(2454832, 43234.0, TimeStandard.TAI), 34), // January 1, 2009 00:00:00 UTC
-     *                            new LeapSecond(new JulianDate(2456109, 43235.0, TimeStandard.TAI), 35)  // July 1, 2012 00:00:00 UTC
+     * Cesium.LeapSecond.setLeapSeconds([
+     *                            new Cesium.LeapSecond(new Cesium.JulianDate(2453736, 43233.0, Cesium.TimeStandard.TAI), 33), // January 1, 2006 00:00:00 UTC
+     *                            new Cesium.LeapSecond(new Cesium.JulianDate(2454832, 43234.0, Cesium.TimeStandard.TAI), 34), // January 1, 2009 00:00:00 UTC
+     *                            new Cesium.LeapSecond(new Cesium.JulianDate(2456109, 43235.0, Cesium.TimeStandard.TAI), 35)  // July 1, 2012 00:00:00 UTC
      *                           ]);
      */
     LeapSecond.setLeapSeconds = function(leapSeconds) {
-        if (!Array.isArray(leapSeconds)) {
+                if (!isArray(leapSeconds)) {
             throw new DeveloperError("leapSeconds is required and must be an array.");
         }
+        
         LeapSecond._leapSeconds = leapSeconds;
         LeapSecond._leapSeconds.sort(LeapSecond.compareLeapSecondDate);
     };
@@ -10752,8 +10494,8 @@ define('Core/LeapSecond',[
      *
      * @example
      * var date = new Date('January 1, 1990 00:00:00 UTC');
-     * var leapSecond1 = new LeapSecond(JulianDate.fromDate(date), 25.0);
-     * var leapSecond2 = new LeapSecond(JulianDate.fromDate(date), 25.0);
+     * var leapSecond1 = new Cesium.LeapSecond(Cesium.JulianDate.fromDate(date), 25.0);
+     * var leapSecond2 = new Cesium.LeapSecond(Cesium.JulianDate.fromDate(date), 25.0);
      * leapSecond1.equals(leapSecond2);     // true
      */
     LeapSecond.prototype.equals = function(other) {
@@ -10778,9 +10520,9 @@ define('Core/LeapSecond',[
      *
      * @example
      * var date = new Date('January 1, 2006 00:00:00 UTC');
-     * var leapSecond1 = new LeapSecond(JulianDate.fromDate(date), 33.0);
-     * var leapSecond2 = new LeapSecond(JulianDate.fromDate(date), 34.0);
-     * LeapSecond.compareLeapSecondDate(leapSecond1, leapSecond2);    // returns 0
+     * var leapSecond1 = new Cesium.LeapSecond(Cesium.JulianDate.fromDate(date), 33.0);
+     * var leapSecond2 = new Cesium.LeapSecond(Cesium.JulianDate.fromDate(date), 34.0);
+     * Cesium.LeapSecond.compareLeapSecondDate(leapSecond1, leapSecond2);    // returns 0
      */
     LeapSecond.compareLeapSecondDate = function(leapSecond1, leapSecond2) {
         return leapSecond1.julianDate.compareTo(leapSecond2.julianDate);
@@ -10837,15 +10579,14 @@ define('Core/isLeapYear',[
      *
      * @returns {Boolean} True if <code>year</code> is a leap yer.
      *
-     * @exception {DeveloperError} year is required and must be a number.
-     *
      * @example
-     * var leapYear = isLeapYear(2000); // true
+     * var leapYear = Cesium.isLeapYear(2000); // true
      */
     function isLeapYear(year) {
-        if (year === null || isNaN(year)) {
+                if (year === null || isNaN(year)) {
             throw new DeveloperError('year is required and must be a number.');
         }
+        
         return ((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0);
     }
 
@@ -11176,6 +10917,7 @@ define('Core/JulianDate',[
         './DeveloperError',
         './binarySearch',
         './defined',
+        './defaultValue',
         './TimeConstants',
         './LeapSecond',
         './TimeStandard',
@@ -11185,6 +10927,7 @@ define('Core/JulianDate',[
         DeveloperError,
         binarySearch,
         defined,
+        defaultValue,
         TimeConstants,
         LeapSecond,
         TimeStandard,
@@ -11404,8 +11147,6 @@ define('Core/JulianDate',[
      * @param {TimeStandard} [timeStandard = TimeStandard.UTC] The time standard in which the first two parameters are defined.
      *
      * @exception {DeveloperError} timeStandard is not a known TimeStandard.
-     * @exception {DeveloperError} julianDayNumber is required.
-     * @exception {DeveloperError} julianSecondsOfDay is required.
      *
      * @see JulianDate.fromDate
      * @see JulianDate.fromTotalDays
@@ -11415,12 +11156,12 @@ define('Core/JulianDate',[
      *
      * @example
      * // Example 1. Construct a JulianDate representing the current system time.
-     * var julianDate = new JulianDate();
+     * var julianDate = new Cesium.JulianDate();
      *
      * // Example 2. Construct a JulianDate from a Julian day number and seconds of the day.
      * var julianDayNumber = 2448257;   // January 1, 1991
      * var secondsOfDay = 21600;        // 06:00:00
-     * var julianDate = new JulianDate(julianDayNumber, secondsOfDay, TimeStandard.UTC);
+     * var julianDate = new Cesium.JulianDate(julianDayNumber, secondsOfDay, Cesium.TimeStandard.UTC);
      */
     var JulianDate = function(julianDayNumber, julianSecondsOfDay, timeStandard) {
         this._julianDayNumber = undefined;
@@ -11430,20 +11171,18 @@ define('Core/JulianDate',[
         var secondsOfDay;
         //If any of the properties are defined, then we are constructing from components.
         if (defined(julianDayNumber) || defined(julianSecondsOfDay) || defined(timeStandard)) {
-            if (!defined(timeStandard)) {
-                timeStandard = TimeStandard.UTC;
-            } else if (timeStandard !== TimeStandard.UTC && timeStandard !== TimeStandard.TAI) {
+            timeStandard = defaultValue(timeStandard, TimeStandard.UTC);
+
+                        if (timeStandard !== TimeStandard.UTC && timeStandard !== TimeStandard.TAI) {
                 throw new DeveloperError('timeStandard is not a known TimeStandard.');
             }
-
             if (julianDayNumber === null || isNaN(julianDayNumber)) {
                 throw new DeveloperError('julianDayNumber is required.');
             }
-
             if (julianSecondsOfDay === null || isNaN(julianSecondsOfDay)) {
                 throw new DeveloperError('julianSecondsOfDay is required.');
             }
-
+            
             //coerce to integer
             wholeDays = julianDayNumber | 0;
             //If julianDayNumber was fractional, add the number of seconds the fraction represented
@@ -11509,13 +11248,13 @@ define('Core/JulianDate',[
      * @example
      * // Construct a JulianDate specifying the UTC time standard
      * var date = new Date('January 1, 2011 12:00:00 EST');
-     * var julianDate = JulianDate.fromDate(date, TimeStandard.UTC);
+     * var julianDate = Cesium.JulianDate.fromDate(date, Cesium.TimeStandard.UTC);
      */
     JulianDate.fromDate = function(date, timeStandard) {
-        if (!(date instanceof Date) || isNaN(date.getTime())) {
+                if (!(date instanceof Date) || isNaN(date.getTime())) {
             throw new DeveloperError('date must be a valid JavaScript Date.');
         }
-
+        
         var components = computeJulianDateComponentsFromDate(date);
         return new JulianDate(components[0], components[1], timeStandard);
     };
@@ -11541,17 +11280,17 @@ define('Core/JulianDate',[
      *
      * @example
      * // Example 1. Construct a JulianDate in UTC at April 24th, 2012 6:08PM UTC
-     * var julianDate = JulianDate.fromIso8601('2012-04-24T18:08Z');
+     * var julianDate = Cesium.JulianDate.fromIso8601('2012-04-24T18:08Z');
      * // Example 2. Construct a JulianDate in local time April 24th, 2012 12:00 AM
-     * var localDay = JulianDate.fromIso8601('2012-04-24');
+     * var localDay = Cesium.JulianDate.fromIso8601('2012-04-24');
      * // Example 3. Construct a JulianDate 5 hours behind UTC April 24th, 2012 5:00 pm UTC
-     * var localDay = JulianDate.fromIso8601('2012-04-24T12:00-05:00');
+     * var localDay = Cesium.JulianDate.fromIso8601('2012-04-24T12:00-05:00');
      */
     JulianDate.fromIso8601 = function(iso8601String) {
-        if (typeof iso8601String !== 'string') {
+                if (typeof iso8601String !== 'string') {
             throw new DeveloperError(iso8601ErrorMessage);
         }
-
+        
         //Comma and decimal point both indicate a fractional number according to ISO 8601,
         //start out by blanket replacing , with . which is the only valid such symbol in JS.
         iso8601String = iso8601String.replace(',', '.');
@@ -11796,8 +11535,6 @@ define('Core/JulianDate',[
      *
      * @returns {JulianDate} The new {@Link JulianDate} instance.
      *
-     * @exception {DeveloperError} totalDays is required.
-     *
      * @see JulianDate
      * @see JulianDate.fromDate
      * @see JulianDate.fromIso8601
@@ -11806,12 +11543,13 @@ define('Core/JulianDate',[
      *
      * @example
      * // Construct a date which corresponds to January 1, 1991 06:00:00 UTC.
-     * var julianDate = JulianDate.fromTotalDays(2448257.75, TimeStandard.UTC);
+     * var julianDate = Cesium.JulianDate.fromTotalDays(2448257.75, Cesium.TimeStandard.UTC);
      */
     JulianDate.fromTotalDays = function(totalDays, timeStandard) {
-        if (totalDays === null || isNaN(totalDays)) {
+                if (totalDays === null || isNaN(totalDays)) {
             throw new DeveloperError('totalDays is required.');
         }
+        
         return new JulianDate(totalDays, 0, timeStandard);
     };
 
@@ -11865,14 +11603,13 @@ define('Core/JulianDate',[
      *
      * @returns {Boolean} <code>true</code> if the two JulianDates are within <code>epsilon</code> seconds of each other; otherwise <code>false</code>.
      *
-     * @exception {DeveloperError} epsilon is required and must be a number.
-     *
      * @see JulianDate#equals
      */
     JulianDate.equalsEpsilon = function(left, right, epsilon) {
-        if (epsilon === null || isNaN(epsilon)) {
+                if (epsilon === null || isNaN(epsilon)) {
             throw new DeveloperError('epsilon is required and must be a number.');
         }
+        
         return Math.abs(left.getSecondsDifference(right)) <= epsilon;
     };
 
@@ -12060,8 +11797,8 @@ define('Core/JulianDate',[
      * @see JulianDate#getDaysDifference
      *
      * @example
-     * var start = JulianDate.fromDate(new Date('July 4, 2011 12:00:00'));
-     * var end = JulianDate.fromDate(new Date('July 5, 2011 12:01:00'));
+     * var start = Cesium.JulianDate.fromDate(new Date('July 4, 2011 12:00:00'));
+     * var end = Cesium.JulianDate.fromDate(new Date('July 5, 2011 12:01:00'));
      * var difference = start.getSecondsDifference(end);    // 86460.0 seconds
      */
     JulianDate.prototype.getSecondsDifference = function(other) {
@@ -12085,8 +11822,8 @@ define('Core/JulianDate',[
      * @see JulianDate#getDaysDifference
      *
      * @example
-     * var start = JulianDate.fromDate(new Date('July 4, 2011 12:00:00'));
-     * var end = JulianDate.fromDate(new Date('July 5, 2011 12:01:00'));
+     * var start = Cesium.JulianDate.fromDate(new Date('July 4, 2011 12:00:00'));
+     * var end = Cesium.JulianDate.fromDate(new Date('July 5, 2011 12:01:00'));
      * var difference = start.getMinutesDifference(end);    // 1441.0 minutes
      */
     JulianDate.prototype.getMinutesDifference = function(other) {
@@ -12107,8 +11844,8 @@ define('Core/JulianDate',[
      * @see JulianDate#getMinutesDifference
      *
      * @example
-     * var start = JulianDate.fromDate(new Date('July 4, 2011 12:00:00'));
-     * var end = JulianDate.fromDate(new Date('July 5, 2011 14:24:00'));
+     * var start = Cesium.JulianDate.fromDate(new Date('July 4, 2011 12:00:00'));
+     * var end = Cesium.JulianDate.fromDate(new Date('July 5, 2011 14:24:00'));
      * var difference = start.getDaysDifference(end);    // 1.1 days
      */
     JulianDate.prototype.getDaysDifference = function(other) {
@@ -12131,7 +11868,7 @@ define('Core/JulianDate',[
      *
      * @example
      * var date = new Date('August 1, 2012 12:00:00 UTC');
-     * var julianDate = JulianDate.fromDate(date);
+     * var julianDate = Cesium.JulianDate.fromDate(date);
      * var difference = julianDate.getTaiMinusUtc(); //35
      */
     JulianDate.prototype.getTaiMinusUtc = function() {
@@ -12159,8 +11896,6 @@ define('Core/JulianDate',[
      *
      * @returns {JulianDate} The modified result parameter or a new JulianDate instance if it was not provided.
      *
-     * @exception {DeveloperError} seconds is required and must be a number.
-     *
      * @see JulianDate#addMinutes
      * @see JulianDate#addHours
      * @see JulianDate#addDays
@@ -12169,13 +11904,14 @@ define('Core/JulianDate',[
      * var date = new Date();
      * date.setUTCFullYear(2011, 6, 4);     // July 4, 2011 @ 12:00:00 UTC
      * date.setUTCHours(12, 0, 00, 0);
-     * var start = JulianDate.fromDate(date);
+     * var start = Cesium.JulianDate.fromDate(date);
      * var end = start.addSeconds(95);      // July 4, 2011 @ 12:01:35 UTC
      */
     JulianDate.prototype.addSeconds = function(seconds, result) {
-        if (seconds === null || isNaN(seconds)) {
+                if (seconds === null || isNaN(seconds)) {
             throw new DeveloperError('seconds is required and must be a number.');
         }
+        
         return setComponents(this._julianDayNumber, this._secondsOfDay + seconds, result);
     };
 
@@ -12189,8 +11925,6 @@ define('Core/JulianDate',[
      *
      * @returns {JulianDate} A new JulianDate object
      *
-     * @exception {DeveloperError} duration is required and must be a number.
-     *
      * @see JulianDate#addSeconds
      * @see JulianDate#addHours
      * @see JulianDate#addDays
@@ -12199,13 +11933,14 @@ define('Core/JulianDate',[
      * var date = new Date();
      * date.setUTCFullYear(2011, 6, 4);     // July 4, 2011 @ 12:00 UTC
      * date.setUTCHours(12, 0, 0, 0);
-     * var start = JulianDate.fromDate(date);
+     * var start = Cesium.JulianDate.fromDate(date);
      * var end = start.addMinutes(65);      // July 4, 2011 @ 13:05 UTC
      */
     JulianDate.prototype.addMinutes = function(duration) {
-        if (duration === null || isNaN(duration)) {
+                if (duration === null || isNaN(duration)) {
             throw new DeveloperError('duration is required and must be a number.');
         }
+        
         var newSecondsOfDay = this._secondsOfDay + (duration * TimeConstants.SECONDS_PER_MINUTE);
         return new JulianDate(this._julianDayNumber, newSecondsOfDay, TimeStandard.TAI);
     };
@@ -12220,8 +11955,6 @@ define('Core/JulianDate',[
      *
      * @returns {JulianDate} A new JulianDate object
      *
-     * @exception {DeveloperError} duration is required and must be a number.
-     *
      * @see JulianDate#addSeconds
      * @see JulianDate#addMinutes
      * @see JulianDate#addDays
@@ -12230,13 +11963,14 @@ define('Core/JulianDate',[
      * var date = new Date();
      * date.setUTCFullYear(2011, 6, 4);     // July 4, 2011 @ 12:00 UTC
      * date.setUTCHours(12, 0, 0, 0);
-     * var start = JulianDate.fromDate(date);
+     * var start = Cesium.JulianDate.fromDate(date);
      * var end = start.addHours(6);         // July 4, 2011 @ 18:00 UTC
      */
     JulianDate.prototype.addHours = function(duration) {
-        if (duration === null || isNaN(duration)) {
+                if (duration === null || isNaN(duration)) {
             throw new DeveloperError('duration is required and must be a number.');
         }
+        
         var newSecondsOfDay = this._secondsOfDay + (duration * TimeConstants.SECONDS_PER_HOUR);
         return new JulianDate(this._julianDayNumber, newSecondsOfDay, TimeStandard.TAI);
     };
@@ -12251,8 +11985,6 @@ define('Core/JulianDate',[
      *
      * @returns {JulianDate} A new JulianDate object
      *
-     * @exception {DeveloperError} duration is required and must be a number.
-     *
      * @see JulianDate#addSeconds
      * @see JulianDate#addMinutes
      * @see JulianDate#addHours
@@ -12261,13 +11993,14 @@ define('Core/JulianDate',[
      * var date = new Date();
      * date.setUTCFullYear(2011, 6, 4);     // July 4, 2011 @ 12:00 UTC
      * date.setUTCHours(12, 0, 0, 0);
-     * var start = JulianDate.fromDate(date);
+     * var start = Cesium.JulianDate.fromDate(date);
      * var end = start.addDays(5);         // July 9, 2011 @ 12:00 UTC
      */
     JulianDate.prototype.addDays = function(duration) {
-        if (duration === null || isNaN(duration)) {
+                if (duration === null || isNaN(duration)) {
             throw new DeveloperError('duration is required and must be a number.');
         }
+        
         var newJulianDayNumber = this._julianDayNumber + duration;
         return new JulianDate(newJulianDayNumber, this._secondsOfDay, TimeStandard.TAI);
     };
@@ -12286,8 +12019,8 @@ define('Core/JulianDate',[
      * @see JulianDate#greaterThanOrEquals
      *
      * @example
-     * var start = JulianDate.fromDate(new Date('July 6, 1991 12:00:00'));
-     * var end = JulianDate.fromDate(new Date('July 6, 2011 12:01:00'));
+     * var start = Cesium.JulianDate.fromDate(new Date('July 6, 1991 12:00:00'));
+     * var end = Cesium.JulianDate.fromDate(new Date('July 6, 2011 12:01:00'));
      * start.lessThan(end);     // true
      */
     JulianDate.prototype.lessThan = function(other) {
@@ -12308,8 +12041,8 @@ define('Core/JulianDate',[
      * @see JulianDate#greaterThanOrEquals
      *
      * @example
-     * var start = JulianDate.fromDate(new Date('July 6, 1991 12:00:00'));
-     * var end = JulianDate.fromDate(new Date('July 6, 2011 12:00:00'));
+     * var start = Cesium.JulianDate.fromDate(new Date('July 6, 1991 12:00:00'));
+     * var end = Cesium.JulianDate.fromDate(new Date('July 6, 2011 12:00:00'));
      * start.lessThanOrEquals(end);     // true
      */
     JulianDate.prototype.lessThanOrEquals = function(other) {
@@ -12330,8 +12063,8 @@ define('Core/JulianDate',[
      * @see JulianDate#greaterThanOrEquals
      *
      * @example
-     * var start = JulianDate.fromDate(new Date('July 6, 1991 12:00:00'));
-     * var end = JulianDate.fromDate(new Date('July 6, 2011 12:01:00'));
+     * var start = Cesium.JulianDate.fromDate(new Date('July 6, 1991 12:00:00'));
+     * var end = Cesium.JulianDate.fromDate(new Date('July 6, 2011 12:01:00'));
      * end.greaterThan(start);      // true
      */
     JulianDate.prototype.greaterThan = function(other) {
@@ -12352,8 +12085,8 @@ define('Core/JulianDate',[
      * @see JulianDate#greaterThan
      *
      * @example
-     * var start = JulianDate.fromDate(new Date('July 6, 1991 12:00:00'));
-     * var end = JulianDate.fromDate(new Date('July 6, 2011 12:00:00'));
+     * var start = Cesium.JulianDate.fromDate(new Date('July 6, 1991 12:00:00'));
+     * var end = Cesium.JulianDate.fromDate(new Date('July 6, 2011 12:00:00'));
      * end.greaterThanOrEquals(start);      // true
      */
     JulianDate.prototype.greaterThanOrEquals = function(other) {
@@ -12387,8 +12120,8 @@ define('Core/JulianDate',[
      * @see JulianDate#equalsEpsilon
      *
      * @example
-     * var original = JulianDate.fromDate(new Date('July 4, 2011 12:00:00'));
-     * var clone = JulianDate.fromDate(new Date('July 4, 2011 12:00:00'));
+     * var original = Cesium.JulianDate.fromDate(new Date('July 4, 2011 12:00:00'));
+     * var clone = Cesium.JulianDate.fromDate(new Date('July 4, 2011 12:00:00'));
      * original.equals(clone);      // true
      */
     JulianDate.prototype.equals = function(other) {
@@ -12408,13 +12141,11 @@ define('Core/JulianDate',[
      *
      * @returns {Boolean} <code>true</code> if the two JulianDates are within <code>epsilon</code> seconds of each other; otherwise <code>false</code>.
      *
-     * @exception {DeveloperError} epsilon is required and must be a number.
-     *
      * @see JulianDate#equals
      *
      * @example
-     * var original = JulianDate.fromDate(new Date('July 4, 2011 12:00:00'));
-     * var clone = JulianDate.fromDate(new Date('July 4, 2011 12:00:01'));
+     * var original = Cesium.JulianDate.fromDate(new Date('July 4, 2011 12:00:00'));
+     * var clone = Cesium.JulianDate.fromDate(new Date('July 4, 2011 12:00:01'));
      * original.equalsEpsilon(clone, 2);    // true
      */
     JulianDate.prototype.equalsEpsilon = function(other, epsilon) {
@@ -12497,7 +12228,56 @@ define('Core/clone',[
 });
 
 /*global define*/
-define('Core/RequestErrorEvent',['./defined'], function(defined) {
+define('Core/parseResponseHeaders',[], function() {
+    "use strict";
+
+    /**
+     * Parses the result of XMLHttpRequest's getAllResponseHeaders() method into
+     * a dictionary.
+     *
+     * @exports parseResponseHeaders
+     *
+     * @param {String} headerString The header string returned by getAllResponseHeaders().  The format is
+     *                 described here: http://www.w3.org/TR/XMLHttpRequest/#the-getallresponseheaders()-method
+     * @returns {Object} A dictionary of key/value pairs, where each key is the name of a header and the corresponding value
+     *                   is that header's value.
+     * 
+     * @private
+     */
+    var parseResponseHeaders = function(headerString) {
+        var headers = {};
+
+        if (!headerString) {
+          return headers;
+        }
+
+        var headerPairs = headerString.split('\u000d\u000a');
+
+        for (var i = 0; i < headerPairs.length; ++i) {
+          var headerPair = headerPairs[i];
+          // Can't use split() here because it does the wrong thing
+          // if the header value has the string ": " in it.
+          var index = headerPair.indexOf('\u003a\u0020');
+          if (index > 0) {
+            var key = headerPair.substring(0, index);
+            var val = headerPair.substring(index + 2);
+            headers[key] = val;
+          }
+        }
+
+        return headers;
+    };
+
+    return parseResponseHeaders;
+});
+
+/*global define*/
+define('Core/RequestErrorEvent',[
+        './defined',
+        './parseResponseHeaders'
+    ], function(
+        defined,
+        parseResponseHeaders) {
     "use strict";
 
     /**
@@ -12508,8 +12288,10 @@ define('Core/RequestErrorEvent',['./defined'], function(defined) {
      *
      * @param {Number} [statusCode] The HTTP error status code, such as 404.
      * @param {Object} [response] The response included along with the error.
+     * @param {String|Object} [responseHeaders] The response headers, represented either as an object literal or as a
+     *                        string in the format returned by XMLHttpRequest's getAllResponseHeaders() function.
      */
-    var RequestErrorEvent = function RequestErrorEvent(statusCode, response) {
+    var RequestErrorEvent = function RequestErrorEvent(statusCode, response, responseHeaders) {
         /**
          * The HTTP error status code, such as 404.  If the error does not have a particular
          * HTTP code, this property will be undefined.
@@ -12525,6 +12307,18 @@ define('Core/RequestErrorEvent',['./defined'], function(defined) {
          * @type {Object}
          */
         this.response = response;
+
+        /**
+         * The headers included in the response, represented as an object literal of key/value pairs.
+         * If the error does not include any headers, this property will be undefined.
+         *
+         * @type {Object}
+         */
+        this.responseHeaders = responseHeaders;
+
+        if (typeof this.responseHeaders === 'string') {
+            this.responseHeaders = parseResponseHeaders(this.responseHeaders);
+        }
     };
 
     /**
@@ -13323,8 +13117,6 @@ define('Core/loadWithXhr',[
      *
      * @returns {Promise} a promise that will resolve to the requested data when loaded.
      *
-     * @exception {DeveloperError} options.url is required.
-     *
      * @see <a href='http://www.w3.org/TR/cors/'>Cross-Origin Resource Sharing</a>
      * @see <a href='http://wiki.commonjs.org/wiki/Promises/A'>CommonJS Promises/A</a>
      *
@@ -13335,7 +13127,7 @@ define('Core/loadWithXhr',[
      *
      * @example
      * // Load a single URL asynchronously. In real code, you should use loadBlob instead.
-     * loadWithXhr({
+     * Cesium.loadWithXhr({
      *     url : 'some/url',
      *     responseType : 'blob'
      * }).then(function(blob) {
@@ -13346,10 +13138,11 @@ define('Core/loadWithXhr',[
      */
     var loadWithXhr = function(options) {
         options = defaultValue(options, defaultValue.EMPTY_OBJECT);
-        if (!defined(options.url)) {
+
+                if (!defined(options.url)) {
             throw new DeveloperError('options.url is required.');
         }
-
+        
         var responseType = options.responseType;
         var method = defaultValue(options.method, 'GET');
         var data = options.data;
@@ -13385,7 +13178,7 @@ define('Core/loadWithXhr',[
             if (xhr.status === 200) {
                 deferred.resolve(xhr.response);
             } else {
-                deferred.reject(new RequestErrorEvent(xhr.status, xhr.response));
+                deferred.reject(new RequestErrorEvent(xhr.status, xhr.response, xhr.getAllResponseHeaders()));
             }
         };
 
@@ -13419,11 +13212,9 @@ define('Core/loadText',[
      * @param {Object} [headers] HTTP headers to send with the request.
      * @returns {Promise} a promise that will resolve to the requested data when loaded.
      *
-     * @exception {DeveloperError} url is required.
-     *
      * @example
      * // load text from a URL, setting a custom header
-     * loadText('http://someUrl.com/someJson.txt', {
+     * Cesium.loadText('http://someUrl.com/someJson.txt', {
      *   'X-Custom-Header' : 'some value'
      * }).then(function(text) {
      *     //Do something with the text
@@ -13478,10 +13269,8 @@ define('Core/loadJson',[
      * if not specified.
      * @returns {Promise} a promise that will resolve to the requested data when loaded.
      *
-     * @exception {DeveloperError} url is required.
-     *
      * @example
-     * loadJson('http://someUrl.com/someJson.txt').then(function(jsonData) {
+     * Cesium.loadJson('http://someUrl.com/someJson.txt').then(function(jsonData) {
      *     //Do something with the JSON object
      * }, function() {
      *     // an error occurred
@@ -13492,10 +13281,10 @@ define('Core/loadJson',[
      * @see <a href='http://wiki.commonjs.org/wiki/Promises/A'>CommonJS Promises/A</a>
      */
     var loadJson = function loadJson(url, headers) {
-        if (!defined(url)) {
+                if (!defined(url)) {
             throw new DeveloperError('url is required.');
         }
-
+        
         if (!defined(headers)) {
             headers = defaultHeaders;
         } else if (!defined(headers.Accept)) {
@@ -13869,8 +13658,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian3} cartesian The Cartesian3 instance to create a Cartesian2 instance from.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian2.fromCartesian3 = Cartesian2.clone;
 
@@ -13882,8 +13669,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian4} cartesian The Cartesian4 instance to create a Cartesian2 instance from.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian2.fromCartesian4 = Cartesian2.clone;
 
@@ -13900,9 +13685,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} value The value to pack.
      * @param {Array} array The array to pack into.
      * @param {Number} [startingIndex=0] The index into the array at which to start packing the elements.
-     *
-     * @exception {DeveloperError} value is required.
-     * @exception {DeveloperError} array is required.
      */
     Cartesian2.pack = function(value, array, startingIndex) {
                 if (!defined(value)) {
@@ -13926,8 +13708,6 @@ define('Core/Cartesian2',[
      * @param {Array} array The packed array.
      * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
      * @param {Cartesian2} [result] The object into which to store the result.
-     *
-     * @exception {DeveloperError} array is required.
      */
     Cartesian2.unpack = function(array, startingIndex, result) {
                 if (!defined(array)) {
@@ -13954,16 +13734,14 @@ define('Core/Cartesian2',[
      *
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
      *
-     * @exception {DeveloperError} array is required.
-     *
      * @example
      * // Create a Cartesian2 with (1.0, 2.0)
      * var v = [1.0, 2.0];
-     * var p = Cartesian2.fromArray(v);
+     * var p = Cesium.Cartesian2.fromArray(v);
      *
      * // Create a Cartesian2 with (1.0, 2.0) using an offset into an array
      * var v2 = [0.0, 0.0, 1.0, 2.0];
-     * var p2 = Cartesian2.fromArray(v2, 2);
+     * var p2 = Cesium.Cartesian2.fromArray(v2, 2);
      */
     Cartesian2.fromArray = Cartesian2.unpack;
 
@@ -13973,8 +13751,6 @@ define('Core/Cartesian2',[
      *
      * @param {Cartesian2} The cartesian to use.
      * @returns {Number} The value of the maximum component.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian2.getMaximumComponent = function(cartesian) {
                 if (!defined(cartesian)) {
@@ -13990,8 +13766,6 @@ define('Core/Cartesian2',[
      *
      * @param {Cartesian2} The cartesian to use.
      * @returns {Number} The value of the minimum component.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian2.getMinimumComponent = function(cartesian) {
                 if (!defined(cartesian)) {
@@ -14009,9 +13783,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} second A cartesian to compare.
      * @param {Cartesian2} [result] The object into which to store the result.
      * @returns {Cartesian2} A cartesian with the minimum components.
-     *
-     * @exception {DeveloperError} first is required.
-     * @exception {DeveloperError} second is required.
      */
     Cartesian2.getMinimumByComponent = function(first, second, result) {
                 if (!defined(first)) {
@@ -14039,9 +13810,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} second A cartesian to compare.
      * @param {Cartesian2} [result] The object into which to store the result.
      * @returns {Cartesian2} A cartesian with the maximum components.
-     *
-     * @exception {DeveloperError} first is required.
-     * @exception {DeveloperError} second is required.
      */
     Cartesian2.getMaximumByComponent = function(first, second, result) {
                 if (!defined(first)) {
@@ -14066,8 +13834,6 @@ define('Core/Cartesian2',[
      *
      * @param {Cartesian2} cartesian The Cartesian instance whose squared magnitude is to be computed.
      * @returns {Number} The squared magnitude.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian2.magnitudeSquared = function(cartesian) {
                 if (!defined(cartesian)) {
@@ -14083,8 +13849,6 @@ define('Core/Cartesian2',[
      *
      * @param {Cartesian2} cartesian The Cartesian instance whose magnitude is to be computed.
      * @returns {Number} The magnitude.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian2.magnitude = function(cartesian) {
         return Math.sqrt(Cartesian2.magnitudeSquared(cartesian));
@@ -14101,11 +13865,9 @@ define('Core/Cartesian2',[
      *
      * @returns {Number} The distance between two points.
      *
-     * @exception {DeveloperError} left and right are required.
-     *
      * @example
      * // Returns 1.0
-     * var d = Cartesian2.distance(new Cartesian2(1.0, 0.0), new Cartesian2(2.0, 0.0));
+     * var d = Cesium.Cartesian2.distance(new Cesium.Cartesian2(1.0, 0.0), new Cesium.Cartesian2(2.0, 0.0));
      */
     Cartesian2.distance = function(left, right) {
                 if (!defined(left) || !defined(right)) {
@@ -14123,8 +13885,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} cartesian The Cartesian to be normalized.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian2.normalize = function(cartesian, result) {
                 if (!defined(cartesian)) {
@@ -14147,9 +13907,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} left The first Cartesian.
      * @param {Cartesian2} right The second Cartesian.
      * @returns {Number} The dot product.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Cartesian2.dot = function(left, right) {
                 if (!defined(left)) {
@@ -14170,9 +13927,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} right The second Cartesian.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Cartesian2.multiplyComponents = function(left, right, result) {
                 if (!defined(left)) {
@@ -14198,9 +13952,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} right The second Cartesian.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Cartesian2.add = function(left, right, result) {
                 if (!defined(left)) {
@@ -14226,9 +13977,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} right The second Cartesian.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Cartesian2.subtract = function(left, right, result) {
                 if (!defined(left)) {
@@ -14254,9 +14002,6 @@ define('Core/Cartesian2',[
      * @param {Number} scalar The scalar to multiply with.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} scalar is required and must be a number.
      */
     Cartesian2.multiplyByScalar = function(cartesian, scalar, result) {
                 if (!defined(cartesian)) {
@@ -14282,9 +14027,6 @@ define('Core/Cartesian2',[
      * @param {Number} scalar The scalar to divide by.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} scalar is required and must be a number.
      */
     Cartesian2.divideByScalar = function(cartesian, scalar, result) {
                 if (!defined(cartesian)) {
@@ -14309,8 +14051,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} cartesian The Cartesian to be negated.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian2.negate = function(cartesian, result) {
                 if (!defined(cartesian)) {
@@ -14332,8 +14072,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} cartesian The Cartesian whose absolute value is to be computed.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian2.abs = function(cartesian, result) {
                 if (!defined(cartesian)) {
@@ -14358,10 +14096,6 @@ define('Core/Cartesian2',[
      * @param t The point along t at which to interpolate.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
-     *
-     * @exception {DeveloperError} start is required.
-     * @exception {DeveloperError} end is required.
-     * @exception {DeveloperError} t is required and must be a number.
      */
     Cartesian2.lerp = function(start, end, t, result) {
                 if (!defined(start)) {
@@ -14388,9 +14122,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} left The first Cartesian.
      * @param {Cartesian2} right The second Cartesian.
      * @returns {Number} The angle between the Cartesians.
-     *
-     * @exception {DeveloperError} left is required.
-     * @exception {DeveloperError} right is required.
      */
     Cartesian2.angleBetween = function(left, right) {
                 if (!defined(left)) {
@@ -14413,8 +14144,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} cartesian The Cartesian on which to find the most orthogonal axis.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The most orthogonal axis.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     Cartesian2.mostOrthogonalAxis = function(cartesian, result) {
                 if (!defined(cartesian)) {
@@ -14460,8 +14189,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} [right] The second Cartesian.
      * @param {Number} epsilon The epsilon to use for equality testing.
      * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
-     *
-     * @exception {DeveloperError} epsilon is required and must be a number.
      */
     Cartesian2.equalsEpsilon = function(left, right, epsilon) {
                 if (typeof epsilon !== 'number') {
@@ -14525,8 +14252,6 @@ define('Core/Cartesian2',[
      * @param {Cartesian2} [right] The right hand side Cartesian.
      * @param {Number} epsilon The epsilon to use for equality testing.
      * @returns {Boolean} <code>true</code> if they are within the provided epsilon, <code>false</code> otherwise.
-     *
-     * @exception {DeveloperError} epsilon is required and must be a number.
      */
     Cartesian2.prototype.equalsEpsilon = function(right, epsilon) {
         return Cartesian2.equalsEpsilon(this, right, epsilon);
@@ -14600,23 +14325,22 @@ define('Core/EarthOrientationParameters',[
         './binarySearch',
         './defaultValue',
         './defined',
+        './EarthOrientationParametersSample',
         './freezeObject',
         './loadJson',
-        './EarthOrientationParametersSample',
         './JulianDate',
         './LeapSecond',
         './RuntimeError',
         './TimeConstants',
         './TimeStandard',
         '../ThirdParty/when'
-    ],
-    function(
+    ], function(
         binarySearch,
         defaultValue,
         defined,
+        EarthOrientationParametersSample,
         freezeObject,
         loadJson,
-        EarthOrientationParametersSample,
         JulianDate,
         LeapSecond,
         RuntimeError,
@@ -14660,8 +14384,8 @@ define('Core/EarthOrientationParameters',[
      *
      * @example
      * // Loading the EOP data
-     * var eop = new EarthOrientationParameters({ url : 'Data/EOP.json' });
-     * Transforms.earthOrientationParameters = eop;
+     * var eop = new Cesium.EarthOrientationParameters({ url : 'Data/EOP.json' });
+     * Cesium.Transforms.earthOrientationParameters = eop;
      */
     var EarthOrientationParameters = function EarthOrientationParameters(description) {
         description = defaultValue(description, defaultValue.EMPTY_OBJECT);
@@ -15045,13 +14769,11 @@ define('Core/Transforms',[
      * @param {Matrix4} [result] The object onto which to store the result.
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if none was provided.
      *
-     * @exception {DeveloperError} origin is required.
-     *
      * @example
      * // Get the transform from local east-north-up at cartographic (0.0, 0.0) to Earth's fixed frame.
-     * var ellipsoid = Ellipsoid.WGS84;
-     * var center = ellipsoid.cartographicToCartesian(Cartographic.ZERO);
-     * var transform = Transforms.eastNorthUpToFixedFrame(center);
+     * var ellipsoid = Cesium.Ellipsoid.WGS84;
+     * var center = ellipsoid.cartographicToCartesian(Cesium.Cartographic.ZERO);
+     * var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
      */
     Transforms.eastNorthUpToFixedFrame = function(origin, ellipsoid, result) {
                 if (!defined(origin)) {
@@ -15149,13 +14871,11 @@ define('Core/Transforms',[
      * @param {Matrix4} [result] The object onto which to store the result.
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if none was provided.
      *
-     * @exception {DeveloperError} origin is required.
-     *
      * @example
      * // Get the transform from local north-east-down at cartographic (0.0, 0.0) to Earth's fixed frame.
-     * var ellipsoid = Ellipsoid.WGS84;
-     * var center = ellipsoid.cartographicToCartesian(Cartographic.ZERO);
-     * var transform = Transforms.northEastDownToFixedFrame(center);
+     * var ellipsoid = Cesium.Ellipsoid.WGS84;
+     * var center = ellipsoid.cartographicToCartesian(Cesium.Cartographic.ZERO);
+     * var transform = Cesium.Transforms.northEastDownToFixedFrame(center);
      */
     Transforms.northEastDownToFixedFrame = function(origin, ellipsoid, result) {
                 if (!defined(origin)) {
@@ -15250,16 +14970,14 @@ define('Core/Transforms',[
      * @param {Matrix3} [result] The object onto which to store the result.
      * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if none was provided.
      *
-     * @exception {DeveloperError} date is required.
-     *
      * @example
      * //Set the view to in the inertial frame.
      * function updateAndRender() {
-     *     var now = new JulianDate();
+     *     var now = new Cesium.JulianDate();
      *     scene.initializeFrame();
-     *     scene.getCamera().transform = Matrix4.fromRotationTranslation(Transforms.computeTemeToPseudoFixedMatrix(now), Cartesian3.ZERO);
+     *     scene.camera.transform = Cesium.Matrix4.fromRotationTranslation(Cesium.Transforms.computeTemeToPseudoFixedMatrix(now), Cesium.Cartesian3.ZERO);
      *     scene.render();
-     *     requestAnimationFrame(updateAndRender);
+     *     Cesium.requestAnimationFrame(updateAndRender);
      * }
      * updateAndRender();
      */
@@ -15354,7 +15072,7 @@ define('Core/Transforms',[
      * @see when
      *
      * @example
-     * var interval = new TimeInterval(...);
+     * var interval = new Cesium.TimeInterval(...);
      * when(preloadIcrfFixed(interval), function() {
      *     // the data is now loaded
      * });
@@ -15385,21 +15103,19 @@ define('Core/Transforms',[
      * @returns {Matrix3} The rotation matrix, or undefined if the data necessary to do the
      *                   transformation is not yet loaded.
      *
-     * @exception {DeveloperError} date is required.
-     *
      * @see Transforms.preloadIcrfFixed
      *
      * @example
      * //Set the view to the inertial frame.
      * function updateAndRender() {
-     *     var now = new JulianDate();
+     *     var now = new Cesium.JulianDate();
      *     scene.initializeFrame();
-     *     var icrfToFixed = Transforms.computeIcrfToFixedMatrix(now);
-     *     if (defined(icrfToFixed)) {
-     *         scene.getCamera().transform = Matrix4.fromRotationTranslation(icrfToFixed, Cartesian3.ZERO);
+     *     var icrfToFixed = Cesium.Transforms.computeIcrfToFixedMatrix(now);
+     *     if (Cesium.defined(icrfToFixed)) {
+     *         scene.camera.transform = Cesium.Matrix4.fromRotationTranslation(icrfToFixed, Cesium.Cartesian3.ZERO);
      *     }
      *     scene.render();
-     *     requestAnimationFrame(updateAndRender);
+     *     Cesium.requestAnimationFrame(updateAndRender);
      * }
      * updateAndRender();
      */
@@ -15435,18 +15151,16 @@ define('Core/Transforms',[
      * @returns {Matrix3} The rotation matrix, or undefined if the data necessary to do the
      *                   transformation is not yet loaded.
      *
-     * @exception {DeveloperError} date is required.
-     *
      * @see Transforms.preloadIcrfFixed
      *
      * @example
      * // Transform a point from the ICRF axes to the Fixed axes.
-     * var now = new JulianDate();
-     * var pointInFixed = new Cartesian3(...);
-     * var fixedToIcrf = Transforms.computeIcrfToFixedMatrix(now);
+     * var now = new Cesium.JulianDate();
+     * var pointInFixed = new Cesium.Cartesian3(...);
+     * var fixedToIcrf = Cesium.Transforms.computeIcrfToFixedMatrix(now);
      * var pointInInertial;
-     * if (defined(fixedToIcrf)) {
-     *     pointInInertial = Matrix3.multiplyByVector(fixedToIcrf, pointInFixed);
+     * if (Cesium.defined(fixedToIcrf)) {
+     *     pointInInertial = Cesium.Matrix3.multiplyByVector(fixedToIcrf, pointInFixed);
      * }
      */
     Transforms.computeFixedToIcrfMatrix = function(date, result) {
@@ -15560,10 +15274,6 @@ define('Core/Transforms',[
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if none was provided.
      *
-     * @exception {DeveloperError} modelViewProjectionMatrix is required.
-     * @exception {DeveloperError} viewportTransformation is required.
-     * @exception {DeveloperError} point is required.
-     *
      * @see UniformState#getModelViewProjection
      * @see czm_modelViewProjection
      * @see UniformState#getViewportTransformation
@@ -15660,7 +15370,7 @@ define('Core/AxisAlignedBoundingBox',[
      *
      * @example
      * // Compute an axis aligned bounding box enclosing two points.
-     * var box = AxisAlignedBoundingBox.fromPoints([new Cartesian3(2, 0, 0), new Cartesian3(-2, 0, 0)]);
+     * var box = Cesium.AxisAlignedBoundingBox.fromPoints([new Cesium.Cartesian3(2, 0, 0), new Cesium.Cartesian3(-2, 0, 0)]);
      */
     AxisAlignedBoundingBox.fromPoints = function(positions, result) {
         if (!defined(result)) {
@@ -15766,19 +15476,15 @@ define('Core/AxisAlignedBoundingBox',[
      * @returns {Intersect} {Intersect.INSIDE} if the entire box is on the side of the plane the normal is pointing,
      *                     {Intersect.OUTSIDE} if the entire box is on the opposite side, and {Intersect.INTERSETING}
      *                     if the box intersects the plane.
-     *
-     * @exception {DeveloperError} box is required.
-     * @exception {DeveloperError} plane is required.
      */
     AxisAlignedBoundingBox.intersect = function(box, plane) {
-        if (!defined(box)) {
+                if (!defined(box)) {
             throw new DeveloperError('box is required.');
         }
-
         if (!defined(plane)) {
             throw new DeveloperError('plane is required.');
         }
-
+        
         intersectScratch = Cartesian3.subtract(box.maximum, box.minimum, intersectScratch);
         var h = Cartesian3.multiplyByScalar(intersectScratch, 0.5, intersectScratch); //The positive half diagonal
         var e = h.x * Math.abs(plane.x) + h.y * Math.abs(plane.y) + h.z * Math.abs(plane.z);
@@ -15817,8 +15523,6 @@ define('Core/AxisAlignedBoundingBox',[
      * @returns {Intersect} {Intersect.INSIDE} if the entire box is on the side of the plane the normal is pointing,
      *                     {Intersect.OUTSIDE} if the entire box is on the opposite side, and {Intersect.INTERSETING}
      *                     if the box intersects the plane.
-     *
-     * @exception {DeveloperError} plane is required.
      */
     AxisAlignedBoundingBox.prototype.intersect = function(plane) {
         return AxisAlignedBoundingBox.intersect(this, plane);
@@ -15864,13 +15568,9 @@ define('Core/QuadraticRealPolynomial',[
      * @param {Number} b The coefficient of the 1st order monomial.
      * @param {Number} c The coefficient of the 0th order monomial.
      * @returns {Number} The value of the discriminant.
-     *
-     * @exception {DeveloperError} a is a required number.
-     * @exception {DeveloperError} b is a required number.
-     * @exception {DeveloperError} c is a required number.
      */
     QuadraticRealPolynomial.discriminant = function(a, b, c) {
-        if (typeof a !== 'number') {
+                if (typeof a !== 'number') {
             throw new DeveloperError('a is a required number.');
         }
         if (typeof b !== 'number') {
@@ -15879,7 +15579,7 @@ define('Core/QuadraticRealPolynomial',[
         if (typeof c !== 'number') {
             throw new DeveloperError('c is a required number.');
         }
-
+        
         var discriminant = b * b - 4.0 * a * c;
         return discriminant;
     };
@@ -15902,13 +15602,9 @@ define('Core/QuadraticRealPolynomial',[
      * @param {Number} b The coefficient of the 1st order monomial.
      * @param {Number} c The coefficient of the 0th order monomial.
      * @returns {Array} The real valued roots.
-     *
-     * @exception {DeveloperError} a is a required number.
-     * @exception {DeveloperError} b is a required number.
-     * @exception {DeveloperError} c is a required number.
      */
     QuadraticRealPolynomial.realRoots = function(a, b, c) {
-        if (typeof a !== 'number') {
+                if (typeof a !== 'number') {
             throw new DeveloperError('a is a required number.');
         }
         if (typeof b !== 'number') {
@@ -15917,7 +15613,7 @@ define('Core/QuadraticRealPolynomial',[
         if (typeof c !== 'number') {
             throw new DeveloperError('c is a required number.');
         }
-
+        
         var ratio;
         if (a === 0.0) {
             if (b === 0.0) {
@@ -16010,14 +15706,9 @@ define('Core/CubicRealPolynomial',[
      * @param {Number} c The coefficient of the 1st order monomial.
      * @param {Number} d The coefficient of the 0th order monomial.
      * @returns {Number} The value of the discriminant.
-     *
-     * @exception {DeveloperError} a is a required number.
-     * @exception {DeveloperError} b is a required number.
-     * @exception {DeveloperError} c is a required number.
-     * @exception {DeveloperError} d is a required number.
      */
     CubicRealPolynomial.discriminant = function(a, b, c, d) {
-        if (typeof a !== 'number') {
+                if (typeof a !== 'number') {
             throw new DeveloperError('a is a required number.');
         }
         if (typeof b !== 'number') {
@@ -16029,7 +15720,7 @@ define('Core/CubicRealPolynomial',[
         if (typeof d !== 'number') {
             throw new DeveloperError('d is a required number.');
         }
-
+        
         var a2 = a * a;
         var b2 = b * b;
         var c2 = c * c;
@@ -16153,14 +15844,9 @@ define('Core/CubicRealPolynomial',[
      * @param {Number} c The coefficient of the 1st order monomial.
      * @param {Number} d The coefficient of the 0th order monomial.
      * @returns {Array} The real valued roots.
-     *
-     * @exception {DeveloperError} a is a required number.
-     * @exception {DeveloperError} b is a required number.
-     * @exception {DeveloperError} c is a required number.
-     * @exception {DeveloperError} d is a required number.
      */
     CubicRealPolynomial.realRoots = function(a, b, c, d) {
-        if (typeof a !== 'number') {
+                if (typeof a !== 'number') {
             throw new DeveloperError('a is a required number.');
         }
         if (typeof b !== 'number') {
@@ -16172,7 +15858,7 @@ define('Core/CubicRealPolynomial',[
         if (typeof d !== 'number') {
             throw new DeveloperError('d is a required number.');
         }
-
+        
         var roots;
         var ratio;
         if (a === 0.0) {
@@ -16264,15 +15950,9 @@ define('Core/QuarticRealPolynomial',[
      * @param {Number} d The coefficient of the 1st order monomial.
      * @param {Number} e The coefficient of the 0th order monomial.
      * @returns {Number} The value of the discriminant.
-     *
-     * @exception {DeveloperError} a is a required number.
-     * @exception {DeveloperError} b is a required number.
-     * @exception {DeveloperError} c is a required number.
-     * @exception {DeveloperError} d is a required number.
-     * @exception {DeveloperError} e is a required number.
      */
     QuarticRealPolynomial.discriminant = function(a, b, c, d, e) {
-        if (typeof a !== 'number') {
+                if (typeof a !== 'number') {
             throw new DeveloperError('a is a required number.');
         }
         if (typeof b !== 'number') {
@@ -16287,7 +15967,7 @@ define('Core/QuarticRealPolynomial',[
         if (typeof e !== 'number') {
             throw new DeveloperError('e is a required number.');
         }
-
+        
         var a2 = a * a;
         var a3 = a2 * a;
         var b2 = b * b;
@@ -16495,15 +16175,9 @@ define('Core/QuarticRealPolynomial',[
      * @param {Number} d The coefficient of the 1st order monomial.
      * @param {Number} e The coefficient of the 0th order monomial.
      * @returns {Array} The real valued roots.
-     *
-     * @exception {DeveloperError} a is a required number.
-     * @exception {DeveloperError} b is a required number.
-     * @exception {DeveloperError} c is a required number.
-     * @exception {DeveloperError} d is a required number.
-     * @exception {DeveloperError} e is a required number.
      */
     QuarticRealPolynomial.realRoots = function(a, b, c, d, e) {
-        if (typeof a !== 'number') {
+                if (typeof a !== 'number') {
             throw new DeveloperError('a is a required number.');
         }
         if (typeof b !== 'number') {
@@ -16518,7 +16192,7 @@ define('Core/QuarticRealPolynomial',[
         if (typeof e !== 'number') {
             throw new DeveloperError('e is a required number.');
         }
-
+        
         if (Math.abs(a) < CesiumMath.EPSILON15) {
             return CubicRealPolynomial.realRoots(b, c, d, e);
         }
@@ -16608,19 +16282,15 @@ define('Core/IntersectionTests',[
      * @param {Ray} ray The ray.
      * @param {Plane} plane The plane.
      * @returns {Cartesian3} The intersection point or undefined if there is no intersections.
-     *
-     * @exception {DeveloperError} ray is required.
-     * @exception {DeveloperError} plane is required.
      */
     IntersectionTests.rayPlane = function(ray, plane, result) {
-        if (!defined(ray)) {
+                if (!defined(ray)) {
             throw new DeveloperError('ray is required.');
         }
-
         if (!defined(plane)) {
             throw new DeveloperError('plane is required.');
         }
-
+        
         var origin = ray.origin;
         var direction = ray.direction;
         var normal = plane.normal;
@@ -16651,20 +16321,16 @@ define('Core/IntersectionTests',[
      * @param {Ray} ray The ray.
      * @param {Ellipsoid} ellipsoid The ellipsoid.
      * @returns {Object} An object with the first (<code>start</code>) and the second (<code>stop</code>) intersection scalars for points along the ray or undefined if there are no intersections.
-     *
-     * @exception {DeveloperError} ray is required.
-     * @exception {DeveloperError} ellipsoid is required.
      */
     IntersectionTests.rayEllipsoid = function(ray, ellipsoid) {
-        if (!defined(ray)) {
+                if (!defined(ray)) {
             throw new DeveloperError('ray is required.');
         }
-
         if (!defined(ellipsoid)) {
             throw new DeveloperError('ellipsoid is required.');
         }
-
-        var inverseRadii = ellipsoid.getOneOverRadii();
+        
+        var inverseRadii = ellipsoid.oneOverRadii;
         var q = Cartesian3.multiplyComponents(inverseRadii, ray.origin, scratchQ);
         var w = Cartesian3.multiplyComponents(inverseRadii, ray.direction, scratchW);
 
@@ -16849,19 +16515,15 @@ define('Core/IntersectionTests',[
      * @param {Ray} ray The ray.
      * @param {Ellipsoid} ellipsoid The ellipsoid.
      * @returns {Cartesian} The nearest planetodetic point on the ray.
-     *
-     * @exception {DeveloperError} ray is required.
-     * @exception {DeveloperError} ellipsoid is required.
      */
     IntersectionTests.grazingAltitudeLocation = function(ray, ellipsoid) {
-        if (!defined(ray)) {
+                if (!defined(ray)) {
             throw new DeveloperError('ray is required.');
         }
-
         if (!defined(ellipsoid)) {
             throw new DeveloperError('ellipsoid is required.');
         }
-
+        
         var position = ray.origin;
         var direction = ray.direction;
 
@@ -16887,8 +16549,8 @@ define('Core/IntersectionTests',[
         var B_T = Matrix3.transpose(B);
 
         // Get the scaling matrix and its inverse.
-        var D_I = Matrix3.fromScale(ellipsoid.getRadii());
-        var D = Matrix3.fromScale(ellipsoid.getOneOverRadii());
+        var D_I = Matrix3.fromScale(ellipsoid.radii);
+        var D = Matrix3.fromScale(ellipsoid.oneOverRadii);
 
         var C = new Matrix3(0.0, direction.z, -direction.y,
                             -direction.z, 0.0, direction.x,
@@ -16941,34 +16603,28 @@ define('Core/IntersectionTests',[
      * @param {Cartesian3} [result] The object onto which to store the result.
      * @returns {Cartesian3} The intersection point or undefined if there is no intersection.
      *
-     * @exception {DeveloperError} endPoint0 is required.
-     * @exception {DeveloperError} endPoint1 is required.
-     * @exception {DeveloperError} plane is required.
-     *
      * @example
-     * var origin = ellipsoid.cartographicToCartesian(Cartographic.fromDegrees(-75.59777, 40.03883, 0.0));
+     * var origin = ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(-75.59777, 40.03883, 0.0));
      * var normal = ellipsoid.geodeticSurfaceNormal(origin);
-     * var plane = Plane.fromPointNormal(origin, normal);
+     * var plane = Cesium.Plane.fromPointNormal(origin, normal);
      *
-     * var p0 = new Cartesian3(...);
-     * var p1 = new Cartesian3(...);
+     * var p0 = new Cesium.Cartesian3(...);
+     * var p1 = new Cesium.Cartesian3(...);
      *
      * // find the intersection of the line segment from p0 to p1 and the tangent plane at origin.
-     * var intersection = IntersectionTests.lineSegmentPlane(p0, p1, plane);
+     * var intersection = Cesium.IntersectionTests.lineSegmentPlane(p0, p1, plane);
      */
     IntersectionTests.lineSegmentPlane = function(endPoint0, endPoint1, plane, result) {
-        if (!defined(endPoint0)) {
+                if (!defined(endPoint0)) {
             throw new DeveloperError('endPoint0 is required.');
         }
-
         if (!defined(endPoint1)) {
             throw new DeveloperError('endPoint1 is required.');
         }
-
         if (!defined(plane)) {
             throw new DeveloperError('plane is required.');
         }
-
+        
         var difference = Cartesian3.subtract(endPoint1, endPoint0, lineSegmentPlaneDifference);
         var normal = plane.normal;
         var nDotDiff = Cartesian3.dot(normal, difference);
@@ -17006,29 +16662,26 @@ define('Core/IntersectionTests',[
      *
      * @returns {Object} An object with properties <code>positions</code> and <code>indices</code>, which are arrays that represent three triangles that do not cross the plane. (Undefined if no intersection exists)
      *
-     * @exception {DeveloperError} p0, p1, p2, and plane are required.
-     *
      * @example
-     * var origin = ellipsoid.cartographicToCartesian(Cartographic.fromDegrees(-75.59777, 40.03883, 0.0));
+     * var origin = ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(-75.59777, 40.03883, 0.0));
      * var normal = ellipsoid.geodeticSurfaceNormal(origin);
-     * var plane = Plane.fromPointNormal(origin, normal);
+     * var plane = Cesium.Plane.fromPointNormal(origin, normal);
      *
-     * var p0 = new Cartesian3(...);
-     * var p1 = new Cartesian3(...);
-     * var p2 = new Cartesian3(...);
+     * var p0 = new Cesium.Cartesian3(...);
+     * var p1 = new Cesium.Cartesian3(...);
+     * var p2 = new Cesium.Cartesian3(...);
      *
      * // convert the triangle composed of points (p0, p1, p2) to three triangles that don't cross the plane
-     * var triangles = IntersectionTests.lineSegmentPlane(p0, p1, p2, plane);
-     *
+     * var triangles = Cesium.IntersectionTests.lineSegmentPlane(p0, p1, p2, plane);
      */
     IntersectionTests.trianglePlaneIntersection = function(p0, p1, p2, plane) {
-        if ((!defined(p0)) ||
+                if ((!defined(p0)) ||
             (!defined(p1)) ||
             (!defined(p2)) ||
             (!defined(plane))) {
             throw new DeveloperError('p0, p1, p2, and plane are required.');
         }
-
+        
         var planeNormal = plane.normal;
         var planeD = plane.distance;
         var p0Behind = (Cartesian3.dot(planeNormal, p0) + planeD) < 0.0;
@@ -17200,18 +16853,16 @@ define('Core/Ray',[
      * @param {Cartesian3} [result] The object in which the result will be stored.
      * @returns The modified result parameter, or a new instance if none was provided.
      *
-     * @exception {DeveloperError} t is a required number
-     *
      * @example
      * //Get the first intersection point of a ray and an ellipsoid.
-     * var intersection = IntersectionTests.rayEllipsoid(ray, ellipsoid);
+     * var intersection = Cesium.IntersectionTests.rayEllipsoid(ray, ellipsoid);
      * var point = ray.getPoint(intersection.start);
      */
     Ray.prototype.getPoint = function(t, result) {
-        if (typeof t !== 'number') {
+                if (typeof t !== 'number') {
             throw new DeveloperError('t is a required number');
         }
-
+        
         result = Cartesian3.multiplyByScalar(this.direction, t, result);
         return Cartesian3.add(this.origin, result, result);
     };
@@ -17249,22 +16900,18 @@ define('Core/Plane',[
      * in the direction of the normal; if negative, the origin is in the half-space
      * opposite to the normal; if zero, the plane passes through the origin.
      *
-     * @exception {DeveloperError} normal is required.
-     * @exception {DeveloperError} distance is required.
-     *
      * @example
      * // The plane x=0
-     * var plane = new Plane(Cartesian3.UNIT_X, 0.0);
+     * var plane = new Cesium.Plane(Cesium.Cartesian3.UNIT_X, 0.0);
      */
     var Plane = function(normal, distance) {
-        if (!defined(normal))  {
+                if (!defined(normal))  {
             throw new DeveloperError('normal is required.');
         }
-
         if (!defined(distance)) {
             throw new DeveloperError('distance is required.');
         }
-
+        
         /**
          * The plane's normal.
          *
@@ -17293,23 +16940,19 @@ define('Core/Plane',[
      * @param {Plane} [result] The object onto which to store the result.
      * @returns {Plane} A new plane instance or the modified result parameter.
      *
-     * @exception {DeveloperError} point is required.
-     * @exception {DeveloperError} normal is required.
-     *
      * @example
-     * var point = ellipsoid.cartographicToCartesian(Cartographic.fromDegrees(-72.0, 40.0));
+     * var point = ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(-72.0, 40.0));
      * var normal = ellipsoid.geodeticSurfaceNormal(point);
-     * var tangentPlane = Plane.fromPointNormal(point, normal);
+     * var tangentPlane = Cesium.Plane.fromPointNormal(point, normal);
      */
     Plane.fromPointNormal = function(point, normal, result) {
-        if (!defined(point)) {
+                if (!defined(point)) {
             throw new DeveloperError('point is required.');
         }
-
         if (!defined(normal)) {
             throw new DeveloperError('normal is required.');
         }
-
+        
         var distance = -Cartesian3.dot(normal, point);
 
         if (!defined(result)) {
@@ -17332,19 +16975,15 @@ define('Core/Plane',[
      * @param {Plane} plane The plane.
      * @param {Cartesian3} point The point.
      * @returns {Number} The signed shortest distance of the point to the plane.
-     *
-     * @exception {DeveloperError} plane is required.
-     * @exception {DeveloperError} point is required.
      */
     Plane.getPointDistance = function(plane, point) {
-        if (!defined(plane)) {
+                if (!defined(plane)) {
             throw new DeveloperError('plane is required.');
         }
-
         if (!defined(point)) {
             throw new DeveloperError('point is required.');
         }
-
+        
         return Cartesian3.dot(plane.normal, point) + plane.distance;
     };
 
@@ -17359,8 +16998,6 @@ define('Core/Plane',[
      *
      * @param {Cartesian3} point The point.
      * @returns {Number} The signed shortest distance of the point to this plane.
-     *
-     * @exception {DeveloperError} point is required.
      */
     Plane.prototype.getPointDistance = function(point) {
         return Plane.getPointDistance(this, point);
@@ -17373,6 +17010,7 @@ define('Core/Plane',[
 define('Core/EllipsoidTangentPlane',[
         './defaultValue',
         './defined',
+        './defineProperties',
         './DeveloperError',
         './Transforms',
         './AxisAlignedBoundingBox',
@@ -17386,6 +17024,7 @@ define('Core/EllipsoidTangentPlane',[
     ], function(
         defaultValue,
         defined,
+        defineProperties,
         DeveloperError,
         Transforms,
         AxisAlignedBoundingBox,
@@ -17408,20 +17047,20 @@ define('Core/EllipsoidTangentPlane',[
      * @param {Ellipsoid} ellipsoid The ellipsoid to use.
      * @param {Cartesian3} origin The point on the surface of the ellipsoid where the tangent plane touches.
      *
-     * @exception {DeveloperError} origin is required.
      * @exception {DeveloperError} origin must not be at the center of the ellipsoid.
      */
     var EllipsoidTangentPlane = function(origin, ellipsoid) {
-        if (!defined(origin)) {
+                if (!defined(origin)) {
             throw new DeveloperError('origin is required.');
         }
-
+        
         ellipsoid = defaultValue(ellipsoid, Ellipsoid.WGS84);
-
         origin = ellipsoid.scaleToGeodeticSurface(origin);
-        if (!defined(origin)) {
+
+                if (!defined(origin)) {
             throw new DeveloperError('origin must not be at the center of the ellipsoid.');
         }
+        
         var eastNorthUp = Transforms.eastNorthUpToFixedFrame(origin, ellipsoid);
         this._ellipsoid = ellipsoid;
         this._origin = Cartesian3.clone(origin);
@@ -17432,6 +17071,30 @@ define('Core/EllipsoidTangentPlane',[
         this._plane = Plane.fromPointNormal(origin, normal);
     };
 
+    defineProperties(EllipsoidTangentPlane.prototype, {
+        /**
+         * Gets the ellipsoid.
+         * @memberof EllipsoidTangentPlane.prototype
+         * @type {Ellipsoid}
+         */
+        ellipsoid : {
+            get : function() {
+                return this._ellipsoid;
+            }
+        },
+
+        /**
+         * Gets the origin.
+         * @memberof EllipsoidTangentPlane.prototype
+         * @type {Cartesian3}
+         */
+        origin : {
+            get : function() {
+                return this._origin;
+            }
+        }
+    });
+
     var tmp = new AxisAlignedBoundingBox();
     /**
      * Creates a new instance from the provided ellipsoid and the center
@@ -17440,32 +17103,14 @@ define('Core/EllipsoidTangentPlane',[
      *
      * @param {Ellipsoid} ellipsoid The ellipsoid to use.
      * @param {Cartesian3} cartesians The list of positions surrounding the center point.
-     *
-     * @exception {DeveloperError} cartesians is required.
      */
     EllipsoidTangentPlane.fromPoints = function(cartesians, ellipsoid) {
-        if (!defined(cartesians)) {
+                if (!defined(cartesians)) {
             throw new DeveloperError('cartesians is required.');
         }
-
+        
         var box = AxisAlignedBoundingBox.fromPoints(cartesians, tmp);
         return new EllipsoidTangentPlane(box.center, ellipsoid);
-    };
-
-    /**
-     * @memberof EllipsoidTangentPlane
-     * @returns {Ellipsoid} Gets the ellipsoid.
-     */
-    EllipsoidTangentPlane.prototype.getEllipsoid = function() {
-        return this._ellipsoid;
-    };
-
-    /**
-     * @memberof EllipsoidTangentPlane
-     * @returns {Cartesian3} Gets the origin.
-     */
-    EllipsoidTangentPlane.prototype.getOrigin = function() {
-        return this._origin;
     };
 
     var projectPointOntoPlaneRay = new Ray();
@@ -17478,14 +17123,12 @@ define('Core/EllipsoidTangentPlane',[
      * @param {Cartesian3} cartesian The point to project.
      * @param {Cartesian2} [result] The object onto which to store the result.
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if none was provided.
-     *
-     * @exception {DeveloperError} cartesian is required.
      */
     EllipsoidTangentPlane.prototype.projectPointOntoPlane = function(cartesian, result) {
-        if (!defined(cartesian)) {
+                if (!defined(cartesian)) {
             throw new DeveloperError('cartesian is required.');
         }
-
+        
         var ray = projectPointOntoPlaneRay;
         ray.origin = cartesian;
         Cartesian3.normalize(cartesian, ray.direction);
@@ -17518,14 +17161,12 @@ define('Core/EllipsoidTangentPlane',[
      * @param {Array} cartesians The array of points to project.
      * @param {Array} [result] The array of Cartesian2 instances onto which to store results.
      * @returns {Array} The modified result parameter or a new array of Cartesian2 instances if none was provided.
-     *
-     * @exception {DeveloperError} cartesians is required.
      */
     EllipsoidTangentPlane.prototype.projectPointsOntoPlane = function(cartesians, result) {
-        if (!defined(cartesians)) {
+                if (!defined(cartesians)) {
             throw new DeveloperError('cartesians is required.');
         }
-
+        
         if (!defined(result)) {
             result = [];
         }
@@ -17552,14 +17193,12 @@ define('Core/EllipsoidTangentPlane',[
      * @param {Array} cartesians The array of points to project.
      * @param {Array} [result] The array of Cartesian3 instances onto which to store results.
      * @returns {Array} The modified result parameter or a new array of Cartesian3 instances if none was provided.
-     *
-     * @exception {DeveloperError} cartesians is required.
      */
     EllipsoidTangentPlane.prototype.projectPointsOntoEllipsoid = function(cartesians, result) {
-        if (!defined(cartesians)) {
+                if (!defined(cartesians)) {
             throw new DeveloperError('cartesians is required.');
         }
-
+        
         var length = cartesians.length;
         if (!defined(result)) {
             result = new Array(length);
@@ -17618,20 +17257,19 @@ define('Core/barycentricCoordinates',[
      *
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
      *
-     * @exception {DeveloperError} point, p0, p1, and p2 are required.
-     *
      * @example
      * // Returns Cartesian3.UNIT_X
-     * var p = new Cartesian3(-1.0, 0.0, 0.0);
-     * var b = barycentricCoordinates(p,
-     *   new Cartesian3(-1.0, 0.0, 0.0),
-     *   new Cartesian3( 1.0, 0.0, 0.0),
-     *   new Cartesian3( 0.0, 1.0, 1.0));
+     * var p = new Cesium.Cartesian3(-1.0, 0.0, 0.0);
+     * var b = Cesium.barycentricCoordinates(p,
+     *   new Cesium.Cartesian3(-1.0, 0.0, 0.0),
+     *   new Cesium.Cartesian3( 1.0, 0.0, 0.0),
+     *   new Cesium.Cartesian3( 0.0, 1.0, 1.0));
      */
     var barycentricCoordinates = function(point, p0, p1, p2, result) {
-        if (!defined(point) || !defined(p0) || !defined(p1) || !defined(p2)) {
+                if (!defined(point) || !defined(p0) || !defined(p1) || !defined(p2)) {
             throw new DeveloperError('point, p0, p1, and p2 are required.');
         }
+        
 
         if (!defined(result)) {
             result = new Cartesian3();
@@ -17676,12 +17314,10 @@ define('Core/barycentricCoordinates',[
 /*global define*/
 define('Core/pointInsideTriangle',[
         './barycentricCoordinates',
-        './Cartesian3',
-        './DeveloperError'
+        './Cartesian3'
     ], function(
         barycentricCoordinates,
-        Cartesian3,
-        DeveloperError) {
+        Cartesian3) {
     "use strict";
 
     var coords = new Cartesian3();
@@ -17698,15 +17334,13 @@ define('Core/pointInsideTriangle',[
      *
      * @returns {Boolean} <code>true</code> if the point is inside the triangle; otherwise, <code>false</code>.
      *
-     * @exception {DeveloperError} point, p0, p1, and p2 are required.
-     *
      * @example
      * // Returns true
-     * var p = new Cartesian2(0.25, 0.25);
-     * var b = pointInsideTriangle(p,
-     *   new Cartesian2(0.0, 0.0),
-     *   new Cartesian2(1.0, 0.0),
-     *   new Cartesian2(0.0, 1.0));
+     * var p = new Cesium.Cartesian2(0.25, 0.25);
+     * var b = Cesium.pointInsideTriangle(p,
+     *   new Cesium.Cartesian2(0.0, 0.0),
+     *   new Cesium.Cartesian2(1.0, 0.0),
+     *   new Cesium.Cartesian2(0.0, 1.0));
      */
     var pointInsideTriangle = function(point, p0, p1, p2) {
         barycentricCoordinates(point, p0, p1, p2, coords);
@@ -18301,7 +17935,6 @@ define('Core/PolygonPipeline',[
      *
      * This method is technically incomplete, however, for the following case:
      *
-     *
      *  7_________6
      *  |         |
      *  |         |______4
@@ -18644,18 +18277,17 @@ define('Core/PolygonPipeline',[
          * Cleans up a simple polygon by removing duplicate adjacent positions and making
          * the first position not equal the last position.
          *
-         * @exception {DeveloperError} positions is required.
          * @exception {DeveloperError} At least three positions are required.
          */
         removeDuplicates : function(positions) {
-            if (!defined(positions)) {
+                        if (!defined(positions)) {
                 throw new DeveloperError('positions is required.');
             }
-
-            var length = positions.length;
-            if (length < 3) {
+            if (positions.length < 3) {
                 throw new DeveloperError('At least three positions are required.');
             }
+            
+            var length = positions.length;
 
             var cleanedPositions = [];
 
@@ -18674,19 +18306,17 @@ define('Core/PolygonPipeline',[
         /**
          * DOC_TBA
          *
-         * @exception {DeveloperError} positions is required.
          * @exception {DeveloperError} At least three positions are required.
          */
         computeArea2D : function(positions) {
-            if (!defined(positions)) {
+                        if (!defined(positions)) {
                 throw new DeveloperError('positions is required.');
             }
-
-            var length = positions.length;
-            if (length < 3) {
+            if (positions.length < 3) {
                 throw new DeveloperError('At least three positions are required.');
             }
-
+            
+            var length = positions.length;
             var area = 0.0;
 
             for ( var i0 = length - 1, i1 = 0; i1 < length; i0 = i1++) {
@@ -18704,7 +18334,6 @@ define('Core/PolygonPipeline',[
          *
          * @returns {WindingOrder} DOC_TBA
          *
-         * @exception {DeveloperError} positions is required.
          * @exception {DeveloperError} At least three positions are required.
          */
         computeWindingOrder2D : function(positions) {
@@ -18718,19 +18347,17 @@ define('Core/PolygonPipeline',[
          * @param {Array} positions - Cartesian2 array containing the vertices of the polygon
          * @returns {Array} - Index array representing triangles that fill the polygon
          *
-         * @exception {DeveloperError} positions is required.
          * @exception {DeveloperError} At least three positions are required.
          */
         triangulate : function(positions) {
-            if (!defined(positions)) {
+                        if (!defined(positions)) {
                 throw new DeveloperError('positions is required.');
             }
-
-            var length = positions.length;
-            if (length < 3) {
+            if (positions.length < 3) {
                 throw new DeveloperError('At least three positions are required.');
             }
-
+            
+            var length = positions.length;
             // Keep track of indices for later
             var nodeArray = [];
             for ( var i = 0; i < length; ++i) {
@@ -18760,34 +18387,29 @@ define('Core/PolygonPipeline',[
          * @param {Array} indices An array of indices that determines the triangles in the polygon.
          * @param {Number} [granularity=CesiumMath.RADIANS_PER_DEGREE] The distance, in radians, between each latitude and longitude. Determines the number of positions in the buffer.
          *
-         * @exception {DeveloperError} positions is required.
-         * @exception {DeveloperError} indices is required.
          * @exception {DeveloperError} At least three indices are required.
          * @exception {DeveloperError} The number of indices must be divisable by three.
          * @exception {DeveloperError} Granularity must be greater than zero.
          */
         computeSubdivision : function(positions, indices, granularity) {
-            if (!defined(positions)) {
+            granularity = defaultValue(granularity, CesiumMath.RADIANS_PER_DEGREE);
+
+                        if (!defined(positions)) {
                 throw new DeveloperError('positions is required.');
             }
-
             if (!defined(indices)) {
                 throw new DeveloperError('indices is required.');
             }
-
             if (indices.length < 3) {
                 throw new DeveloperError('At least three indices are required.');
             }
-
             if (indices.length % 3 !== 0) {
                 throw new DeveloperError('The number of indices must be divisable by three.');
             }
-
-            granularity = defaultValue(granularity, CesiumMath.RADIANS_PER_DEGREE);
             if (granularity <= 0.0) {
                 throw new DeveloperError('granularity must be greater than zero.');
             }
-
+            
             // Use a queue for triangles that need (or might need) to be subdivided.
             var triangles = new Queue();
 
@@ -18977,17 +18599,15 @@ define('Core/PolygonPipeline',[
          *
          * @returns A single list of Cartesian points defining the polygon, including the eliminated inner ring.
          *
-         * @exception {DeveloperError} <code>outerRing</code> is required.
          * @exception {DeveloperError} <code>outerRing</code> must not be empty.
-         * @exception {DeveloperError} <code>innerRings</code> is required.
          *
          * @example
          * // Simplifying a polygon with multiple holes.
-         * outerRing = PolygonPipeline.eliminateHoles(outerRing, innerRings);
+         * outerRing = Cesium.PolygonPipeline.eliminateHoles(outerRing, innerRings);
          * polygon.setPositions(outerRing);
          */
         eliminateHoles : function(outerRing, innerRings, ellipsoid) {
-            if (!defined(outerRing)) {
+                        if (!defined(outerRing)) {
                 throw new DeveloperError('outerRing is required.');
             }
             if (outerRing.length === 0) {
@@ -18996,6 +18616,7 @@ define('Core/PolygonPipeline',[
             if (!defined(innerRings)) {
                 throw new DeveloperError('innerRings is required.');
             }
+            
             ellipsoid = defaultValue(ellipsoid, Ellipsoid.WGS84);
 
             var innerRingsCopy = [];
@@ -19020,29 +18641,27 @@ define('Core/PolygonPipeline',[
 
 /*global define*/
 define('Core/EllipsoidGeodesic',[
-        './freezeObject',
+        './Cartesian3',
+        './Cartographic',
         './defaultValue',
         './defined',
         './DeveloperError',
         './Ellipsoid',
-        './Math',
-        './Cartesian3',
-        './Cartographic'
-       ], function(
-         freezeObject,
-         defaultValue,
-         defined,
-         DeveloperError,
-         Ellipsoid,
-         CesiumMath,
-         Cartesian3,
-         Cartographic) {
+        './Math'
+    ], function(
+        Cartesian3,
+        Cartographic,
+        defaultValue,
+        defined,
+        DeveloperError,
+        Ellipsoid,
+        CesiumMath) {
     "use strict";
 
     function setConstants(ellipsoidGeodesic) {
-        var uSquared= ellipsoidGeodesic._uSquared;
-        var a = ellipsoidGeodesic._ellipsoid.getMaximumRadius();
-        var b = ellipsoidGeodesic._ellipsoid.getMinimumRadius();
+        var uSquared = ellipsoidGeodesic._uSquared;
+        var a = ellipsoidGeodesic._ellipsoid.maximumRadius;
+        var b = ellipsoidGeodesic._ellipsoid.minimumRadius;
         var f = (a - b) / a;
 
         var cosineHeading = Math.cos(ellipsoidGeodesic._startHeading);
@@ -19071,8 +18690,8 @@ define('Core/EllipsoidGeodesic',[
         var a2 = (1.0 - 3.0 * u2Over4 + 35.0 * u4Over16 / 4.0);
         var a3 = (1.0 - 5.0 * u2Over4);
 
-        var distanceRatio =  a0 * sigma - a1 * Math.sin(2.0 * sigma) * u2Over4 / 2.0 - a2 * Math.sin(4.0 * sigma) * u4Over16 / 16.0 -
-            a3 * Math.sin(6.0 * sigma) * u6Over64 / 48.0 - Math.sin(8.0 * sigma) * 5.0 * u8Over256 / 512;
+        var distanceRatio = a0 * sigma - a1 * Math.sin(2.0 * sigma) * u2Over4 / 2.0 - a2 * Math.sin(4.0 * sigma) * u4Over16 / 16.0 -
+                            a3 * Math.sin(6.0 * sigma) * u6Over64 / 48.0 - Math.sin(8.0 * sigma) * 5.0 * u8Over256 / 512;
 
         var constants = ellipsoidGeodesic._constants;
 
@@ -19169,7 +18788,7 @@ define('Core/EllipsoidGeodesic',[
             }
 
             lambda = l + computeDeltaLambda(eff, sineAlpha, cosineSquaredAlpha,
-                sigma, sineSigma, cosineSigma, cosineTwiceSigmaMidpoint);
+                                            sigma, sineSigma, cosineSigma, cosineTwiceSigmaMidpoint);
         } while (Math.abs(lambda - lambdaDot) > CesiumMath.EPSILON12);
 
         var uSquared = cosineSquaredAlpha * (major * major - minor * minor) / (minor * minor);
@@ -19177,7 +18796,7 @@ define('Core/EllipsoidGeodesic',[
         var B = uSquared * (256.0 + uSquared * (uSquared * (74.0 - 47.0 * uSquared) - 128.0)) / 1024.0;
 
         var cosineSquaredTwiceSigmaMidpoint = cosineTwiceSigmaMidpoint * cosineTwiceSigmaMidpoint;
-        var deltaSigma =  B * sineSigma * (cosineTwiceSigmaMidpoint + B * (cosineSigma *
+        var deltaSigma = B * sineSigma * (cosineTwiceSigmaMidpoint + B * (cosineSigma *
                 (2.0 * cosineSquaredTwiceSigmaMidpoint - 1.0) - B * cosineTwiceSigmaMidpoint *
                 (4.0 * sineSigma * sineSigma - 3.0) * (4.0 * cosineSquaredTwiceSigmaMidpoint - 3.0) / 6.0) / 4.0);
 
@@ -19194,14 +18813,14 @@ define('Core/EllipsoidGeodesic',[
 
     function computeProperties(ellipsoidGeodesic, start, end, ellipsoid) {
         var firstCartesian = Cartesian3.normalize(ellipsoid.cartographicToCartesian(start, scratchCart2), scratchCart1);
-        var lastCartesian  = Cartesian3.normalize(ellipsoid.cartographicToCartesian(end,   scratchCart2), scratchCart2);
+        var lastCartesian = Cartesian3.normalize(ellipsoid.cartographicToCartesian(end, scratchCart2), scratchCart2);
 
-        if (Math.abs(Math.abs(Cartesian3.angleBetween(firstCartesian, lastCartesian)) - Math.PI) < 0.0125) {
+                if (Math.abs(Math.abs(Cartesian3.angleBetween(firstCartesian, lastCartesian)) - Math.PI) < 0.0125) {
             throw new DeveloperError('geodesic position is not unique');
         }
-
-        vincentyInverseFormula(ellipsoidGeodesic, ellipsoid.getMaximumRadius(), ellipsoid.getMinimumRadius(),
-                start.longitude, start.latitude, end.longitude, end.latitude);
+        
+        vincentyInverseFormula(ellipsoidGeodesic, ellipsoid.maximumRadius, ellipsoid.minimumRadius,
+                               start.longitude, start.latitude, end.longitude, end.latitude);
 
         start.height = 0;
         end.height = 0;
@@ -19249,10 +18868,10 @@ define('Core/EllipsoidGeodesic',[
      * @exception {DeveloperError} start and end must be set before calling funciton getSurfaceDistance
      */
     EllipsoidGeodesic.prototype.getSurfaceDistance = function() {
-        if (!defined(this._distance)) {
+                if (!defined(this._distance)) {
             throw new DeveloperError('start and end must be set before calling funciton getSurfaceDistance');
         }
-
+        
         return this._distance;
     };
 
@@ -19262,18 +18881,15 @@ define('Core/EllipsoidGeodesic',[
      *
      * @param {Cartographic} start The initial planetodetic point on the path.
      * @param {Cartographic} end The final planetodetic point on the path.
-     *
-     * @exception {DeveloperError} start cartographic position is required
-     * @exception {DeveloperError} end cartographic position is required
      */
     EllipsoidGeodesic.prototype.setEndPoints = function(start, end) {
-        if (!defined(start)) {
+                if (!defined(start)) {
             throw new DeveloperError('start cartographic position is required');
         }
         if (!defined(end)) {
             throw new DeveloperError('end cartgraphic position is required');
         }
-
+        
         computeProperties(this, start, end, this._ellipsoid);
     };
 
@@ -19301,10 +18917,10 @@ define('Core/EllipsoidGeodesic',[
      * @exception {DeveloperError} start and end must be set before calling funciton getSurfaceDistance
      */
     EllipsoidGeodesic.prototype.getStartHeading = function() {
-        if (!defined(this._distance)) {
+                if (!defined(this._distance)) {
             throw new DeveloperError('start and end must be set before calling funciton getStartHeading');
         }
-
+        
         return this._startHeading;
     };
 
@@ -19316,10 +18932,10 @@ define('Core/EllipsoidGeodesic',[
      * @exception {DeveloperError} start and end must be set before calling funciton getEndHeading
      */
     EllipsoidGeodesic.prototype.getEndHeading = function() {
-        if (!defined(this._distance)) {
+                if (!defined(this._distance)) {
             throw new DeveloperError('start and end must be set before calling funciton getEndHeading');
         }
-
+        
         return this._endHeading;
     };
 
@@ -19346,10 +18962,10 @@ define('Core/EllipsoidGeodesic',[
      * @exception {DeveloperError} start and end must be set before calling funciton interpolateUsingSurfaceDistance
      */
     EllipsoidGeodesic.prototype.interpolateUsingSurfaceDistance = function(distance, result) {
-        if (!defined(this._distance)) {
+                if (!defined(this._distance)) {
             throw new DeveloperError('start and end must be set before calling funciton interpolateUsingSurfaceDistance');
         }
-
+        
         var constants = this._constants;
 
         var s = constants.distanceRatio + distance / constants.b;
@@ -19397,7 +19013,7 @@ define('Core/EllipsoidGeodesic',[
         var lambda = Math.atan2(sineSigma * constants.sineHeading, cc - ss * constants.cosineHeading);
 
         var l = lambda - computeDeltaLambda(constants.f, constants.sineAlpha, constants.cosineSquaredAlpha,
-            sigma, sineSigma, cosineSigma, cosineTwiceSigmaMidpoint);
+                                            sigma, sineSigma, cosineSigma, cosineTwiceSigmaMidpoint);
 
         if (defined(result)) {
             result.longitude = this._start.longitude + l;
@@ -19414,28 +19030,28 @@ define('Core/EllipsoidGeodesic',[
 
 /*global define*/
 define('Core/PolylinePipeline',[
+        './Cartesian3',
+        './Cartographic',
         './defaultValue',
         './defined',
         './DeveloperError',
-        './Cartographic',
-        './Cartesian3',
-        './Cartesian4',
         './Ellipsoid',
         './EllipsoidGeodesic',
         './IntersectionTests',
+        './isArray',
         './Math',
         './Matrix4',
         './Plane'
     ], function(
+        Cartesian3,
+        Cartographic,
         defaultValue,
         defined,
         DeveloperError,
-        Cartographic,
-        Cartesian3,
-        Cartesian4,
         Ellipsoid,
         EllipsoidGeodesic,
         IntersectionTests,
+        isArray,
         CesiumMath,
         Matrix4,
         Plane) {
@@ -19470,8 +19086,8 @@ define('Core/PolylinePipeline',[
         var first = ellipsoid.scaleToGeodeticSurface(p1, scaleFirst);
         var last = ellipsoid.scaleToGeodeticSurface(p2, scaleLast);
         var separationAngle = Cartesian3.angleBetween(first, last);
-        var numPoints = Math.ceil(separationAngle/granularity);
-        var result = new Array(numPoints*3);
+        var numPoints = Math.ceil(separationAngle / granularity);
+        var result = new Array(numPoints * 3);
         var start = ellipsoid.cartesianToCartographic(first, carto1);
         var end = ellipsoid.cartesianToCartographic(last, carto2);
 
@@ -19526,11 +19142,11 @@ define('Core/PolylinePipeline',[
      * @see PolylineCollection
      *
      * @example
-     * var polylines = new PolylineCollection();
+     * var polylines = new Cesium.PolylineCollection();
      * var polyline = polylines.add(...);
      * var positions = polyline.getPositions();
      * var modelMatrix = polylines.modelMatrix;
-     * var segments = PolylinePipeline.wrapLongitude(positions, modelMatrix);
+     * var segments = Cesium.PolylinePipeline.wrapLongitude(positions, modelMatrix);
      */
     PolylinePipeline.wrapLongitude = function(positions, modelMatrix) {
         var cartesians = [];
@@ -19551,7 +19167,7 @@ define('Core/PolylinePipeline',[
             var prev = cartesians[0];
 
             var length = positions.length;
-            for ( var i = 1; i < length; ++i) {
+            for (var i = 1; i < length; ++i) {
                 var cur = positions[i];
 
                 // intersects the IDL if either endpoint is on the negative side of the yz-plane
@@ -19598,21 +19214,19 @@ define('Core/PolylinePipeline',[
      *
      * @returns {Array} A new array of positions with no adjacent duplicate positions.  Positions are shallow copied.
      *
-     * @exception {DeveloperError} positions is required.
-     *
      * @example
      * // Returns [(1.0, 1.0, 1.0), (2.0, 2.0, 2.0)]
      * var positions = [
-     *     new Cartesian3(1.0, 1.0, 1.0),
-     *     new Cartesian3(1.0, 1.0, 1.0),
-     *     new Cartesian3(2.0, 2.0, 2.0)];
-     * var nonDuplicatePositions = PolylinePipeline.removeDuplicates(positions);
+     *     new Cesium.Cartesian3(1.0, 1.0, 1.0),
+     *     new Cesium.Cartesian3(1.0, 1.0, 1.0),
+     *     new Cesium.Cartesian3(2.0, 2.0, 2.0)];
+     * var nonDuplicatePositions = Cesium.PolylinePipeline.removeDuplicates(positions);
      */
     PolylinePipeline.removeDuplicates = function(positions) {
-        if (!defined(positions )) {
+                if (!defined(positions)) {
             throw new DeveloperError('positions is required.');
         }
-
+        
         var length = positions.length;
         if (length < 2) {
             return positions.slice(0);
@@ -19644,21 +19258,20 @@ define('Core/PolylinePipeline',[
      *
      * @returns {Array} A new array of positions of type {Number} that have been subdivided and raised to the surface of the ellipsoid.
      *
-     * @exception {DeveloperError} positions is required
-     *
      * @example
      * var positions = ellipsoid.cartographicArrayToCartesianArray([
-     *      Cartographic.fromDegrees(-105.0, 40.0),
-     *      Cartographic.fromDegrees(-100.0, 38.0),
-     *      Cartographic.fromDegrees(-105.0, 35.0),
-     *      Cartographic.fromDegrees(-100.0, 32.0)
+     *      Cesium.Cartographic.fromDegrees(-105.0, 40.0),
+     *      Cesium.Cartographic.fromDegrees(-100.0, 38.0),
+     *      Cesium.Cartographic.fromDegrees(-105.0, 35.0),
+     *      Cesium.Cartographic.fromDegrees(-100.0, 32.0)
      * ]));
-     * var surfacePositions = PolylinePipeline.scaleToSurface(positions);
+     * var surfacePositions = Cesium.PolylinePipeline.scaleToSurface(positions);
      */
     PolylinePipeline.scaleToSurface = function(positions, granularity, ellipsoid) {
-        if (!defined(positions)) {
+                if (!defined(positions)) {
             throw new DeveloperError('positions is required');
         }
+        
         granularity = defaultValue(granularity, CesiumMath.RADIANS_PER_DEGREE);
         ellipsoid = defaultValue(ellipsoid, Ellipsoid.WGS84);
 
@@ -19666,11 +19279,11 @@ define('Core/PolylinePipeline',[
         var newPositions = [];
         for (var i = 0; i < length - 1; i++) {
             var p0 = positions[i];
-            var p1 = positions[i+1];
+            var p1 = positions[i + 1];
             newPositions = newPositions.concat(generateCartesianArc(p0, p1, granularity, ellipsoid));
         }
 
-        var lastPoint = positions[length-1];
+        var lastPoint = positions[length - 1];
         var carto = ellipsoid.cartesianToCartographic(lastPoint, carto1);
         carto.height = 0;
         var cart = ellipsoid.cartographicToCartesian(carto, cartesian);
@@ -19702,17 +19315,17 @@ define('Core/PolylinePipeline',[
      * var positions = [p1.x, p1.y, p1.z, p2.x, p2.y, p2.z];
      * var heights = [1000, 1000, 2000, 2000];
      *
-     * var raisedPositions = PolylinePipeline.scaleToGeodeticHeight(positions, heights);
+     * var raisedPositions = Cesium.PolylinePipeline.scaleToGeodeticHeight(positions, heights);
      */
-     PolylinePipeline.scaleToGeodeticHeight = function(positions, height, ellipsoid, result) {
-        if (!defined(positions)) {
+    PolylinePipeline.scaleToGeodeticHeight = function(positions, height, ellipsoid, result) {
+                if (!defined(positions)) {
             throw new DeveloperError('positions must be defined.');
         }
         if (!defined(height)) {
             throw new DeveloperError('height must be defined');
         }
+        
         ellipsoid = defaultValue(ellipsoid, Ellipsoid.WGS84);
-
         var length = positions.length;
         var i;
         var p = scaleP;
@@ -19727,7 +19340,7 @@ define('Core/PolylinePipeline',[
         }
 
         if (height === 0) {
-            for(i = 0; i < length; i+=3) {
+            for (i = 0; i < length; i += 3) {
                 p = ellipsoid.scaleToGeodeticSurface(Cartesian3.fromArray(positions, i, p), p);
                 newPositions[i] = p.x;
                 newPositions[i + 1] = p.y;
@@ -19737,12 +19350,12 @@ define('Core/PolylinePipeline',[
         }
 
         var h;
-        if (Array.isArray(height)) {
-            if (height.length !== length/3) {
+        if (isArray(height)) {
+            if (height.length !== length / 3) {
                 throw new DeveloperError('height.length must be equal to positions.length');
             }
             for (i = 0; i < length; i += 3) {
-                h = height[i/3];
+                h = height[i / 3];
                 p = Cartesian3.fromArray(positions, i, p);
                 p = computeHeight(p, h, ellipsoid);
                 newPositions[i] = p.x;
@@ -19819,7 +19432,7 @@ define('Core/WallGeometryLibrary',[
     }
 
     function latLonEquals(c0, c1) {
-        return ((CesiumMath.equalsEpsilon(c0.latitude, c1.latitude, CesiumMath.EPSILON6)) && (CesiumMath.equalsEpsilon(c0.longitude, c1.longitude, CesiumMath.EPSILON6)));
+        return ((CesiumMath.equalsEpsilon(c0.latitude, c1.latitude, CesiumMath.EPSILON14)) && (CesiumMath.equalsEpsilon(c0.longitude, c1.longitude, CesiumMath.EPSILON14)));
     }
 
     var scratchCartographic1 = new Cartographic();
@@ -19833,7 +19446,7 @@ define('Core/WallGeometryLibrary',[
 
         var length = positions.length;
         if (length < 2) {
-            return positions.slice(0);
+            return { positions: positions };
         }
 
         var v0 = positions[0];
@@ -19883,9 +19496,10 @@ define('Core/WallGeometryLibrary',[
         maximumHeights = o.topHeights;
         minimumHeights = o.bottomHeights;
 
-        if (wallPositions.length < 2) {
+                if (wallPositions.length < 2) {
             throw new DeveloperError('unique positions must be greater than or equal to 2');
         }
+        
         var hasMinHeights = (defined(minimumHeights));
 
         if (wallPositions.length >= 3) {
@@ -20014,7 +19628,6 @@ define('Core/WallGeometry',[
      * @param {Ellipsoid} [ellipsoid=Ellipsoid.WGS84] The ellipsoid for coordinate manipulation
      * @param {VertexFormat} [options.vertexFormat=VertexFormat.DEFAULT] The vertex attributes to be computed.
      *
-     * @exception {DeveloperError} positions is required.
      * @exception {DeveloperError} positions and maximumHeights must have the same length.
      * @exception {DeveloperError} positions and minimumHeights must have the same length.
      *
@@ -20023,18 +19636,18 @@ define('Core/WallGeometry',[
      *
      * @example
      * var positions = [
-     *   Cartographic.fromDegrees(19.0, 47.0, 10000.0),
-     *   Cartographic.fromDegrees(19.0, 48.0, 10000.0),
-     *   Cartographic.fromDegrees(20.0, 48.0, 10000.0),
-     *   Cartographic.fromDegrees(20.0, 47.0, 10000.0),
-     *   Cartographic.fromDegrees(19.0, 47.0, 10000.0)
+     *   Cesium.Cartographic.fromDegrees(19.0, 47.0, 10000.0),
+     *   Cesium.Cartographic.fromDegrees(19.0, 48.0, 10000.0),
+     *   Cesium.Cartographic.fromDegrees(20.0, 48.0, 10000.0),
+     *   Cesium.Cartographic.fromDegrees(20.0, 47.0, 10000.0),
+     *   Cesium.Cartographic.fromDegrees(19.0, 47.0, 10000.0)
      * ];
      *
      * // create a wall that spans from ground level to 10000 meters
-     * var wall = new WallGeometry({
+     * var wall = new Cesium.WallGeometry({
      *     positions : ellipsoid.cartographicArrayToCartesianArray(positions)
      * });
-     * var geometry = WallGeometry.createGeometry(wall);
+     * var geometry = Cesium.WallGeometry.createGeometry(wall);
      */
     var WallGeometry = function(options) {
         options = defaultValue(options, defaultValue.EMPTY_OBJECT);
@@ -20043,18 +19656,16 @@ define('Core/WallGeometry',[
         var maximumHeights = options.maximumHeights;
         var minimumHeights = options.minimumHeights;
 
-        if (!defined(wallPositions)) {
+                if (!defined(wallPositions)) {
             throw new DeveloperError('positions is required.');
         }
-
         if (defined(maximumHeights) && maximumHeights.length !== wallPositions.length) {
             throw new DeveloperError('positions and maximumHeights must have the same length.');
         }
-
         if (defined(minimumHeights) && minimumHeights.length !== wallPositions.length) {
             throw new DeveloperError('positions and minimumHeights must have the same length.');
         }
-
+        
         var vertexFormat = defaultValue(options.vertexFormat, VertexFormat.DEFAULT);
         var granularity = defaultValue(options.granularity, CesiumMath.RADIANS_PER_DEGREE);
         var ellipsoid = defaultValue(options.ellipsoid, Ellipsoid.WGS84);
@@ -20082,35 +19693,33 @@ define('Core/WallGeometry',[
      * @param {Ellipsoid} [ellipsoid=Ellipsoid.WGS84] The ellipsoid for coordinate manipulation
      * @param {VertexFormat} [options.vertexFormat=VertexFormat.DEFAULT] The vertex attributes to be computed.
      *
-     * @exception {DeveloperError} positions is required.
-     *
      * @see WallGeometry#createGeometry
      *
      * @example
      * var positions = [
-     *   Cartographic.fromDegrees(19.0, 47.0, 10000.0),
-     *   Cartographic.fromDegrees(19.0, 48.0, 10000.0),
-     *   Cartographic.fromDegrees(20.0, 48.0, 10000.0),
-     *   Cartographic.fromDegrees(20.0, 47.0, 10000.0),
-     *   Cartographic.fromDegrees(19.0, 47.0, 10000.0)
+     *   Cesium.Cartographic.fromDegrees(19.0, 47.0, 10000.0),
+     *   Cesium.Cartographic.fromDegrees(19.0, 48.0, 10000.0),
+     *   Cesium.Cartographic.fromDegrees(20.0, 48.0, 10000.0),
+     *   Cesium.Cartographic.fromDegrees(20.0, 47.0, 10000.0),
+     *   Cesium.Cartographic.fromDegrees(19.0, 47.0, 10000.0)
      * ];
      *
      * // create a wall that spans from 10000 meters to 20000 meters
-     * var wall = WallGeometry.fromConstantHeights({
+     * var wall = Cesium.WallGeometry.fromConstantHeights({
      *     positions : ellipsoid.cartographicArrayToCartesianArray(positions),
      *     minimumHeight : 20000.0,
      *     maximumHeight : 10000.0
      * });
-     * var geometry = WallGeometry.createGeometry(wall);
+     * var geometry = Cesium.WallGeometry.createGeometry(wall);
      */
     WallGeometry.fromConstantHeights = function(options) {
         options = defaultValue(options, defaultValue.EMPTY_OBJECT);
-
         var positions = options.positions;
-        if (!defined(positions)) {
+
+                if (!defined(positions)) {
             throw new DeveloperError('options.positions is required.');
         }
-
+        
         var minHeights;
         var maxHeights;
 
@@ -20480,7 +20089,7 @@ define('Core/Color',[
      * @returns {Color} A new color instance.
      *
      * @example
-     * var color = Color.fromRgba(0x67ADDFFF);
+     * var color = Cesium.Color.fromRgba(0x67ADDFFF);
      *
      * @see Color#toRgba
      */
@@ -20558,17 +20167,17 @@ define('Core/Color',[
      *
      * @example
      * //Create a completely random color
-     * var color = Color.fromRandom();
+     * var color = Cesium.Color.fromRandom();
      *
      * //Create a random shade of yellow.
-     * var color = Color.fromRandom({
+     * var color = Cesium.Color.fromRandom({
      *     red : 1.0,
      *     green : 1.0,
      *     alpha : 1.0
      * });
      *
      * //Create a random bright color.
-     * var color = Color.fromRandom({
+     * var color = Cesium.Color.fromRandom({
      *     minimumRed : 0.75,
      *     minimumGreen : 0.75,
      *     minimumBlue : 0.75,
@@ -20583,9 +20192,10 @@ define('Core/Color',[
             var minimumRed = defaultValue(options.minimumRed, 0);
             var maximumRed = defaultValue(options.maximumRed, 1.0);
 
-            if (minimumRed > maximumRed) {
+                        if (minimumRed > maximumRed) {
                 throw new DeveloperError("minimumRed must be less than or equal to maximumRed");
             }
+            
             red = minimumRed + (CesiumMath.nextRandomNumber() * (maximumRed - minimumRed));
         }
 
@@ -20594,9 +20204,10 @@ define('Core/Color',[
             var minimumGreen = defaultValue(options.minimumGreen, 0);
             var maximumGreen = defaultValue(options.maximumGreen, 1.0);
 
-            if (minimumGreen > maximumGreen) {
+                        if (minimumGreen > maximumGreen) {
                 throw new DeveloperError("minimumGreen must be less than or equal to maximumGreen");
             }
+            
             green = minimumGreen + (CesiumMath.nextRandomNumber() * (maximumGreen - minimumGreen));
         }
 
@@ -20605,9 +20216,10 @@ define('Core/Color',[
             var minimumBlue = defaultValue(options.minimumBlue, 0);
             var maximumBlue = defaultValue(options.maximumBlue, 1.0);
 
-            if (minimumBlue > maximumBlue) {
+                        if (minimumBlue > maximumBlue) {
                 throw new DeveloperError("minimumBlue must be less than or equal to maximumBlue");
             }
+            
             blue = minimumBlue + (CesiumMath.nextRandomNumber() * (maximumBlue - minimumBlue));
         }
 
@@ -20616,9 +20228,10 @@ define('Core/Color',[
             var minimumAlpha = defaultValue(options.minimumAlpha, 0);
             var maximumAlpha = defaultValue(options.maximumAlpha, 1.0);
 
-            if (minimumAlpha > maximumAlpha) {
+                        if (minimumAlpha > maximumAlpha) {
                 throw new DeveloperError("minimumAlpha must be less than or equal to maximumAlpha");
             }
+            
             alpha = minimumAlpha + (CesiumMath.nextRandomNumber() * (maximumAlpha - minimumAlpha));
         }
 
@@ -20649,19 +20262,17 @@ define('Core/Color',[
      * @param {String} color The CSS color value in #rgb, #rrggbb, rgb(), rgba(), hsl(), or hsla() format.
      * @returns {Color} The color object, or undefined if the string was not a valid CSS color.
      *
-     * @exception {DeveloperError} color is required.
-     *
      * @example
-     * var cesiumBlue = Color.fromCssColorString('#67ADDF');
-     * var green = Color.fromCssColorString('green');
+     * var cesiumBlue = Cesium.Color.fromCssColorString('#67ADDF');
+     * var green = Cesium.Color.fromCssColorString('green');
      *
      * @see <a href="http://www.w3.org/TR/css3-color">CSS color values</a>
      */
     Color.fromCssColorString = function(color) {
-        if (!defined(color)) {
+                if (!defined(color)) {
             throw new DeveloperError('color is required');
         }
-
+        
         var namedColor = Color[color.toUpperCase()];
         if (defined(namedColor)) {
             return Color.clone(namedColor);
@@ -20713,21 +20324,16 @@ define('Core/Color',[
      * @param {Color} value The value to pack.
      * @param {Array} array The array to pack into.
      * @param {Number} [startingIndex=0] The index into the array at which to start packing the elements.
-     *
-     * @exception {DeveloperError} value is required.
-     * @exception {DeveloperError} array is required.
      */
     Color.pack = function(value, array, startingIndex) {
-        if (!defined(value)) {
+                if (!defined(value)) {
             throw new DeveloperError('value is required');
         }
-
         if (!defined(array)) {
             throw new DeveloperError('array is required');
         }
-
+        
         startingIndex = defaultValue(startingIndex, 0);
-
         array[startingIndex++] = value.red;
         array[startingIndex++] = value.green;
         array[startingIndex++] = value.blue;
@@ -20741,16 +20347,13 @@ define('Core/Color',[
      * @param {Array} array The packed array.
      * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
      * @param {Color} [result] The object into which to store the result.
-     *
-     * @exception {DeveloperError} array is required.
      */
     Color.unpack = function(array, startingIndex, result) {
-        if (!defined(array)) {
+                if (!defined(array)) {
             throw new DeveloperError('array is required');
         }
-
+        
         startingIndex = defaultValue(startingIndex, 0);
-
         if (!defined(result)) {
             result = new Color();
         }
@@ -20924,7 +20527,7 @@ define('Core/Color',[
      * @returns {Number} A single numeric unsigned 32-bit RGBA value.
      *
      * @example
-     * var rgba = Color.BLUE.toRgba();
+     * var rgba = Cesium.Color.BLUE.toRgba();
      *
      * @see Color.fromRgba
      */
@@ -22316,17 +21919,15 @@ define('Core/EncodedCartesian3',[
      *
      * @returns {Object} The modified result parameter or a new instance if one was not provided.
      *
-     * @exception {DeveloperError} value is required.
-     *
      * @example
      * var value = 1234567.1234567;
-     * var splitValue = EncodedCartesian3.encode(value);
+     * var splitValue = Cesium.EncodedCartesian3.encode(value);
      */
     EncodedCartesian3.encode = function(value, result) {
-        if (!defined(value)) {
+                if (!defined(value)) {
             throw new DeveloperError('value is required');
         }
-
+        
         if (!defined(result)) {
             result = {
                 high : 0.0,
@@ -22365,17 +21966,15 @@ define('Core/EncodedCartesian3',[
      * @param {EncodedCartesian3} [result] The object onto which to store the result.
      * @returns {EncodedCartesian3} The modified result parameter or a new EncodedCartesian3 instance if one was not provided.
      *
-     * @exception {DeveloperError} cartesian is required.
-     *
      * @example
-     * var cart = new Cartesian3(-10000000.0, 0.0, 10000000.0);
-     * var encoded = EncodedCartesian3.fromCartesian(cart);
+     * var cart = new Cesium.Cartesian3(-10000000.0, 0.0, 10000000.0);
+     * var encoded = Cesium.EncodedCartesian3.fromCartesian(cart);
      */
     EncodedCartesian3.fromCartesian = function(cartesian, result) {
-        if (!defined(cartesian)) {
+                if (!defined(cartesian)) {
             throw new DeveloperError('cartesian is required');
         }
-
+        
         if (!defined(result)) {
             result = new EncodedCartesian3();
         }
@@ -22411,35 +22010,31 @@ define('Core/EncodedCartesian3',[
      * @param {Array} cartesianArray The array to write to.
      * @param {Number} index The index into the array to start writing.  Six elements will be written.
      *
-     * @exception {DeveloperError} cartesian is required.
-     * @exception {DeveloperError} cartesianArray is required.
      * @exception {DeveloperError} index must be a number greater than or equal to 0.
      *
      * @example
      * var positions = [
-     *    new Cartesian3(),
+     *    new Cesium.Cartesian3(),
      *    // ...
      * ];
      * var encodedPositions = new Float32Array(2 * 3 * positions.length);
      * var j = 0;
      * for (var i = 0; i < positions.length; ++i) {
-     *   EncodedCartesian3.writeElement(positions[i], encodedPositions, j);
+     *   Cesium.EncodedCartesian3.writeElement(positions[i], encodedPositions, j);
      *   j += 6;
      * }
      */
     EncodedCartesian3.writeElements = function(cartesian, cartesianArray, index) {
-        if (!defined(cartesian)) {
+                if (!defined(cartesian)) {
             throw new DeveloperError('cartesian is required');
         }
-
         if (!defined(cartesianArray)) {
             throw new DeveloperError('cartesianArray is required');
         }
-
         if (typeof index !== 'number' || index < 0) {
             throw new DeveloperError('index must be a number greater than or equal to 0.');
         }
-
+        
         EncodedCartesian3.fromCartesian(cartesian, encodedP);
         var high = encodedP.high;
         var low = encodedP.low;
@@ -22489,7 +22084,6 @@ define('Core/Tipsify',[
      *                                     If not supplied, this value will be computed.
      * @param {Number} [description.cacheSize=24] The number of vertices that can be stored in the cache at any one time.
      *
-     * @exception {DeveloperError} indices is required.
      * @exception {DeveloperError} indices length must be a multiple of three.
      * @exception {DeveloperError} cacheSize must be greater than two.
      *
@@ -22499,7 +22093,7 @@ define('Core/Tipsify',[
      * var indices = [0, 1, 2, 3, 4, 5];
      * var maxIndex = 5;
      * var cacheSize = 3;
-     * var acmr = Tipsify.calculateACMR({indices : indices, maxIndex : maxIndex, cacheSize : cacheSize});
+     * var acmr = Cesium.Tipsify.calculateACMR({indices : indices, maxIndex : maxIndex, cacheSize : cacheSize});
      */
     Tipsify.calculateACMR = function(description) {
         description = defaultValue(description, defaultValue.EMPTY_OBJECT);
@@ -22507,13 +22101,13 @@ define('Core/Tipsify',[
         var maximumIndex = description.maximumIndex;
         var cacheSize = defaultValue(description.cacheSize, 24);
 
-        if (!defined(indices)) {
+                if (!defined(indices)) {
             throw new DeveloperError('indices is required.');
         }
-
+        
         var numIndices = indices.length;
 
-        if (numIndices < 3 || numIndices % 3 !== 0) {
+                if (numIndices < 3 || numIndices % 3 !== 0) {
             throw new DeveloperError('indices length must be a multiple of three.');
         }
         if (maximumIndex <= 0) {
@@ -22522,7 +22116,7 @@ define('Core/Tipsify',[
         if (cacheSize < 3) {
             throw new DeveloperError('cacheSize must be greater than two.');
         }
-
+        
         // Compute the maximumIndex if not given
         if (!defined(maximumIndex)) {
             maximumIndex = 0;
@@ -22564,7 +22158,6 @@ define('Core/Tipsify',[
      *                                     If not supplied, this value will be computed.
      * @param {Number} [description.cacheSize=24] The number of vertices that can be stored in the cache at any one time.
      *
-     * @exception {DeveloperError} indices is required.
      * @exception {DeveloperError} indices length must be a multiple of three.
      * @exception {DeveloperError} cacheSize must be greater than two.
      *
@@ -22574,7 +22167,7 @@ define('Core/Tipsify',[
      * var indices = [0, 1, 2, 3, 4, 5];
      * var maxIndex = 5;
      * var cacheSize = 3;
-     * var reorderedIndices = Tipsify.tipsify({indices : indices, maxIndex : maxIndex, cacheSize : cacheSize});
+     * var reorderedIndices = Cesium.Tipsify.tipsify({indices : indices, maxIndex : maxIndex, cacheSize : cacheSize});
      */
     Tipsify.tipsify = function(description) {
         description = defaultValue(description, defaultValue.EMPTY_OBJECT);
@@ -22630,12 +22223,13 @@ define('Core/Tipsify',[
             return n;
         }
 
-        if (!defined(indices)) {
+                if (!defined(indices)) {
             throw new DeveloperError('indices is required.');
         }
+        
         var numIndices = indices.length;
 
-        if (numIndices < 3 || numIndices % 3 !== 0) {
+                if (numIndices < 3 || numIndices % 3 !== 0) {
             throw new DeveloperError('indices length must be a multiple of three.');
         }
         if (maximumIndex <= 0) {
@@ -22644,7 +22238,7 @@ define('Core/Tipsify',[
         if (cacheSize < 3) {
             throw new DeveloperError('cacheSize must be greater than two.');
         }
-
+        
         // Determine maximum index
         var maximumIndexPlusOne = 0;
         var currentIndex = 0;
@@ -22882,17 +22476,16 @@ define('Core/GeometryPipeline',[
      *
      * @returns {Geometry} The modified <code>geometry</code> argument, with its triangle indices converted to lines.
      *
-     * @exception {DeveloperError} geometry is required.
      * @exception {DeveloperError} geometry.primitiveType must be TRIANGLES, TRIANGLE_STRIP, or TRIANGLE_FAN.
      *
      * @example
-     * geometry = GeometryPipeline.toWireframe(geometry);
+     * geometry = Cesium.GeometryPipeline.toWireframe(geometry);
      */
     GeometryPipeline.toWireframe = function(geometry) {
-        if (!defined(geometry)) {
+                if (!defined(geometry)) {
             throw new DeveloperError('geometry is required.');
         }
-
+        
         var indices = geometry.indices;
         if (defined(indices)) {
             switch (geometry.primitiveType) {
@@ -22926,28 +22519,24 @@ define('Core/GeometryPipeline',[
      *
      * @returns {Geometry} A new <code>Geometry<code> instance with line segments for the vector.
      *
-     * @exception {DeveloperError} geometry is required.
-     * @exception {DeveloperError} geometry.attributes.position is required.
      * @exception {DeveloperError} geometry.attributes must have an attribute with the same name as the attributeName parameter.
      *
      * @example
-     * var geometry = GeometryPipeline.createLineSegmentsForVectors(instance.geometry, 'binormal', 100000.0),
+     * var geometry = Cesium.GeometryPipeline.createLineSegmentsForVectors(instance.geometry, 'binormal', 100000.0),
      */
     GeometryPipeline.createLineSegmentsForVectors = function(geometry, attributeName, length) {
-        if (!defined(geometry)) {
+        attributeName = defaultValue(attributeName, 'normal');
+
+                if (!defined(geometry)) {
             throw new DeveloperError('geometry is required.');
         }
-
         if (!defined(geometry.attributes.position)) {
             throw new DeveloperError('geometry.attributes.position is required.');
         }
-
-        attributeName = defaultValue(attributeName, 'normal');
-
         if (!defined(geometry.attributes[attributeName])) {
             throw new DeveloperError('geometry.attributes must have an attribute with the same name as the attributeName parameter, ' + attributeName + '.');
         }
-
+        
         length = defaultValue(length, 10000.0);
 
         var positions = geometry.attributes.position.values;
@@ -22987,17 +22576,15 @@ define('Core/GeometryPipeline',[
     };
 
     /**
-     * Creates an object that maps attribute names to unique indices for matching
-     * vertex attributes and shader programs.
+     * Creates an object that maps attribute names to unique locations (indices)
+     * for matching vertex attributes and shader programs.
      *
      * @param {Geometry} geometry The geometry, which is not modified, to create the object for.
      *
      * @returns {Object} An object with attribute name / index pairs.
      *
-     * @exception {DeveloperError} geometry is required.
-     *
      * @example
-     * var attributeIndices = GeometryPipeline.createAttributeIndices(geometry);
+     * var attributeLocations = Cesium.GeometryPipeline.createAttributeLocations(geometry);
      * // Example output
      * // {
      * //   'position' : 0,
@@ -23007,11 +22594,11 @@ define('Core/GeometryPipeline',[
      * @see Context#createVertexArrayFromGeometry
      * @see ShaderCache
      */
-    GeometryPipeline.createAttributeIndices = function(geometry) {
-        if (!defined(geometry)) {
+    GeometryPipeline.createAttributeLocations = function(geometry) {
+                if (!defined(geometry)) {
             throw new DeveloperError('geometry is required.');
         }
-
+        
         // There can be a WebGL performance hit when attribute 0 is disabled, so
         // assign attribute locations to well-known attributes.
         var semantics = [
@@ -23067,19 +22654,18 @@ define('Core/GeometryPipeline',[
      *
      * @returns {Geometry} The modified <code>geometry</code> argument, with its attributes and indices reordered for the GPU's pre-vertex-shader cache.
      *
-     * @exception {DeveloperError} geometry is required.
      * @exception {DeveloperError} Each attribute array in geometry.attributes must have the same number of attributes.
      *
      * @example
-     * geometry = GeometryPipeline.reorderForPreVertexCache(geometry);
+     * geometry = Cesium.GeometryPipeline.reorderForPreVertexCache(geometry);
      *
      * @see GeometryPipeline.reorderForPostVertexCache
      */
     GeometryPipeline.reorderForPreVertexCache = function(geometry) {
-        if (!defined(geometry)) {
+                if (!defined(geometry)) {
             throw new DeveloperError('geometry is required.');
         }
-
+        
         var numVertices = Geometry.computeNumberOfVertices(geometry);
 
         var indices = geometry.indices;
@@ -23153,11 +22739,10 @@ define('Core/GeometryPipeline',[
      *
      * @returns {Geometry} The modified <code>geometry</code> argument, with its indices reordered for the post-vertex-shader cache.
      *
-     * @exception {DeveloperError} geometry is required.
      * @exception {DeveloperError} cacheCapacity must be greater than two.
      *
      * @example
-     * geometry = GeometryPipeline.reorderForPostVertexCache(geometry);
+     * geometry = Cesium.GeometryPipeline.reorderForPostVertexCache(geometry);
      *
      * @see GeometryPipeline.reorderForPreVertexCache
      * @see <a href='http://gfx.cs.princeton.edu/pubs/Sander_2007_%3ETR/tipsy.pdf'>
@@ -23165,10 +22750,10 @@ define('Core/GeometryPipeline',[
      * by Sander, Nehab, and Barczak
      */
     GeometryPipeline.reorderForPostVertexCache = function(geometry, cacheCapacity) {
-        if (!defined(geometry)) {
+                if (!defined(geometry)) {
             throw new DeveloperError('geometry is required.');
         }
-
+        
         var indices = geometry.indices;
         if ((geometry.primitiveType === PrimitiveType.TRIANGLES) && (defined(indices))) {
             var numIndices = indices.length;
@@ -23236,25 +22821,23 @@ define('Core/GeometryPipeline',[
      *
      * @returns {Array} An array of geometries, each with indices that fit into unsigned shorts.
      *
-     * @exception {DeveloperError} geometry is required.
      * @exception {DeveloperError} geometry.primitiveType must equal to PrimitiveType.TRIANGLES, PrimitiveType.LINES, or PrimitiveType.POINTS
      * @exception {DeveloperError} All geometry attribute lists must have the same number of attributes.
      *
      * @example
-     * var geometries = GeometryPipeline.fitToUnsignedShortIndices(geometry);
+     * var geometries = Cesium.GeometryPipeline.fitToUnsignedShortIndices(geometry);
      */
     GeometryPipeline.fitToUnsignedShortIndices = function(geometry) {
-        if (!defined(geometry)) {
+                if (!defined(geometry)) {
             throw new DeveloperError('geometry is required.');
         }
-
         if ((defined(geometry.indices)) &&
             ((geometry.primitiveType !== PrimitiveType.TRIANGLES) &&
              (geometry.primitiveType !== PrimitiveType.LINES) &&
              (geometry.primitiveType !== PrimitiveType.POINTS))) {
             throw new DeveloperError('geometry.primitiveType must equal to PrimitiveType.TRIANGLES, PrimitiveType.LINES, or PrimitiveType.POINTS.');
         }
-
+        
         var geometries = [];
 
         // If there's an index list and more than 64K attributes, it is possible that
@@ -23341,45 +22924,36 @@ define('Core/GeometryPipeline',[
      *
      * @returns {Geometry} The modified <code>geometry</code> argument with <code>position3D</code> and <code>position2D</code> attributes.
      *
-     * @exception {DeveloperError} geometry is required.
-     * @exception {DeveloperError} attributeName is required.
-     * @exception {DeveloperError} attributeName3D is required.
-     * @exception {DeveloperError} attributeName2D is required.
      * @exception {DeveloperError} geometry must have attribute matching the attributeName argument.
      * @exception {DeveloperError} The attribute componentDatatype must be ComponentDatatype.DOUBLE.
      * @exception {DeveloperError} Could not project a point to 2D.
      *
      * @example
-     * geometry = GeometryPipeline.projectTo2D(geometry, 'position', 'position3D', 'position2D');
+     * geometry = Cesium.GeometryPipeline.projectTo2D(geometry, 'position', 'position3D', 'position2D');
      */
     GeometryPipeline.projectTo2D = function(geometry, attributeName, attributeName3D, attributeName2D, projection) {
-        if (!defined(geometry)) {
+                if (!defined(geometry)) {
             throw new DeveloperError('geometry is required.');
         }
-
         if (!defined(attributeName)) {
             throw new DeveloperError('attributeName is required.');
         }
-
         if (!defined(attributeName3D)) {
             throw new DeveloperError('attributeName3D is required.');
         }
-
         if (!defined(attributeName2D)) {
             throw new DeveloperError('attributeName2D is required.');
         }
-
-        var attribute = geometry.attributes[attributeName];
-        if (!defined(attribute)) {
+        if (!defined(geometry.attributes[attributeName])) {
             throw new DeveloperError('geometry must have attribute matching the attributeName argument: ' + attributeName + '.');
         }
-
-        if (attribute.componentDatatype.value !== ComponentDatatype.DOUBLE.value) {
+        if (geometry.attributes[attributeName].componentDatatype.value !== ComponentDatatype.DOUBLE.value) {
             throw new DeveloperError('The attribute componentDatatype must be ComponentDatatype.DOUBLE.');
         }
-
+        
+        var attribute = geometry.attributes[attributeName];
         projection = (defined(projection)) ? projection : new GeographicProjection();
-        var ellipsoid = projection.getEllipsoid();
+        var ellipsoid = projection.ellipsoid;
 
         // Project original values to 2D.
         var values3D = attribute.values;
@@ -23434,45 +23008,35 @@ define('Core/GeometryPipeline',[
      *
      * @returns {Geometry} The modified <code>geometry</code> argument, with its encoded attribute.
      *
-     * @exception {DeveloperError} geometry is required.
-     * @exception {DeveloperError} attributeName is required.
-     * @exception {DeveloperError} attributeHighName is required.
-     * @exception {DeveloperError} attributeLowName is required.
      * @exception {DeveloperError} geometry must have attribute matching the attributeName argument.
      * @exception {DeveloperError} The attribute componentDatatype must be ComponentDatatype.DOUBLE.
      *
      * @example
-     * geometry = GeometryPipeline.encodeAttribute(geometry, 'position3D', 'position3DHigh', 'position3DLow');
+     * geometry = Cesium.GeometryPipeline.encodeAttribute(geometry, 'position3D', 'position3DHigh', 'position3DLow');
      *
      * @see EncodedCartesian3
      */
     GeometryPipeline.encodeAttribute = function(geometry, attributeName, attributeHighName, attributeLowName) {
-        if (!defined(geometry)) {
+                if (!defined(geometry)) {
             throw new DeveloperError('geometry is required.');
         }
-
         if (!defined(attributeName)) {
             throw new DeveloperError('attributeName is required.');
         }
-
         if (!defined(attributeHighName)) {
             throw new DeveloperError('attributeHighName is required.');
         }
-
         if (!defined(attributeLowName)) {
             throw new DeveloperError('attributeLowName is required.');
         }
-
-        var attribute = geometry.attributes[attributeName];
-
-        if (!defined(attribute)) {
+        if (!defined(geometry.attributes[attributeName])) {
             throw new DeveloperError('geometry must have attribute matching the attributeName argument: ' + attributeName + '.');
         }
-
-        if (attribute.componentDatatype.value !== ComponentDatatype.DOUBLE.value) {
+        if (geometry.attributes[attributeName].componentDatatype.value !== ComponentDatatype.DOUBLE.value) {
             throw new DeveloperError('The attribute componentDatatype must be ComponentDatatype.DOUBLE.');
         }
-
+        
+        var attribute = geometry.attributes[attributeName];
         var values = attribute.values;
         var length = values.length;
         var highValues = new Float32Array(length);
@@ -23534,7 +23098,7 @@ define('Core/GeometryPipeline',[
     /**
      * Transforms a geometry instance to world coordinates.  This is used as a prerequisite
      * to batch together several instances with {@link GeometryPipeline.combine}.  This changes
-     * the instance's <code>modelMatrix</code> to {@see Matrix4.IDENTITY} and transforms the
+     * the instance's <code>modelMatrix</code> to {@link Matrix4.IDENTITY} and transforms the
      * following attributes if they are present: <code>position</code>, <code>normal</code>,
      * <code>binormal</code>, and <code>tangent</code>.
      *
@@ -23542,21 +23106,19 @@ define('Core/GeometryPipeline',[
      *
      * @returns {GeometryInstance} The modified <code>instance</code> argument, with its attributes transforms to world coordinates.
      *
-     * @exception {DeveloperError} instance is required.
-     *
      * @example
      * for (var i = 0; i < instances.length; ++i) {
-     *   GeometryPipeline.transformToWorldCoordinates(instances[i]);
+     *   Cesium.GeometryPipeline.transformToWorldCoordinates(instances[i]);
      * }
-     * var geometry = GeometryPipeline.combine(instances);
+     * var geometry = Cesium.GeometryPipeline.combine(instances);
      *
      * @see GeometryPipeline.combine
      */
     GeometryPipeline.transformToWorldCoordinates = function(instance) {
-        if (!defined(instance)) {
+                if (!defined(instance)) {
             throw new DeveloperError('instance is required.');
         }
-
+        
         var modelMatrix = instance.modelMatrix;
 
         if (Matrix4.equals(modelMatrix, Matrix4.IDENTITY)) {
@@ -23658,24 +23220,23 @@ define('Core/GeometryPipeline',[
      *
      * @returns {Geometry} A single geometry created from the provided geometry instances.
      *
-     * @exception {DeveloperError} instances is required and must have length greater than zero.
      * @exception {DeveloperError} All instances must have the same modelMatrix.
      * @exception {DeveloperError} All instance geometries must have an indices or not have one.
      * @exception {DeveloperError} All instance geometries must have the same primitiveType.
      *
      * @example
      * for (var i = 0; i < instances.length; ++i) {
-     *   GeometryPipeline.transformToWorldCoordinates(instances[i]);
+     *   Cesium.GeometryPipeline.transformToWorldCoordinates(instances[i]);
      * }
-     * var geometry = GeometryPipeline.combine(instances);
+     * var geometry = Cesium.GeometryPipeline.combine(instances);
      *
      * @see GeometryPipeline.transformToWorldCoordinates
      */
     GeometryPipeline.combine = function(instances) {
-        if ((!defined(instances)) || (instances.length < 1)) {
+                if ((!defined(instances)) || (instances.length < 1)) {
             throw new DeveloperError('instances is required and must have length greater than zero.');
         }
-
+        
         var length = instances.length;
 
         var name;
@@ -23687,20 +23248,18 @@ define('Core/GeometryPipeline',[
         var haveIndices = (defined(instances[0].geometry.indices));
         var primitiveType = instances[0].geometry.primitiveType;
 
-        for (i = 1; i < length; ++i) {
+                for (i = 1; i < length; ++i) {
             if (!Matrix4.equals(instances[i].modelMatrix, m)) {
                 throw new DeveloperError('All instances must have the same modelMatrix.');
             }
-
             if ((defined(instances[i].geometry.indices)) !== haveIndices) {
                 throw new DeveloperError('All instance geometries must have an indices or not have one.');
             }
-
             if (instances[i].geometry.primitiveType !== primitiveType) {
                 throw new DeveloperError('All instance geometries must have the same primitiveType.');
             }
         }
-
+        
         // Find subset of attributes in all geometries
         var attributes = findAttributesInAllGeometries(instances);
         var values;
@@ -23807,41 +23366,33 @@ define('Core/GeometryPipeline',[
      *
      * @returns {Geometry} The modified <code>geometry</code> argument with the computed <code>normal</code> attribute.
      *
-     * @exception {DeveloperError} geometry is required.
-     * @exception {DeveloperError} geometry.attributes.position.values is required.
-     * @exception {DeveloperError} geometry.indices is required.
      * @exception {DeveloperError} geometry.indices length must be greater than 0 and be a multiple of 3.
      * @exception {DeveloperError} geometry.primitiveType must be {@link PrimitiveType.TRIANGLES}.
      *
      * @example
-     * GeometryPipeline.computeNormal(geometry);
+     * Cesium.GeometryPipeline.computeNormal(geometry);
      */
     GeometryPipeline.computeNormal = function(geometry) {
-        if (!defined(geometry)) {
+                if (!defined(geometry)) {
             throw new DeveloperError('geometry is required.');
         }
-
-        var attributes = geometry.attributes;
-        var indices = geometry.indices;
-
-        if (!defined(attributes.position) || !defined(attributes.position.values)) {
+        if (!defined(geometry.attributes.position) || !defined(geometry.attributes.position.values)) {
             throw new DeveloperError('geometry.attributes.position.values is required.');
         }
-
-        if (!defined(indices)) {
+        if (!defined(geometry.indices)) {
             throw new DeveloperError('geometry.indices is required.');
         }
-
-        if (indices.length < 2 || indices.length % 3 !== 0) {
+        if (geometry.indices.length < 2 || geometry.indices.length % 3 !== 0) {
             throw new DeveloperError('geometry.indices length must be greater than 0 and be a multiple of 3.');
         }
-
         if (geometry.primitiveType !== PrimitiveType.TRIANGLES) {
             throw new DeveloperError('geometry.primitiveType must be PrimitiveType.TRIANGLES.');
         }
-
-        var vertices = geometry.attributes.position.values;
-        var numVertices = geometry.attributes.position.values.length / 3;
+        
+        var indices = geometry.indices;
+        var attributes = geometry.attributes;
+        var vertices = attributes.position.values;
+        var numVertices = attributes.position.values.length / 3;
         var numIndices = indices.length;
         var normalsPerVertex = new Array(numVertices);
         var normalsPerTriangle = new Array(numIndices / 3);
@@ -23957,49 +23508,39 @@ define('Core/GeometryPipeline',[
      *
      * @returns {Geometry} The modified <code>geometry</code> argument with the computed <code>binormal</code> and <code>tangent</code> attributes.
      *
-     * @exception {DeveloperError} geometry is required.
-     * @exception {DeveloperError} geometry.attributes.position.values is required.
-     * @exception {DeveloperError} geometry.attributes.normal.values is required.
-     * @exception {DeveloperError} geometry.attributes.st.values is required.
-     * @exception {DeveloperError} geometry.indices is required.
      * @exception {DeveloperError} geometry.indices length must be greater than 0 and be a multiple of 3.
      * @exception {DeveloperError} geometry.primitiveType must be {@link PrimitiveType.TRIANGLES}.
      *
      * @example
-     * GeometryPipeline.computeBinormalAndTangent(geometry);
+     * Cesium.GeometryPipeline.computeBinormalAndTangent(geometry);
      */
     GeometryPipeline.computeBinormalAndTangent = function(geometry) {
-        if (!defined(geometry)) {
+                if (!defined(geometry)) {
             throw new DeveloperError('geometry is required.');
         }
-
+        
         var attributes = geometry.attributes;
         var indices = geometry.indices;
 
-        if (!defined(attributes.position) || !defined(attributes.position.values)) {
+                if (!defined(attributes.position) || !defined(attributes.position.values)) {
             throw new DeveloperError('geometry.attributes.position.values is required.');
         }
-
         if (!defined(attributes.normal) || !defined(attributes.normal.values)) {
             throw new DeveloperError('geometry.attributes.normal.values is required.');
         }
-
         if (!defined(attributes.st) || !defined(attributes.st.values)) {
             throw new DeveloperError('geometry.attributes.st.values is required.');
         }
-
         if (!defined(indices)) {
             throw new DeveloperError('geometry.indices is required.');
         }
-
         if (indices.length < 2 || indices.length % 3 !== 0) {
             throw new DeveloperError('geometry.indices length must be greater than 0 and be a multiple of 3.');
         }
-
         if (geometry.primitiveType !== PrimitiveType.TRIANGLES) {
             throw new DeveloperError('geometry.primitiveType must be PrimitiveType.TRIANGLES.');
         }
-
+        
         var vertices = geometry.attributes.position.values;
         var normals = geometry.attributes.normal.values;
         var st = geometry.attributes.st.values;
@@ -24097,16 +23638,15 @@ define('Core/GeometryPipeline',[
         if (defined(geometry.indices)) {
             return geometry;
         }
-
         var numberOfVertices = Geometry.computeNumberOfVertices(geometry);
-        if (numberOfVertices < 3) {
+
+                if (numberOfVertices < 3) {
             throw new DeveloperError('The number of vertices must be at least three.');
         }
-
         if (numberOfVertices % 3 !== 0) {
             throw new DeveloperError('The number of vertices must be a multiple of three.');
         }
-
+        
         var indices = IndexDatatype.createTypedArray(numberOfVertices, numberOfVertices);
         for (var i = 0; i < numberOfVertices; ++i) {
             indices[i] = i;
@@ -24118,10 +23658,11 @@ define('Core/GeometryPipeline',[
 
     function indexTriangleFan(geometry) {
         var numberOfVertices = Geometry.computeNumberOfVertices(geometry);
-        if (numberOfVertices < 3) {
+
+                if (numberOfVertices < 3) {
             throw new DeveloperError('The number of vertices must be at least three.');
         }
-
+        
         var indices = IndexDatatype.createTypedArray(numberOfVertices, (numberOfVertices - 2) * 3);
         indices[0] = 1;
         indices[1] = 0;
@@ -24141,10 +23682,11 @@ define('Core/GeometryPipeline',[
 
     function indexTriangleStrip(geometry) {
         var numberOfVertices = Geometry.computeNumberOfVertices(geometry);
-        if (numberOfVertices < 3) {
+
+                if (numberOfVertices < 3) {
             throw new DeveloperError('The number of vertices must be at least 3.');
         }
-
+        
         var indices = IndexDatatype.createTypedArray(numberOfVertices, (numberOfVertices - 2) * 3);
         indices[0] = 0;
         indices[1] = 1;
@@ -24178,16 +23720,15 @@ define('Core/GeometryPipeline',[
         if (defined(geometry.indices)) {
             return geometry;
         }
-
         var numberOfVertices = Geometry.computeNumberOfVertices(geometry);
-        if (numberOfVertices < 2) {
+
+                if (numberOfVertices < 2) {
             throw new DeveloperError('The number of vertices must be at least two.');
         }
-
         if (numberOfVertices % 2 !== 0) {
             throw new DeveloperError('The number of vertices must be a multiple of 2.');
         }
-
+        
         var indices = IndexDatatype.createTypedArray(numberOfVertices, numberOfVertices);
         for (var i = 0; i < numberOfVertices; ++i) {
             indices[i] = i;
@@ -24199,14 +23740,14 @@ define('Core/GeometryPipeline',[
 
     function indexLineStrip(geometry) {
         var numberOfVertices = Geometry.computeNumberOfVertices(geometry);
-        if (numberOfVertices < 2) {
+
+                if (numberOfVertices < 2) {
             throw new DeveloperError('The number of vertices must be at least two.');
         }
+        
         var indices = IndexDatatype.createTypedArray(numberOfVertices, (numberOfVertices - 1) * 2);
-
         indices[0] = 0;
         indices[1] = 1;
-
         var indicesIndex = 2;
         for (var i = 2; i < numberOfVertices; ++i) {
             indices[indicesIndex++] = i - 1;
@@ -24220,10 +23761,11 @@ define('Core/GeometryPipeline',[
 
     function indexLineLoop(geometry) {
         var numberOfVertices = Geometry.computeNumberOfVertices(geometry);
-        if (numberOfVertices < 2) {
+
+                if (numberOfVertices < 2) {
             throw new DeveloperError('The number of vertices must be at least two.');
         }
-
+        
         var indices = IndexDatatype.createTypedArray(numberOfVertices, numberOfVertices * 2);
 
         indices[0] = 0;
@@ -24649,16 +24191,14 @@ define('Core/GeometryPipeline',[
      *
      * @returns {Geometry} The modified <code>geometry</code> argument, with it's primitives split at the International Date Line.
      *
-     * @exception {DeveloperError} geometry is required.
-     *
      * @example
-     * geometry = GeometryPipeline.wrapLongitude(geometry);
+     * geometry = Cesium.GeometryPipeline.wrapLongitude(geometry);
      */
     GeometryPipeline.wrapLongitude = function(geometry) {
-        if (!defined(geometry)) {
+                if (!defined(geometry)) {
             throw new DeveloperError('geometry is required.');
         }
-
+        
         var boundingSphere = geometry.boundingSphere;
         if (defined(boundingSphere)) {
             var minX = boundingSphere.center.x - boundingSphere.radius;
@@ -24849,12 +24389,13 @@ define('Scene/PrimitivePipeline',[
         var i;
         var length = instances.length;
         var primitiveType = instances[0].geometry.primitiveType;
-        for (i = 1; i < length; ++i) {
+
+                for (i = 1; i < length; ++i) {
             if (instances[i].geometry.primitiveType !== primitiveType) {
                 throw new DeveloperError('All instance geometries must have the same primitiveType.');
             }
         }
-
+        
         // Unify to world coordinates before combining.
         transformToWorldCoordinates(instances, modelMatrix, allow3DOnly);
 
@@ -24918,7 +24459,7 @@ define('Scene/PrimitivePipeline',[
         return [geometry];
     }
 
-    function createPerInstanceVAAttributes(geometry, attributeIndices, names) {
+    function createPerInstanceVAAttributes(geometry, attributeLocations, names) {
         var vaAttributes = [];
         var attributes = geometry.attributes;
 
@@ -24934,7 +24475,7 @@ define('Scene/PrimitivePipeline',[
 
             var typedArray = ComponentDatatype.createTypedArray(componentDatatype, attribute.values);
             vaAttributes.push({
-                index : attributeIndices[name],
+                index : attributeLocations[name],
                 componentDatatype : componentDatatype,
                 componentsPerAttribute : attribute.componentsPerAttribute,
                 normalize : attribute.normalize,
@@ -24947,7 +24488,7 @@ define('Scene/PrimitivePipeline',[
         return vaAttributes;
     }
 
-    function computePerInstanceAttributeIndices(instances, vertexArrays, attributeIndices) {
+    function computePerInstanceAttributeLocations(instances, vertexArrays, attributeLocations) {
         var indices = [];
 
         var names = getCommonPerInstanceAttributeNames(instances);
@@ -24962,7 +24503,7 @@ define('Scene/PrimitivePipeline',[
             var namesLength = names.length;
             for (var j = 0; j < namesLength; ++j) {
                 var name = names[j];
-                var index = attributeIndices[name];
+                var index = attributeLocations[name];
 
                 var tempVertexCount = numberOfVertices;
                 while (tempVertexCount > 0) {
@@ -25042,7 +24583,7 @@ define('Scene/PrimitivePipeline',[
             modelMatrix : Matrix4.clone(parameters.modelMatrix)
         };
         var geometries = geometryPipeline(clonedParameters);
-        var attributeIndices = GeometryPipeline.createAttributeIndices(geometries[0]);
+        var attributeLocations = GeometryPipeline.createAttributeLocations(geometries[0]);
 
         var instances = clonedParameters.instances;
         var perInstanceAttributeNames = getCommonPerInstanceAttributeNames(instances);
@@ -25051,17 +24592,17 @@ define('Scene/PrimitivePipeline',[
         var length = geometries.length;
         for (var i = 0; i < length; ++i) {
             var geometry = geometries[i];
-            perInstanceAttributes.push(createPerInstanceVAAttributes(geometry, attributeIndices, perInstanceAttributeNames));
+            perInstanceAttributes.push(createPerInstanceVAAttributes(geometry, attributeLocations, perInstanceAttributeNames));
         }
 
-        var indices = computePerInstanceAttributeIndices(instances, perInstanceAttributes, attributeIndices);
+        var indices = computePerInstanceAttributeLocations(instances, perInstanceAttributes, attributeLocations);
 
         return {
             geometries : geometries,
             modelMatrix : clonedParameters.modelMatrix,
-            attributeIndices : attributeIndices,
+            attributeLocations : attributeLocations,
             vaAttributes : perInstanceAttributes,
-            vaAttributeIndices : indices
+            vaAttributeLocations : indices
         };
     };
 
@@ -25073,10 +24614,14 @@ define('Scene/PrimitivePipeline',[
      */
 
     function stupefyTypedArray(typedArray) {
-        return {
-            type : typedArray.constructor.name,
-            buffer : typedArray.buffer
-        };
+        if (defined(typedArray.constructor.name)) {
+            return {
+                type : typedArray.constructor.name,
+                buffer : typedArray.buffer
+            };
+        } else {
+            return typedArray;
+        }
     }
 
     var typedArrayMap = {
@@ -25091,7 +24636,11 @@ define('Scene/PrimitivePipeline',[
     };
 
     function unStupefyTypedArray(typedArray) {
-        return new typedArrayMap[typedArray.type](typedArray.buffer);
+        if (defined(typedArray.type)) {
+            return new typedArrayMap[typedArray.type](typedArray.buffer);
+        } else {
+            return typedArray;
+        }
     }
 
     /**
@@ -25106,7 +24655,7 @@ define('Scene/PrimitivePipeline',[
                     defined(attributes[name].values)) {
                 typedArray = attributes[name].values;
 
-                if (transferableObjects.indexOf(attributes[name].values.buffer) < 0) {
+                if (FeatureDetection.supportsTransferringArrayBuffers() && transferableObjects.indexOf(attributes[name].values.buffer) < 0) {
                     transferableObjects.push(typedArray.buffer);
                 }
 
@@ -25118,7 +24667,10 @@ define('Scene/PrimitivePipeline',[
 
         if (defined(geometry.indices)) {
             typedArray = geometry.indices;
-            transferableObjects.push(typedArray.buffer);
+
+            if (FeatureDetection.supportsTransferringArrayBuffers()) {
+                transferableObjects.push(typedArray.buffer);
+            }
 
             if (!defined(typedArray.type)) {
                 geometry.indices = stupefyTypedArray(geometry.indices);
@@ -25146,7 +24698,9 @@ define('Scene/PrimitivePipeline',[
             var vaLength = vaAttributes.length;
             for (var j = 0; j < vaLength; ++j) {
                 var typedArray = vaAttributes[j].values;
-                transferableObjects.push(typedArray.buffer);
+                if (FeatureDetection.supportsTransferringArrayBuffers()) {
+                    transferableObjects.push(typedArray.buffer);
+                }
                 vaAttributes[j].values = stupefyTypedArray(typedArray);
             }
         }
@@ -25246,7 +24800,7 @@ define('Workers/createTaskProcessorWorker',[
      *   return result;
      * }
      *
-     * return createTaskProcessorWorker(doCalculation);
+     * return Cesium.createTaskProcessorWorker(doCalculation);
      * // the resulting function is compatible with TaskProcessor
      *
      * @see TaskProcessor

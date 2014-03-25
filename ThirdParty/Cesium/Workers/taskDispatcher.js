@@ -1,7 +1,7 @@
 /**
  * Cesium - https://github.com/AnalyticalGraphicsInc/cesium
  *
- * Copyright 2011-2013 Cesium Contributors
+ * Copyright 2011-2014 Cesium Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ define('Core/defined',[],function() {
      * @exports defined
      *
      * @example
-     * if (defined(positions)) {
+     * if (Cesium.defined(positions)) {
      *      doSomething();
      * } else {
      *      doSomethingElse();
