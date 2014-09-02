@@ -6,7 +6,7 @@
 
 A simple JavaScript starter app for creating apps with [Cesium](http://cesium.agi.com/), the open-source WebGL virtual globe and map engine.  Just fork this repo and start coding.
 
-**Cesium version**: [b26](http://cesiumjs.org/downloads.html).
+**Cesium version**: [1.0](http://cesiumjs.org/downloads.html).
 
 **License**: Apache 2.0.  Free for commercial and non-commercial use.  See [LICENSE.md](LICENSE.md).
 
