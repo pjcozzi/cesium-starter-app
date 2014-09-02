@@ -12,7 +12,7 @@ A simple JavaScript starter app for creating apps with [Cesium](http://cesium.ag
 
 My primary use for this is to quickly start coding at hackathons without having to setup a repo with a server, Eclipse project, third-party includes, .gitignore, etc.  Feel free to overwrite this README.md in your repo with info on your project.
 
-Once you are up and running, copy and paste code examples from [Cesium Sandcastle](http://cesium.agi.com/tutorials.html).
+Once you are up and running, copy and paste code examples from [Cesium Sandcastle](http://cesiumjs.org/Cesium/Apps/Sandcastle/index.html).
 
 What's here?
 ------------
@@ -21,6 +21,7 @@ What's here?
 * [Source](Source/) - Contains [App.js](Source/App.js) which is referenced from index.html.  This is where your app's code goes.
 * [ThirdParty](ThirdParty/) - A directory for third-party libraries, which initially includes just Cesium.  See the **Updating Cesium** section for how to use the latest version from the Cesium repo.
 * [server.js](server.js) - A simple node.js server for serving your Cesium app.  See the **Local server** section.
+* [package.json](package.json) - Dependencies for the node.js server.
 * [LICENSE.md](LICENSE.md) - A license file already referencing Cesium as a third-party.  This starter app is licensed with [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) (free for commercial and non-commercial use).  You can, of course, license your code however you want.
 * [.project](.project) - An [Eclipse](http://www.eclipse.org/downloads/) project with [JSHint](http://www.jshint.com/) enabled.
 * [.settings](.settings/) - Directory with settings for the Eclipse project.
@@ -75,6 +76,8 @@ cp -R Build/Cesium/* ../cesium-starter-app/ThirdParty/Cesium/
 git checkout master
 git branch -d 1.0-starter
 ```
+Then update the version in [package.json](package.json).
+
 Test the starter app in case any changes are needed to [index.html](index.html) or [App.js](Source/App.js).
 
 This uses the unminified version of Cesium.js, which is great for debugging but is quite large for production deployments.  To use the minified version, run `ant` with `minify` instead of `combine` before updating `cesium-starter-app`:
