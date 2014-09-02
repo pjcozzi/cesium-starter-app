@@ -69,11 +69,12 @@ The built Cesium source is in [ThirdParty/Cesium/](ThirdParty/Cesium/).  I sync 
 ```
 cd cesium
 git pull
-git checkout -b b25-starter b25
+git checkout -b 1.0-starter 1.0
 
 ./Tools/apache-ant-1.8.2/bin/ant clean combine
 rm -rf ../cesium-starter-app/ThirdParty/Cesium/*
 cp -R Build/Cesium/* ../cesium-starter-app/ThirdParty/Cesium/
+git branch -d 1.0-starter
 ```
 Test the starter app in case any changes are needed to [index.html](index.html) or [App.js](Source/App.js).
 
