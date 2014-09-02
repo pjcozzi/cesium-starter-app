@@ -3502,7 +3502,7 @@ define('Core/Matrix3',[
      * // Rotate a point 45 degrees counterclockwise around the x-axis.
      * var p = new Cesium.Cartesian3(5, 6, 7);
      * var m = Cesium.Matrix3.fromRotationX(Cesium.Math.toRadians(45.0));
-     * var rotated = Cesium.Matrix3.multiplyByVector(m, p);
+     * var rotated = Cesium.Matrix3.multiplyByVector(m, p, new Cesium.Cartesian3());
      */
     Matrix3.fromRotationX = function(angle, result) {
                 if (!defined(angle)) {
@@ -3543,7 +3543,7 @@ define('Core/Matrix3',[
      * // Rotate a point 45 degrees counterclockwise around the y-axis.
      * var p = new Cesium.Cartesian3(5, 6, 7);
      * var m = Cesium.Matrix3.fromRotationY(Cesium.Math.toRadians(45.0));
-     * var rotated = Cesium.Matrix3.multiplyByVector(m, p);
+     * var rotated = Cesium.Matrix3.multiplyByVector(m, p, new Cesium.Cartesian3());
      */
     Matrix3.fromRotationY = function(angle, result) {
                 if (!defined(angle)) {
@@ -3584,7 +3584,7 @@ define('Core/Matrix3',[
      * // Rotate a point 45 degrees counterclockwise around the z-axis.
      * var p = new Cesium.Cartesian3(5, 6, 7);
      * var m = Cesium.Matrix3.fromRotationZ(Cesium.Math.toRadians(45.0));
-     * var rotated = Cesium.Matrix3.multiplyByVector(m, p);
+     * var rotated = Cesium.Matrix3.multiplyByVector(m, p, new Cesium.Cartesian3());
      */
     Matrix3.fromRotationZ = function(angle, result) {
                 if (!defined(angle)) {
@@ -4175,13 +4175,13 @@ define('Core/Matrix3',[
      * };
      * Cesium.Matrix3.computeEigenDecomposition(a, result);
      *
-     * var unitaryTranspose = Cesium.Matrix3.transpose(result.unitary);
-     * var b = Cesium.Matrix3.multiply(result.unitary, result.diagonal);
+     * var unitaryTranspose = Cesium.Matrix3.transpose(result.unitary, new Cesium.Matrix3());
+     * var b = Cesium.Matrix3.multiply(result.unitary, result.diagonal, new Cesium.Matrix3());
      * Cesium.Matrix3.multiply(b, unitaryTranspose, b); // b is now equal to a
      *
-     * var lambda = Cesium.Matrix3.getColumn(result.diagonal, 0).x;  // first eigenvalue
-     * var v = Cesium.Matrix3.getColumn(result.unitary, 0);          // first eigenvector
-     * var c = Cesium.Cartesian3.multiplyByScalar(v, lambda, new Cartesian3());        // equal to Cesium.Matrix3.multiplyByVector(a, v)
+     * var lambda = Cesium.Matrix3.getColumn(result.diagonal, 0, new Cesium.Cartesian3()).x;  // first eigenvalue
+     * var v = Cesium.Matrix3.getColumn(result.unitary, 0, new Cesium.Cartesian3());          // first eigenvector
+     * var c = Cesium.Cartesian3.multiplyByScalar(v, lambda, new Cesium.Cartesian3());        // equal to Cesium.Matrix3.multiplyByVector(a, v)
      */
     Matrix3.computeEigenDecomposition = function(matrix, result) {
                 if (!defined(matrix)) {
@@ -4442,7 +4442,7 @@ define('Core/Matrix3',[
     /**
      * The index into Matrix3 for column 2, row 1.
      *
-     * @type {Matrix3}
+     * @type {Number}
      * @constant
      */
     Matrix3.COLUMN2ROW1 = 7;
@@ -4450,7 +4450,7 @@ define('Core/Matrix3',[
     /**
      * The index into Matrix3 for column 2, row 2.
      *
-     * @type {Matrix3}
+     * @type {Number}
      * @constant
      */
     Matrix3.COLUMN2ROW2 = 8;
@@ -4901,7 +4901,7 @@ define('Core/Matrix4',[
      * @returns The modified result parameter, or a new Matrix4 instance if one was not provided.
      *
      * @example
-     * result = Cesium.Matrix4.fromTranslationQuaternionRotationScale(
+     * var result = Cesium.Matrix4.fromTranslationQuaternionRotationScale(
      *   new Cesium.Cartesian3(1.0, 2.0, 3.0), // translation
      *   Cesium.Quaternion.IDENTITY,           // rotation
      *   new Cesium.Cartesian3(7.0, 8.0, 9.0), // scale
@@ -4995,7 +4995,7 @@ define('Core/Matrix4',[
      * //   [0.0, 8.0, 0.0, 0.0]
      * //   [0.0, 0.0, 9.0, 0.0]
      * //   [0.0, 0.0, 0.0, 1.0]
-     * var m = Cesium.Matrix4.fromScale(new Cartesian3(7.0, 8.0, 9.0));
+     * var m = Cesium.Matrix4.fromScale(new Cesium.Cartesian3(7.0, 8.0, 9.0));
      */
     Matrix4.fromScale = function(scale, result) {
                 if (!defined(scale)) {
@@ -5042,7 +5042,7 @@ define('Core/Matrix4',[
      * //   [0.0, 2.0, 0.0, 0.0]
      * //   [0.0, 0.0, 2.0, 0.0]
      * //   [0.0, 0.0, 0.0, 1.0]
-     * var m = Cesium.Matrix4.fromScale(2.0);
+     * var m = Cesium.Matrix4.fromUniformScale(2.0);
      */
     Matrix4.fromUniformScale = function(scale, result) {
                 if (typeof scale !== 'number') {
@@ -5421,17 +5421,13 @@ define('Core/Matrix4',[
      * @returns The modified result parameter.
      *
      * @example
-     * // Example 1.  Create viewport transformation using an explicit viewport and depth range.
+     * // Create viewport transformation using an explicit viewport and depth range.
      * var m = Cesium.Matrix4.computeViewportTransformation({
      *     x : 0.0,
      *     y : 0.0,
      *     width : 1024.0,
      *     height : 768.0
-     * }, 0.0, 1.0);
-     *
-     * @example
-     * // Example 2.  Create viewport transformation using the context's viewport.
-     * var m = Cesium.Matrix4.computeViewportTransformation(context.getViewport());
+     * }, 0.0, 1.0, new Cesium.Matrix4());
      */
     Matrix4.computeViewportTransformation = function(viewport, nearDepthRange, farDepthRange, result) {
                 if (!defined(result)) {
@@ -5539,7 +5535,7 @@ define('Core/Matrix4',[
      * @example
      * var myMatrix = new Cesium.Matrix4();
      * var column1Row0Index = Cesium.Matrix4.getElementIndex(1, 0);
-     * var column1Row0 = myMatrix[column1Row0Index]
+     * var column1Row0 = myMatrix[column1Row0Index];
      * myMatrix[column1Row0Index] = 10.0;
      */
     Matrix4.getElementIndex = function(column, row) {
@@ -5571,7 +5567,7 @@ define('Core/Matrix4',[
      * //     [22.0, 23.0, 24.0, 25.0]
      *
      * //Example 1: Creates an instance of Cartesian
-     * var a = Cesium.Matrix4.getColumn(m, 2);
+     * var a = Cesium.Matrix4.getColumn(m, 2, new Cesium.Cartesian4());
      *
      * @example
      * //Example 2: Sets values for Cartesian instance
@@ -5623,7 +5619,7 @@ define('Core/Matrix4',[
      * //     [18.0, 19.0, 20.0, 21.0]
      * //     [22.0, 23.0, 24.0, 25.0]
      *
-     * var a = Cesium.Matrix4.setColumn(m, 2, new Cartesian4(99.0, 98.0, 97.0, 96.0));
+     * var a = Cesium.Matrix4.setColumn(m, 2, new Cesium.Cartesian4(99.0, 98.0, 97.0, 96.0), new Cesium.Matrix4());
      *
      * // m remains the same
      * // a = [10.0, 11.0, 99.0, 13.0]
@@ -5672,7 +5668,7 @@ define('Core/Matrix4',[
      * //     [22.0, 23.0, 24.0, 25.0]
      *
      * //Example 1: Returns an instance of Cartesian
-     * var a = Cesium.Matrix4.getRow(m, 2);
+     * var a = Cesium.Matrix4.getRow(m, 2, new Cesium.Cartesian4());
      *
      * @example
      * //Example 2: Sets values for a Cartesian instance
@@ -5723,7 +5719,7 @@ define('Core/Matrix4',[
      * //     [18.0, 19.0, 20.0, 21.0]
      * //     [22.0, 23.0, 24.0, 25.0]
      *
-     * var a = Cesium.Matrix4.setRow(m, 2, new Cartesian4(99.0, 98.0, 97.0, 96.0));
+     * var a = Cesium.Matrix4.setRow(m, 2, new Cesium.Cartesian4(99.0, 98.0, 97.0, 96.0), new Cesium.Matrix4());
      *
      * // m remains the same
      * // a = [10.0, 11.0, 12.0, 13.0]
@@ -5974,9 +5970,9 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter.
      *
      * @example
-     * var m1 = new Cesium.Matrix4(1.0, 6.0, 7.0, 0.0, 2.0, 5.0, 8.0, 0.0, 3.0, 4.0, 9.0, 0.0, 0.0, 0.0, 0.0, 1.0];
+     * var m1 = new Cesium.Matrix4(1.0, 6.0, 7.0, 0.0, 2.0, 5.0, 8.0, 0.0, 3.0, 4.0, 9.0, 0.0, 0.0, 0.0, 0.0, 1.0);
      * var m2 = Cesium.Transforms.eastNorthUpToFixedFrame(new Cesium.Cartesian3(1.0, 1.0, 1.0));
-     * var m3 = Cesium.Matrix4.multiplyTransformation(m1, m2);
+     * var m3 = Cesium.Matrix4.multiplyTransformation(m1, m2, new Cesium.Matrix4());
      */
     Matrix4.multiplyTransformation = function(left, right, result) {
                 if (!defined(left)) {
@@ -6155,7 +6151,7 @@ define('Core/Matrix4',[
      *
      * @example
      * // Instead of Cesium.Matrix4.multiply(m, Cesium.Matrix4.fromScale(scale), m);
-     * Cesium.Matrix4.multiplyByUniformScale(m, scale, m);
+     * Cesium.Matrix4.multiplyByScale(m, scale, m);
      */
     Matrix4.multiplyByScale = function(matrix, scale, result) {
                 if (!defined(matrix)) {
@@ -6243,7 +6239,7 @@ define('Core/Matrix4',[
      *
      * @example
      * var p = new Cesium.Cartesian3(1.0, 2.0, 3.0);
-     * Cesium.Matrix4.multiplyByPointAsVector(matrix, p, result);
+     * var result = Cesium.Matrix4.multiplyByPointAsVector(matrix, p, new Cesium.Cartesian3());
      * // A shortcut for
      * //   Cartesian3 p = ...
      * //   Cesium.Matrix4.multiplyByVector(matrix, new Cesium.Cartesian4(p.x, p.y, p.z, 0.0), result);
@@ -6284,7 +6280,7 @@ define('Core/Matrix4',[
      *
      * @example
      * var p = new Cesium.Cartesian3(1.0, 2.0, 3.0);
-     * Cesium.Matrix4.multiplyByPoint(matrix, p, result);
+     * var result = Cesium.Matrix4.multiplyByPoint(matrix, p, new Cesium.Cartesian3());
      */
     Matrix4.multiplyByPoint = function(matrix, cartesian, result) {
                 if (!defined(matrix)) {
@@ -6327,7 +6323,7 @@ define('Core/Matrix4',[
      * //     [18.0, 19.0, 20.0, 21.0]
      * //     [22.0, 23.0, 24.0, 25.0]
      *
-     * var a = Cesium.Matrix4.multiplyByScalar(m, -2);
+     * var a = Cesium.Matrix4.multiplyByScalar(m, -2, new Cesium.Matrix4());
      *
      * // m remains the same
      * // a = [-20.0, -22.0, -24.0, -26.0]
@@ -6379,7 +6375,7 @@ define('Core/Matrix4',[
      * //     [18.0, 19.0, 20.0, 21.0]
      * //     [22.0, 23.0, 24.0, 25.0]
      *
-     * var a = Cesium.Matrix4.negate(m);
+     * var a = Cesium.Matrix4.negate(m, new Cesium.Matrix4());
      *
      * // m remains the same
      * // a = [-10.0, -11.0, -12.0, -13.0]
@@ -6428,7 +6424,7 @@ define('Core/Matrix4',[
      * //     [18.0, 19.0, 20.0, 21.0]
      * //     [22.0, 23.0, 24.0, 25.0]
      *
-     * var a = Cesium.Matrix4.negate(m);
+     * var a = Cesium.Matrix4.transpose(m, new Cesium.Matrix4());
      *
      * // m remains the same
      * // a = [10.0, 14.0, 18.0, 22.0]
@@ -9043,7 +9039,6 @@ define('Core/HeightmapTessellator',[
      * var width = 5;
      * var height = 5;
      * var vertices = new Float32Array(width * height * 6);
-     * var options = ;
      * Cesium.HeightmapTessellator.computeVertices({
      *     vertices : vertices,
      *     heightmap : [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0],
