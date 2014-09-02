@@ -6,7 +6,7 @@
 
 A simple JavaScript starter app for creating apps with [Cesium](http://cesium.agi.com/), the open-source WebGL virtual globe and map engine.  Just fork this repo and start coding.
 
-**Cesium version**: [1.0](http://cesiumjs.org/downloads.html).
+**Cesium version**: [1.1](http://cesiumjs.org/downloads.html).
 
 **License**: Apache 2.0.  Free for commercial and non-commercial use.  See [LICENSE.md](LICENSE.md).
 
@@ -72,6 +72,7 @@ git checkout -b 1.0-starter 1.0
 ./Tools/apache-ant-1.8.2/bin/ant clean combine
 rm -rf ../cesium-starter-app/ThirdParty/Cesium/*
 cp -R Build/Cesium/* ../cesium-starter-app/ThirdParty/Cesium/
+git checkout master
 git branch -d 1.0-starter
 ```
 Test the starter app in case any changes are needed to [index.html](index.html) or [App.js](Source/App.js).
