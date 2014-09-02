@@ -1,1 +1,1 @@
-var cesiumWidget = new Cesium.CesiumWidget('cesiumContainer');
+var cesiumWidget = new Cesium.Viewer('cesiumContainer');
