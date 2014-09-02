@@ -26,10 +26,6 @@ What's here?
 * [.settings](.settings/) - Directory with settings for the Eclipse project.
 * [.gitignore](.gitignore) - A small list of files not to include in the git repo.  Add to this as needed.
 
-### Branches
-
-The [viewer branch](https://github.com/pjcozzi/cesium-starter-app/tree/viewer) is the same as master except it creates a [Viewer](http://cesium.agi.com/Cesium/Build/Documentation/Viewer.html) widget instead of a [CesiumWidget](http://cesium.agi.com/Cesium/Build/Documentation/CesiumWidget.html), so it includes the timeline, imagery picker, etc. in addition to the 3D globe.
-
 Local server
 ------------
 
@@ -39,6 +35,8 @@ Have python installed?  If so, from the `cesium-starter-app` root directory run
 ```
 python -m SimpleHTTPServer
 ```
+(Starting with Python 3, use `python -m http.server 8000`).
+
 Browse to `http://localhost:8000/`
 
 No python?  Use Cesium's node.js server.
@@ -77,14 +75,6 @@ cp -R Build/Cesium/* ../cesium-starter-app/ThirdParty/Cesium/
 git branch -d 1.0-starter
 ```
 Test the starter app in case any changes are needed to [index.html](index.html) or [App.js](Source/App.js).
-
-Also merge `master` to `viewer` so both `cesium-starter-app` branches are up to date.
-```
-git checkout viewer
-git merge master
-// Change starter app as needed
-git push
-```
 
 This uses the unminified version of Cesium.js, which is great for debugging but is quite large for production deployments.  To use the minified version, run `ant` with `minify` instead of `combine` before updating `cesium-starter-app`:
 ```
