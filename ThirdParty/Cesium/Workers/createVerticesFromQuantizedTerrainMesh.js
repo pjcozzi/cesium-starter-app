@@ -1095,6 +1095,689 @@ define('Core/Math',[
 });
 
 /*global define*/
+define('Core/Cartesian2',[
+        './defaultValue',
+        './defined',
+        './DeveloperError',
+        './freezeObject',
+        './Math'
+    ], function(
+        defaultValue,
+        defined,
+        DeveloperError,
+        freezeObject,
+        CesiumMath) {
+    "use strict";
+
+    /**
+     * A 2D Cartesian point.
+     * @alias Cartesian2
+     * @constructor
+     *
+     * @param {Number} [x=0.0] The X component.
+     * @param {Number} [y=0.0] The Y component.
+     *
+     * @see Cartesian3
+     * @see Cartesian4
+     * @see Packable
+     */
+    var Cartesian2 = function(x, y) {
+        /**
+         * The X component.
+         * @type {Number}
+         * @default 0.0
+         */
+        this.x = defaultValue(x, 0.0);
+
+        /**
+         * The Y component.
+         * @type {Number}
+         * @default 0.0
+         */
+        this.y = defaultValue(y, 0.0);
+    };
+
+    /**
+     * Creates a Cartesian2 instance from x and y coordinates.
+     *
+     * @param {Number} x The x coordinate.
+     * @param {Number} y The y coordinate.
+     * @param {Cartesian2} [result] The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
+     */
+    Cartesian2.fromElements = function(x, y, result) {
+        if (!defined(result)) {
+            return new Cartesian2(x, y);
+        }
+
+        result.x = x;
+        result.y = y;
+        return result;
+    };
+
+    /**
+     * Duplicates a Cartesian2 instance.
+     *
+     * @param {Cartesian2} cartesian The Cartesian to duplicate.
+     * @param {Cartesian2} [result] The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided. (Returns undefined if cartesian is undefined)
+     */
+    Cartesian2.clone = function(cartesian, result) {
+        if (!defined(cartesian)) {
+            return undefined;
+        }
+        if (!defined(result)) {
+            return new Cartesian2(cartesian.x, cartesian.y);
+        }
+
+        result.x = cartesian.x;
+        result.y = cartesian.y;
+        return result;
+    };
+
+    /**
+     * Creates a Cartesian2 instance from an existing Cartesian3.  This simply takes the
+     * x and y properties of the Cartesian3 and drops z.
+     * @function
+     *
+     * @param {Cartesian3} cartesian The Cartesian3 instance to create a Cartesian2 instance from.
+     * @param {Cartesian2} [result] The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
+     */
+    Cartesian2.fromCartesian3 = Cartesian2.clone;
+
+    /**
+     * Creates a Cartesian2 instance from an existing Cartesian4.  This simply takes the
+     * x and y properties of the Cartesian4 and drops z and w.
+     * @function
+     *
+     * @param {Cartesian4} cartesian The Cartesian4 instance to create a Cartesian2 instance from.
+     * @param {Cartesian2} [result] The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
+     */
+    Cartesian2.fromCartesian4 = Cartesian2.clone;
+
+    /**
+     * The number of elements used to pack the object into an array.
+     * @type {Number}
+     */
+    Cartesian2.packedLength = 2;
+
+    /**
+     * Stores the provided instance into the provided array.
+     *
+     * @param {Cartesian2} value The value to pack.
+     * @param {Number[]} array The array to pack into.
+     * @param {Number} [startingIndex=0] The index into the array at which to start packing the elements.
+     */
+    Cartesian2.pack = function(value, array, startingIndex) {
+                if (!defined(value)) {
+            throw new DeveloperError('value is required');
+        }
+        if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        array[startingIndex++] = value.x;
+        array[startingIndex] = value.y;
+    };
+
+    /**
+     * Retrieves an instance from a packed array.
+     *
+     * @param {Number[]} array The packed array.
+     * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
+     * @param {Cartesian2} [result] The object into which to store the result.
+     */
+    Cartesian2.unpack = function(array, startingIndex, result) {
+                if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        if (!defined(result)) {
+            result = new Cartesian2();
+        }
+        result.x = array[startingIndex++];
+        result.y = array[startingIndex];
+        return result;
+    };
+
+    /**
+     * Creates a Cartesian2 from two consecutive elements in an array.
+     * @function
+     *
+     * @param {Number[]} array The array whose two consecutive elements correspond to the x and y components, respectively.
+     * @param {Number} [startingIndex=0] The offset into the array of the first element, which corresponds to the x component.
+     * @param {Cartesian2} [result] The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
+     *
+     * @example
+     * // Create a Cartesian2 with (1.0, 2.0)
+     * var v = [1.0, 2.0];
+     * var p = Cesium.Cartesian2.fromArray(v);
+     *
+     * // Create a Cartesian2 with (1.0, 2.0) using an offset into an array
+     * var v2 = [0.0, 0.0, 1.0, 2.0];
+     * var p2 = Cesium.Cartesian2.fromArray(v2, 2);
+     */
+    Cartesian2.fromArray = Cartesian2.unpack;
+
+    /**
+     * Computes the value of the maximum component for the supplied Cartesian.
+     *
+     * @param {Cartesian2} cartesian The cartesian to use.
+     * @returns {Number} The value of the maximum component.
+     */
+    Cartesian2.maximumComponent = function(cartesian) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        return Math.max(cartesian.x, cartesian.y);
+    };
+
+    /**
+     * Computes the value of the minimum component for the supplied Cartesian.
+     *
+     * @param {Cartesian2} cartesian The cartesian to use.
+     * @returns {Number} The value of the minimum component.
+     */
+    Cartesian2.minimumComponent = function(cartesian) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        return Math.min(cartesian.x, cartesian.y);
+    };
+
+    /**
+     * Compares two Cartesians and computes a Cartesian which contains the minimum components of the supplied Cartesians.
+     *
+     * @param {Cartesian2} first A cartesian to compare.
+     * @param {Cartesian2} second A cartesian to compare.
+     * @param {Cartesian2} result The object into which to store the result.
+     * @returns {Cartesian2} A cartesian with the minimum components.
+     */
+    Cartesian2.minimumByComponent = function(first, second, result) {
+                if (!defined(first)) {
+            throw new DeveloperError('first is required.');
+        }
+        if (!defined(second)) {
+            throw new DeveloperError('second is required.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        
+
+        result.x = Math.min(first.x, second.x);
+        result.y = Math.min(first.y, second.y);
+
+        return result;
+    };
+
+    /**
+     * Compares two Cartesians and computes a Cartesian which contains the maximum components of the supplied Cartesians.
+     *
+     * @param {Cartesian2} first A cartesian to compare.
+     * @param {Cartesian2} second A cartesian to compare.
+     * @param {Cartesian2} result The object into which to store the result.
+     * @returns {Cartesian2} A cartesian with the maximum components.
+     */
+    Cartesian2.maximumByComponent = function(first, second, result) {
+                if (!defined(first)) {
+            throw new DeveloperError('first is required.');
+        }
+        if (!defined(second)) {
+            throw new DeveloperError('second is required.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        
+        result.x = Math.max(first.x, second.x);
+        result.y = Math.max(first.y, second.y);
+        return result;
+    };
+
+    /**
+     * Computes the provided Cartesian's squared magnitude.
+     *
+     * @param {Cartesian2} cartesian The Cartesian instance whose squared magnitude is to be computed.
+     * @returns {Number} The squared magnitude.
+     */
+    Cartesian2.magnitudeSquared = function(cartesian) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        return cartesian.x * cartesian.x + cartesian.y * cartesian.y;
+    };
+
+    /**
+     * Computes the Cartesian's magnitude (length).
+     *
+     * @param {Cartesian2} cartesian The Cartesian instance whose magnitude is to be computed.
+     * @returns {Number} The magnitude.
+     */
+    Cartesian2.magnitude = function(cartesian) {
+        return Math.sqrt(Cartesian2.magnitudeSquared(cartesian));
+    };
+
+    var distanceScratch = new Cartesian2();
+
+    /**
+     * Computes the distance between two points
+     *
+     * @param {Cartesian2} left The first point to compute the distance from.
+     * @param {Cartesian2} right The second point to compute the distance to.
+     * @returns {Number} The distance between two points.
+     *
+     * @example
+     * // Returns 1.0
+     * var d = Cesium.Cartesian2.distance(new Cesium.Cartesian2(1.0, 0.0), new Cesium.Cartesian2(2.0, 0.0));
+     */
+    Cartesian2.distance = function(left, right) {
+                if (!defined(left) || !defined(right)) {
+            throw new DeveloperError('left and right are required.');
+        }
+        
+        Cartesian2.subtract(left, right, distanceScratch);
+        return Cartesian2.magnitude(distanceScratch);
+    };
+
+    /**
+     * Computes the normalized form of the supplied Cartesian.
+     *
+     * @param {Cartesian2} cartesian The Cartesian to be normalized.
+     * @param {Cartesian2} result The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter.
+     */
+    Cartesian2.normalize = function(cartesian, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        var magnitude = Cartesian2.magnitude(cartesian);
+
+        result.x = cartesian.x / magnitude;
+        result.y = cartesian.y / magnitude;
+        return result;
+    };
+
+    /**
+     * Computes the dot (scalar) product of two Cartesians.
+     *
+     * @param {Cartesian2} left The first Cartesian.
+     * @param {Cartesian2} right The second Cartesian.
+     * @returns {Number} The dot product.
+     */
+    Cartesian2.dot = function(left, right) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        
+        return left.x * right.x + left.y * right.y;
+    };
+
+    /**
+     * Computes the componentwise product of two Cartesians.
+     *
+     * @param {Cartesian2} left The first Cartesian.
+     * @param {Cartesian2} right The second Cartesian.
+     * @param {Cartesian2} result The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter.
+     */
+    Cartesian2.multiplyComponents = function(left, right, result) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = left.x * right.x;
+        result.y = left.y * right.y;
+        return result;
+    };
+
+    /**
+     * Computes the componentwise sum of two Cartesians.
+     *
+     * @param {Cartesian2} left The first Cartesian.
+     * @param {Cartesian2} right The second Cartesian.
+     * @param {Cartesian2} result The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter.
+     */
+    Cartesian2.add = function(left, right, result) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = left.x + right.x;
+        result.y = left.y + right.y;
+        return result;
+    };
+
+    /**
+     * Computes the componentwise difference of two Cartesians.
+     *
+     * @param {Cartesian2} left The first Cartesian.
+     * @param {Cartesian2} right The second Cartesian.
+     * @param {Cartesian2} result The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter.
+     */
+    Cartesian2.subtract = function(left, right, result) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = left.x - right.x;
+        result.y = left.y - right.y;
+        return result;
+    };
+
+    /**
+     * Multiplies the provided Cartesian componentwise by the provided scalar.
+     *
+     * @param {Cartesian2} cartesian The Cartesian to be scaled.
+     * @param {Number} scalar The scalar to multiply with.
+     * @param {Cartesian2} result The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter.
+     */
+    Cartesian2.multiplyByScalar = function(cartesian, scalar, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        if (typeof scalar !== 'number') {
+            throw new DeveloperError('scalar is required and must be a number.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = cartesian.x * scalar;
+        result.y = cartesian.y * scalar;
+        return result;
+    };
+
+    /**
+     * Divides the provided Cartesian componentwise by the provided scalar.
+     *
+     * @param {Cartesian2} cartesian The Cartesian to be divided.
+     * @param {Number} scalar The scalar to divide by.
+     * @param {Cartesian2} result The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter.
+     */
+    Cartesian2.divideByScalar = function(cartesian, scalar, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        if (typeof scalar !== 'number') {
+            throw new DeveloperError('scalar is required and must be a number.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = cartesian.x / scalar;
+        result.y = cartesian.y / scalar;
+        return result;
+    };
+
+    /**
+     * Negates the provided Cartesian.
+     *
+     * @param {Cartesian2} cartesian The Cartesian to be negated.
+     * @param {Cartesian2} result The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter.
+     */
+    Cartesian2.negate = function(cartesian, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = -cartesian.x;
+        result.y = -cartesian.y;
+        return result;
+    };
+
+    /**
+     * Computes the absolute value of the provided Cartesian.
+     *
+     * @param {Cartesian2} cartesian The Cartesian whose absolute value is to be computed.
+     * @param {Cartesian2} result The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter.
+     */
+    Cartesian2.abs = function(cartesian, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = Math.abs(cartesian.x);
+        result.y = Math.abs(cartesian.y);
+        return result;
+    };
+
+    var lerpScratch = new Cartesian2();
+    /**
+     * Computes the linear interpolation or extrapolation at t using the provided cartesians.
+     *
+     * @param {Cartesian2} start The value corresponding to t at 0.0.
+     * @param {Cartesian2} end The value corresponding to t at 1.0.
+     * @param {Number} t The point along t at which to interpolate.
+     * @param {Cartesian2} result The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter.
+     */
+    Cartesian2.lerp = function(start, end, t, result) {
+                if (!defined(start)) {
+            throw new DeveloperError('start is required.');
+        }
+        if (!defined(end)) {
+            throw new DeveloperError('end is required.');
+        }
+        if (typeof t !== 'number') {
+            throw new DeveloperError('t is required and must be a number.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        
+        Cartesian2.multiplyByScalar(end, t, lerpScratch);
+        result = Cartesian2.multiplyByScalar(start, 1.0 - t, result);
+        return Cartesian2.add(lerpScratch, result, result);
+    };
+
+    var angleBetweenScratch = new Cartesian2();
+    var angleBetweenScratch2 = new Cartesian2();
+    /**
+     * Returns the angle, in radians, between the provided Cartesians.
+     *
+     * @param {Cartesian2} left The first Cartesian.
+     * @param {Cartesian2} right The second Cartesian.
+     * @returns {Number} The angle between the Cartesians.
+     */
+    Cartesian2.angleBetween = function(left, right) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        
+        Cartesian2.normalize(left, angleBetweenScratch);
+        Cartesian2.normalize(right, angleBetweenScratch2);
+        return CesiumMath.acosClamped(Cartesian2.dot(angleBetweenScratch, angleBetweenScratch2));
+    };
+
+    var mostOrthogonalAxisScratch = new Cartesian2();
+    /**
+     * Returns the axis that is most orthogonal to the provided Cartesian.
+     *
+     * @param {Cartesian2} cartesian The Cartesian on which to find the most orthogonal axis.
+     * @param {Cartesian2} result The object onto which to store the result.
+     * @returns {Cartesian2} The most orthogonal axis.
+     */
+    Cartesian2.mostOrthogonalAxis = function(cartesian, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        
+        var f = Cartesian2.normalize(cartesian, mostOrthogonalAxisScratch);
+        Cartesian2.abs(f, f);
+
+        if (f.x <= f.y) {
+            result = Cartesian2.clone(Cartesian2.UNIT_X, result);
+        } else {
+            result = Cartesian2.clone(Cartesian2.UNIT_Y, result);
+        }
+
+        return result;
+    };
+
+    /**
+     * Compares the provided Cartesians componentwise and returns
+     * <code>true</code> if they are equal, <code>false</code> otherwise.
+     *
+     * @param {Cartesian2} [left] The first Cartesian.
+     * @param {Cartesian2} [right] The second Cartesian.
+     * @returns {Boolean} <code>true</code> if left and right are equal, <code>false</code> otherwise.
+     */
+    Cartesian2.equals = function(left, right) {
+        return (left === right) ||
+               ((defined(left)) &&
+                (defined(right)) &&
+                (left.x === right.x) &&
+                (left.y === right.y));
+    };
+
+    /**
+     * Compares the provided Cartesians componentwise and returns
+     * <code>true</code> if they are within the provided epsilon,
+     * <code>false</code> otherwise.
+     *
+     * @param {Cartesian2} [left] The first Cartesian.
+     * @param {Cartesian2} [right] The second Cartesian.
+     * @param {Number} epsilon The epsilon to use for equality testing.
+     * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
+     */
+    Cartesian2.equalsEpsilon = function(left, right, epsilon) {
+                if (typeof epsilon !== 'number') {
+            throw new DeveloperError('epsilon is required and must be a number.');
+        }
+        
+        return (left === right) ||
+               ((defined(left)) &&
+                (defined(right)) &&
+                (Math.abs(left.x - right.x) <= epsilon) &&
+                (Math.abs(left.y - right.y) <= epsilon));
+    };
+
+    /**
+     * An immutable Cartesian2 instance initialized to (0.0, 0.0).
+     *
+     * @type {Cartesian2}
+     * @constant
+     */
+    Cartesian2.ZERO = freezeObject(new Cartesian2(0.0, 0.0));
+
+    /**
+     * An immutable Cartesian2 instance initialized to (1.0, 0.0).
+     *
+     * @type {Cartesian2}
+     * @constant
+     */
+    Cartesian2.UNIT_X = freezeObject(new Cartesian2(1.0, 0.0));
+
+    /**
+     * An immutable Cartesian2 instance initialized to (0.0, 1.0).
+     *
+     * @type {Cartesian2}
+     * @constant
+     */
+    Cartesian2.UNIT_Y = freezeObject(new Cartesian2(0.0, 1.0));
+
+    /**
+     * Duplicates this Cartesian2 instance.
+     *
+     * @param {Cartesian2} [result] The object onto which to store the result.
+     * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
+     */
+    Cartesian2.prototype.clone = function(result) {
+        return Cartesian2.clone(this, result);
+    };
+
+    /**
+     * Compares this Cartesian against the provided Cartesian componentwise and returns
+     * <code>true</code> if they are equal, <code>false</code> otherwise.
+     *
+     * @param {Cartesian2} [right] The right hand side Cartesian.
+     * @returns {Boolean} <code>true</code> if they are equal, <code>false</code> otherwise.
+     */
+    Cartesian2.prototype.equals = function(right) {
+        return Cartesian2.equals(this, right);
+    };
+
+    /**
+     * Compares this Cartesian against the provided Cartesian componentwise and returns
+     * <code>true</code> if they are within the provided epsilon,
+     * <code>false</code> otherwise.
+     *
+     * @param {Cartesian2} [right] The right hand side Cartesian.
+     * @param {Number} epsilon The epsilon to use for equality testing.
+     * @returns {Boolean} <code>true</code> if they are within the provided epsilon, <code>false</code> otherwise.
+     */
+    Cartesian2.prototype.equalsEpsilon = function(right, epsilon) {
+        return Cartesian2.equalsEpsilon(this, right, epsilon);
+    };
+
+    /**
+     * Creates a string representing this Cartesian in the format '(x, y)'.
+     *
+     * @returns {String} A string representing the provided Cartesian in the format '(x, y)'.
+     */
+    Cartesian2.prototype.toString = function() {
+        return '(' + this.x + ', ' + this.y + ')';
+    };
+
+    return Cartesian2;
+});
+
+/*global define*/
 define('Core/Cartesian3',[
         './defaultValue',
         './defined',
@@ -2076,6 +2759,286 @@ define('Core/Cartesian3',[
 });
 
 /*global define*/
+define('Core/AttributeCompression',[
+        './Cartesian2',
+        './Cartesian3',
+        './defined',
+        './DeveloperError',
+        './Math'
+    ], function(
+        Cartesian2,
+        Cartesian3,
+        defined,
+        DeveloperError,
+        CesiumMath) {
+    "use strict";
+
+    /**
+     * Attribute compression and decompression functions.
+     *
+     * @namespace
+     * @alias AttributeCompression
+     *
+     * @private
+     */
+    var AttributeCompression = {};
+
+    /**
+     * Encodes a normalized vector into 2 SNORM values in the range of [0-255] following the 'oct' encoding.
+     *
+     * Oct encoding is a compact representation of unit length vectors.  The encoding and decoding functions are low cost, and represent the normalized vector within 1 degree of error.
+     * The 'oct' encoding is described in "A Survey of Efficient Representations of Independent Unit Vectors",
+     * Cigolle et al 2014: {@link http://jcgt.org/published/0003/02/01/}
+     *
+     * @param {Cartesian3} vector The normalized vector to be compressed into 2 byte 'oct' encoding.
+     * @param {Cartesian2} result The 2 byte oct-encoded unit length vector.
+     * @returns {Cartesian2} The 2 byte oct-encoded unit length vector.
+     *
+     * @exception {DeveloperError} vector must be defined.
+     * @exception {DeveloperError} result must be defined.
+     * @exception {DeveloperError} vector must be normalized.
+     *
+     * @see AttributeCompression.octDecode
+     */
+    AttributeCompression.octEncode = function(vector, result) {
+                if (!defined(vector)) {
+            throw new DeveloperError('vector is required.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        var magSquared = Cartesian3.magnitudeSquared(vector);
+        if (Math.abs(magSquared - 1.0) > CesiumMath.EPSILON6) {
+            throw new DeveloperError('vector must be normalized.');
+        }
+        
+        result.x = vector.x / (Math.abs(vector.x) + Math.abs(vector.y) + Math.abs(vector.z));
+        result.y = vector.y / (Math.abs(vector.x) + Math.abs(vector.y) + Math.abs(vector.z));
+        if (vector.z < 0) {
+            var x = result.x;
+            var y = result.y;
+            result.x = (1.0 - Math.abs(y)) * CesiumMath.signNotZero(x);
+            result.y = (1.0 - Math.abs(x)) * CesiumMath.signNotZero(y);
+        }
+
+        result.x = CesiumMath.toSNorm(result.x);
+        result.y = CesiumMath.toSNorm(result.y);
+
+        return result;
+    };
+
+    /**
+     * Decodes a unit-length vector in 'oct' encoding to a normalized 3-component vector.
+     *
+     * @param {Number} x The x component of the oct-encoded unit length vector.
+     * @param {Number} y The y component of the oct-encoded unit length vector.
+     * @param {Cartesian3} result The decoded and normalized vector
+     * @returns {Cartesian3} The decoded and normalized vector.
+     *
+     * @exception {DeveloperError} result must be defined.
+     * @exception {DeveloperError} x and y must be a signed normalized integer between 0 and 255.
+     *
+     * @see AttributeCompression.octEncode
+     */
+    AttributeCompression.octDecode = function(x, y, result) {
+                if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        if (x < 0 || x > 255 || y < 0 || y > 255) {
+            throw new DeveloperError('x and y must be a signed normalized integer between 0 and 255');
+        }
+        
+        result.x = CesiumMath.fromSNorm(x);
+        result.y = CesiumMath.fromSNorm(y);
+        result.z = 1.0 - (Math.abs(result.x) + Math.abs(result.y));
+
+        if (result.z < 0.0)
+        {
+            var oldVX = result.x;
+            result.x = (1.0 - Math.abs(result.y)) * CesiumMath.signNotZero(oldVX);
+            result.y = (1.0 - Math.abs(oldVX)) * CesiumMath.signNotZero(result.y);
+        }
+
+        return Cartesian3.normalize(result, result);
+    };
+
+    /**
+     * Packs an oct encoded vector into a single floating-point number.
+     *
+     * @param {Cartesian2} encoded The oct encoded vector.
+     * @returns {Number} The oct encoded vector packed into a single float.
+     *
+     * @exception {DeveloperError} encoded is required.
+     */
+    AttributeCompression.octPackFloat = function(encoded) {
+                if (!defined(encoded)) {
+            throw new DeveloperError('encoded is required.');
+        }
+                return 256.0 * encoded.x + encoded.y;
+    };
+
+    var scratchEncodeCart2 = new Cartesian2();
+
+    /**
+     * Encodes a normalized vector into 2 SNORM values in the range of [0-255] following the 'oct' encoding and
+     * stores those values in a single float-point number.
+     *
+     * @param {Cartesian3} vector The normalized vector to be compressed into 2 byte 'oct' encoding.
+     * @returns {Number} The 2 byte oct-encoded unit length vector.
+     *
+     * @exception {DeveloperError} vector must be defined.
+     * @exception {DeveloperError} vector must be normalized.
+     */
+    AttributeCompression.octEncodeFloat = function(vector) {
+        AttributeCompression.octEncode(vector, scratchEncodeCart2);
+        return AttributeCompression.octPackFloat(scratchEncodeCart2);
+    };
+
+    /**
+     * Decodes a unit-length vector in 'oct' encoding packed in a floating-point number to a normalized 3-component vector.
+     *
+     * @param {Number} value The oct-encoded unit length vector stored as a single floating-point number.
+     * @param {Cartesian3} result The decoded and normalized vector
+     * @returns {Cartesian3} The decoded and normalized vector.
+     *
+     * @exception {DeveloperError} value must be defined.
+     * @exception {DeveloperError} result must be defined.
+     */
+    AttributeCompression.octDecodeFloat = function(value, result) {
+                if (!defined(value)) {
+            throw new DeveloperError('value is required.');
+        }
+        
+        var temp = value / 256.0;
+        var x = Math.floor(temp);
+        var y = (temp - x) * 256.0;
+
+        return AttributeCompression.octDecode(x, y, result);
+    };
+
+    /**
+     * Encodes three normalized vectors into 6 SNORM values in the range of [0-255] following the 'oct' encoding and
+     * packs those into two floating-point numbers.
+     *
+     * @param {Cartesian3} v1 A normalized vector to be compressed.
+     * @param {Cartesian3} v2 A normalized vector to be compressed.
+     * @param {Cartesian3} v3 A normalized vector to be compressed.
+     * @param {Cartesian2} result The 'oct' encoded vectors packed into two floating-point numbers.
+     * @returns {Cartesian2} The 'oct' encoded vectors packed into two floating-point numbers.
+     *
+     * @exception {DeveloperError} v1 must be defined.
+     * @exception {DeveloperError} v2 must be defined.
+     * @exception {DeveloperError} v3 must be defined.
+     * @exception {DeveloperError} result must be defined.
+     */
+    AttributeCompression.octPack = function(v1, v2, v3, result) {
+                if (!defined(v1)) {
+            throw new DeveloperError('v1 is required.');
+        }
+        if (!defined(v2)) {
+            throw new DeveloperError('v2 is required.');
+        }
+        if (!defined(v3)) {
+            throw new DeveloperError('v3 is required.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        
+        var encoded1 = AttributeCompression.octEncodeFloat(v1);
+        var encoded2 = AttributeCompression.octEncodeFloat(v2);
+
+        var encoded3 = AttributeCompression.octEncode(v3, scratchEncodeCart2);
+        result.x = 65536.0 * encoded3.x + encoded1;
+        result.y = 65536.0 * encoded3.y + encoded2;
+        return result;
+    };
+
+    /**
+     * Decodes three unit-length vectors in 'oct' encoding packed into a floating-point number to a normalized 3-component vector.
+     *
+     * @param {Cartesian2} packed The three oct-encoded unit length vectors stored as two floating-point number.
+     * @param {Cartesian3} v1 One decoded and normalized vector.
+     * @param {Cartesian3} v2 One decoded and normalized vector.
+     * @param {Cartesian3} v3 One decoded and normalized vector.
+     *
+     * @exception {DeveloperError} packed must be defined.
+     * @exception {DeveloperError} v1 must be defined.
+     * @exception {DeveloperError} v2 must be defined.
+     * @exception {DeveloperError} v3 must be defined.
+     */
+    AttributeCompression.octUnpack = function(packed, v1, v2, v3) {
+                if (!defined(packed)) {
+            throw new DeveloperError('packed is required.');
+        }
+        if (!defined(v1)) {
+            throw new DeveloperError('v1 is required.');
+        }
+        if (!defined(v2)) {
+            throw new DeveloperError('v2 is required.');
+        }
+        if (!defined(v3)) {
+            throw new DeveloperError('v3 is required.');
+        }
+        
+        var temp = packed.x / 65536.0;
+        var x = Math.floor(temp);
+        var encodedFloat1 = (temp - x) * 65536.0;
+
+        temp = packed.y / 65536.0;
+        var y = Math.floor(temp);
+        var encodedFloat2 = (temp - y) * 65536.0;
+
+        AttributeCompression.octDecodeFloat(encodedFloat1, v1);
+        AttributeCompression.octDecodeFloat(encodedFloat2, v2);
+        AttributeCompression.octDecode(x, y, v3);
+    };
+
+    /**
+     * Pack texture coordinates into a single float. The texture coordinates will only preserve 12 bits of precision.
+     *
+     * @param {Cartesian2} textureCoordinates The texture coordinates to compress
+     * @returns {Number} The packed texture coordinates.
+     *
+     * @exception {DeveloperError} textureCoordinates is required.
+     */
+    AttributeCompression.compressTextureCoordinates = function(textureCoordinates) {
+                if (!defined(textureCoordinates)) {
+            throw new DeveloperError('textureCoordinates is required.');
+        }
+        
+        var x = textureCoordinates.x === 1.0 ? 4095.0 : (textureCoordinates.x * 4096.0) | 0;
+        var y = textureCoordinates.y === 1.0 ? 4095.0 : (textureCoordinates.y * 4096.0) | 0;
+        return 4096.0 * x + y;
+    };
+
+    /**
+     * Decompresses texture coordinates that were packed into a single float.
+     *
+     * @param {Number} compressed The compressed texture coordinates.
+     * @param {Cartesian2} result The decompressed texture coordinates.
+     * @returns {Cartesian2} The modified result parameter.
+     *
+     * @exception {DeveloperError} compressed is required.
+     * @exception {DeveloperError} result is required.
+     */
+    AttributeCompression.decompressTextureCoordinates = function(compressed, result) {
+                if (!defined(compressed)) {
+            throw new DeveloperError('compressed is required.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        
+        var temp = compressed / 4096.0;
+        result.x = Math.floor(temp) / 4096.0;
+        result.y = temp - Math.floor(temp);
+        return result;
+    };
+
+    return AttributeCompression;
+});
+/*global define*/
 define('Core/Cartographic',[
         './defaultValue',
         './defined',
@@ -2960,6 +3923,151 @@ define('Core/Ellipsoid',[
 });
 
 /*global define*/
+define('Core/IndexDatatype',[
+        './defined',
+        './DeveloperError',
+        './freezeObject',
+        './Math'
+    ], function(
+        defined,
+        DeveloperError,
+        freezeObject,
+        CesiumMath) {
+    "use strict";
+
+    /**
+     * Constants for WebGL index datatypes.  These corresponds to the
+     * <code>type</code> parameter of {@link http://www.khronos.org/opengles/sdk/docs/man/xhtml/glDrawElements.xml|drawElements}.
+     *
+     * @namespace
+     * @alias IndexDatatype
+     */
+    var IndexDatatype = {
+        /**
+         * 0x1401.  8-bit unsigned byte corresponding to <code>UNSIGNED_BYTE</code> and the type
+         * of an element in <code>Uint8Array</code>.
+         *
+         * @type {Number}
+         * @constant
+         */
+        UNSIGNED_BYTE : 0x1401,
+
+        /**
+         * 0x1403.  16-bit unsigned short corresponding to <code>UNSIGNED_SHORT</code> and the type
+         * of an element in <code>Uint16Array</code>.
+         *
+         * @type {Number}
+         * @constant
+         */
+        UNSIGNED_SHORT : 0x1403,
+
+        /**
+         * 0x1405.  32-bit unsigned int corresponding to <code>UNSIGNED_INT</code> and the type
+         * of an element in <code>Uint32Array</code>.
+         *
+         * @type {Number}
+         * @constant
+         */
+        UNSIGNED_INT : 0x1405
+    };
+
+    /**
+     * Returns the size, in bytes, of the corresponding datatype.
+     *
+     * @param {IndexDatatype} indexDatatype The index datatype to get the size of.
+     * @returns {Number} The size in bytes.
+     *
+     * @example
+     * // Returns 2
+     * var size = Cesium.IndexDatatype.getSizeInBytes(Cesium.IndexDatatype.UNSIGNED_SHORT);
+     */
+    IndexDatatype.getSizeInBytes = function(indexDatatype) {
+        switch(indexDatatype) {
+            case IndexDatatype.UNSIGNED_BYTE:
+                return Uint8Array.BYTES_PER_ELEMENT;
+            case IndexDatatype.UNSIGNED_SHORT:
+                return Uint16Array.BYTES_PER_ELEMENT;
+            case IndexDatatype.UNSIGNED_INT:
+                return Uint32Array.BYTES_PER_ELEMENT;
+        }
+
+                throw new DeveloperError('indexDatatype is required and must be a valid IndexDatatype constant.');
+            };
+
+    /**
+     * Validates that the provided index datatype is a valid {@link IndexDatatype}.
+     *
+     * @param {IndexDatatype} indexDatatype The index datatype to validate.
+     * @returns {Boolean} <code>true</code> if the provided index datatype is a valid value; otherwise, <code>false</code>.
+     *
+     * @example
+     * if (!Cesium.IndexDatatype.validate(indexDatatype)) {
+     *   throw new Cesium.DeveloperError('indexDatatype must be a valid value.');
+     * }
+     */
+    IndexDatatype.validate = function(indexDatatype) {
+        return defined(indexDatatype) &&
+               (indexDatatype === IndexDatatype.UNSIGNED_BYTE ||
+                indexDatatype === IndexDatatype.UNSIGNED_SHORT ||
+                indexDatatype === IndexDatatype.UNSIGNED_INT);
+    };
+
+    /**
+     * Creates a typed array that will store indices, using either <code><Uint16Array</code>
+     * or <code>Uint32Array</code> depending on the number of vertices.
+     *
+     * @param {Number} numberOfVertices Number of vertices that the indices will reference.
+     * @param {Any} indicesLengthOrArray Passed through to the typed array constructor.
+     * @returns {Uint16Aray|Uint32Array} A <code>Uint16Array</code> or <code>Uint32Array</code> constructed with <code>indicesLengthOrArray</code>.
+     *
+     * @example
+     * this.indices = Cesium.IndexDatatype.createTypedArray(positions.length / 3, numberOfIndices);
+     */
+    IndexDatatype.createTypedArray = function(numberOfVertices, indicesLengthOrArray) {
+                if (!defined(numberOfVertices)) {
+            throw new DeveloperError('numberOfVertices is required.');
+        }
+        
+        if (numberOfVertices > CesiumMath.SIXTY_FOUR_KILOBYTES) {
+            return new Uint32Array(indicesLengthOrArray);
+        }
+
+        return new Uint16Array(indicesLengthOrArray);
+    };
+
+    /**
+     * Creates a typed array from a source array buffer.  The resulting typed array will store indices, using either <code><Uint16Array</code>
+     * or <code>Uint32Array</code> depending on the number of vertices.
+     *
+     * @param {Number} numberOfVertices Number of vertices that the indices will reference.
+     * @param {ArrayBuffer} sourceArray Passed through to the typed array constructor.
+     * @param {byteOffset} byteOffset Passed through to the typed array constructor.
+     * @param {length} length Passed through to the typed array constructor.
+     * @returns {Uint16Aray|Uint32Array} A <code>Uint16Array</code> or <code>Uint32Array</code> constructed with <code>sourceArray</code>, <code>byteOffset</code>, and <code>length</code>.
+     *
+     */
+    IndexDatatype.createTypedArrayFromArrayBuffer = function(numberOfVertices, sourceArray, byteOffset, length) {
+                if (!defined(numberOfVertices)) {
+            throw new DeveloperError('numberOfVertices is required.');
+        }
+        if (!defined(sourceArray)) {
+            throw new DeveloperError('sourceArray is required.');
+        }
+        if (!defined(byteOffset)) {
+            throw new DeveloperError('byteOffset is required.');
+        }
+        
+        if (numberOfVertices > CesiumMath.SIXTY_FOUR_KILOBYTES) {
+            return new Uint32Array(sourceArray, byteOffset, length);
+        }
+
+        return new Uint16Array(sourceArray, byteOffset, length);
+    };
+
+    return freezeObject(IndexDatatype);
+});
+
+/*global define*/
 define('Core/formatError',[
         './defined'
     ], function(
@@ -3119,17 +4227,23 @@ define('Workers/createTaskProcessorWorker',[
 });
 /*global define*/
 define('Workers/createVerticesFromQuantizedTerrainMesh',[
+        '../Core/AttributeCompression',
+        '../Core/Cartesian2',
         '../Core/Cartesian3',
         '../Core/Cartographic',
         '../Core/defined',
         '../Core/Ellipsoid',
+        '../Core/IndexDatatype',
         '../Core/Math',
         './createTaskProcessorWorker'
     ], function(
+        AttributeCompression,
+        Cartesian2,
         Cartesian3,
         Cartographic,
         defined,
         Ellipsoid,
+        IndexDatatype,
         CesiumMath,
         createTaskProcessorWorker) {
     "use strict";
@@ -3142,11 +4256,11 @@ define('Workers/createVerticesFromQuantizedTerrainMesh',[
     var hIndex = 3;
     var uIndex = 4;
     var vIndex = 5;
-    var nxIndex = 6;
-    var nyIndex = 7;
+    var nIndex = 6;
 
     var cartesian3Scratch = new Cartesian3();
     var cartographicScratch = new Cartographic();
+    var toPack = new Cartesian2();
 
     function createVerticesFromQuantizedTerrainMesh(parameters, transferableObjects) {
         var quantizedVertices = parameters.quantizedVertices;
@@ -3173,7 +4287,7 @@ define('Workers/createVerticesFromQuantizedTerrainMesh',[
 
         var vertexStride = 6;
         if (hasVertexNormals) {
-            vertexStride += 2;
+            vertexStride += 1;
         }
 
         var vertexBuffer = new Float32Array(quantizedVertexCount * vertexStride + edgeVertexCount * vertexStride);
@@ -3196,13 +4310,15 @@ define('Workers/createVerticesFromQuantizedTerrainMesh',[
             vertexBuffer[bufferIndex + uIndex] = u;
             vertexBuffer[bufferIndex + vIndex] = v;
             if (hasVertexNormals) {
-                vertexBuffer[bufferIndex + nxIndex] = octEncodedNormals[n];
-                vertexBuffer[bufferIndex + nyIndex] = octEncodedNormals[n + 1];
+                toPack.x = octEncodedNormals[n];
+                toPack.y = octEncodedNormals[n + 1];
+                vertexBuffer[bufferIndex + nIndex] = AttributeCompression.octPackFloat(toPack);
             }
         }
 
         var edgeTriangleCount = Math.max(0, (edgeVertexCount - 4) * 2);
-        var indexBuffer = new Uint16Array(parameters.indices.length + edgeTriangleCount * 3);
+        var indexBufferLength = parameters.indices.length + edgeTriangleCount * 3;
+        var indexBuffer = IndexDatatype.createTypedArray(quantizedVertexCount + edgeVertexCount, indexBufferLength);
         indexBuffer.set(parameters.indices, 0);
 
         // Add skirts.
@@ -3229,7 +4345,7 @@ define('Workers/createVerticesFromQuantizedTerrainMesh',[
         var start, end, increment;
         var vertexStride = 6;
         if (hasVertexNormals) {
-            vertexStride += 2;
+            vertexStride += 1;
         }
         if (isWestOrNorthEdge) {
             start = edgeVertices.length - 1;
@@ -3266,8 +4382,7 @@ define('Workers/createVerticesFromQuantizedTerrainMesh',[
             vertexBuffer[vertexBufferIndex++] = u;
             vertexBuffer[vertexBufferIndex++] = v;
             if (hasVertexNormals) {
-                vertexBuffer[vertexBufferIndex++] = vertexBuffer[offset + nxIndex];
-                vertexBuffer[vertexBufferIndex++] = vertexBuffer[offset + nyIndex];
+                vertexBuffer[vertexBufferIndex++] = vertexBuffer[offset + nIndex];
             }
 
             if (previousIndex !== -1) {

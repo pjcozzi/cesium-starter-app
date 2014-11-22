@@ -3155,6 +3155,753 @@ define('Core/Interval',[
 });
 
 /*global define*/
+define('Core/Cartesian4',[
+        './defaultValue',
+        './defined',
+        './DeveloperError',
+        './freezeObject'
+    ], function(
+        defaultValue,
+        defined,
+        DeveloperError,
+        freezeObject) {
+    "use strict";
+
+    /**
+     * A 4D Cartesian point.
+     * @alias Cartesian4
+     * @constructor
+     *
+     * @param {Number} [x=0.0] The X component.
+     * @param {Number} [y=0.0] The Y component.
+     * @param {Number} [z=0.0] The Z component.
+     * @param {Number} [w=0.0] The W component.
+     *
+     * @see Cartesian2
+     * @see Cartesian3
+     * @see Packable
+     */
+    var Cartesian4 = function(x, y, z, w) {
+        /**
+         * The X component.
+         * @type {Number}
+         * @default 0.0
+         */
+        this.x = defaultValue(x, 0.0);
+
+        /**
+         * The Y component.
+         * @type {Number}
+         * @default 0.0
+         */
+        this.y = defaultValue(y, 0.0);
+
+        /**
+         * The Z component.
+         * @type {Number}
+         * @default 0.0
+         */
+        this.z = defaultValue(z, 0.0);
+
+        /**
+         * The W component.
+         * @type {Number}
+         * @default 0.0
+         */
+        this.w = defaultValue(w, 0.0);
+    };
+
+    /**
+     * Creates a Cartesian4 instance from x, y, z and w coordinates.
+     *
+     * @param {Number} x The x coordinate.
+     * @param {Number} y The y coordinate.
+     * @param {Number} z The z coordinate.
+     * @param {Number} w The w coordinate.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.fromElements = function(x, y, z, w, result) {
+        if (!defined(result)) {
+            return new Cartesian4(x, y, z, w);
+        }
+
+        result.x = x;
+        result.y = y;
+        result.z = z;
+        result.w = w;
+        return result;
+    };
+
+    /**
+     * Creates a Cartesian4 instance from a {@link Color}. <code>red</code>, <code>green</code>, <code>blue</code>,
+     * and <code>alpha</code> map to <code>x</code>, <code>y</code>, <code>z</code>, and <code>w</code>, respectively.
+     *
+     * @param {Color} color The source color.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.fromColor = function(color, result) {
+                if (!defined(color)) {
+            throw new DeveloperError('color is required');
+        }
+                if (!defined(result)) {
+            return new Cartesian4(color.red, color.green, color.blue, color.alpha);
+        }
+
+        result.x = color.red;
+        result.y = color.green;
+        result.z = color.blue;
+        result.w = color.alpha;
+        return result;
+    };
+
+    /**
+     * Duplicates a Cartesian4 instance.
+     *
+     * @param {Cartesian4} cartesian The Cartesian to duplicate.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided. (Returns undefined if cartesian is undefined)
+     */
+    Cartesian4.clone = function(cartesian, result) {
+        if (!defined(cartesian)) {
+            return undefined;
+        }
+
+        if (!defined(result)) {
+            return new Cartesian4(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
+        }
+
+        result.x = cartesian.x;
+        result.y = cartesian.y;
+        result.z = cartesian.z;
+        result.w = cartesian.w;
+        return result;
+    };
+
+
+    /**
+     * The number of elements used to pack the object into an array.
+     * @type {Number}
+     */
+    Cartesian4.packedLength = 4;
+
+    /**
+     * Stores the provided instance into the provided array.
+     *
+     * @param {Cartesian4} value The value to pack.
+     * @param {Number[]} array The array to pack into.
+     * @param {Number} [startingIndex=0] The index into the array at which to start packing the elements.
+     */
+    Cartesian4.pack = function(value, array, startingIndex) {
+                if (!defined(value)) {
+            throw new DeveloperError('value is required');
+        }
+        if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        array[startingIndex++] = value.x;
+        array[startingIndex++] = value.y;
+        array[startingIndex++] = value.z;
+        array[startingIndex] = value.w;
+    };
+
+    /**
+     * Retrieves an instance from a packed array.
+     *
+     * @param {Number[]} array The packed array.
+     * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
+     * @param {Cartesian4} [result] The object into which to store the result.
+     * @returns {Cartesian4}  The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.unpack = function(array, startingIndex, result) {
+                if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        if (!defined(result)) {
+            result = new Cartesian4();
+        }
+        result.x = array[startingIndex++];
+        result.y = array[startingIndex++];
+        result.z = array[startingIndex++];
+        result.w = array[startingIndex];
+        return result;
+    };
+
+    /**
+     * Creates a Cartesian4 from four consecutive elements in an array.
+     * @function
+     *
+     * @param {Number[]} array The array whose four consecutive elements correspond to the x, y, z, and w components, respectively.
+     * @param {Number} [startingIndex=0] The offset into the array of the first element, which corresponds to the x component.
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4}  The modified result parameter or a new Cartesian4 instance if one was not provided.
+     *
+     * @example
+     * // Create a Cartesian4 with (1.0, 2.0, 3.0, 4.0)
+     * var v = [1.0, 2.0, 3.0, 4.0];
+     * var p = Cesium.Cartesian4.fromArray(v);
+     *
+     * // Create a Cartesian4 with (1.0, 2.0, 3.0, 4.0) using an offset into an array
+     * var v2 = [0.0, 0.0, 1.0, 2.0, 3.0, 4.0];
+     * var p2 = Cesium.Cartesian4.fromArray(v2, 2);
+     */
+    Cartesian4.fromArray = Cartesian4.unpack;
+
+    /**
+     * Computes the value of the maximum component for the supplied Cartesian.
+     *
+     * @param {Cartesian4} cartesian The cartesian to use.
+     * @returns {Number} The value of the maximum component.
+     */
+    Cartesian4.maximumComponent = function(cartesian) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        return Math.max(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
+    };
+
+    /**
+     * Computes the value of the minimum component for the supplied Cartesian.
+     *
+     * @param {Cartesian4} cartesian The cartesian to use.
+     * @returns {Number} The value of the minimum component.
+     */
+    Cartesian4.minimumComponent = function(cartesian) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        return Math.min(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
+    };
+
+    /**
+     * Compares two Cartesians and computes a Cartesian which contains the minimum components of the supplied Cartesians.
+     *
+     * @param {Cartesian4} first A cartesian to compare.
+     * @param {Cartesian4} second A cartesian to compare.
+     * @param {Cartesian4} result The object into which to store the result.
+     * @returns {Cartesian4} A cartesian with the minimum components.
+     */
+    Cartesian4.minimumByComponent = function(first, second, result) {
+                if (!defined(first)) {
+            throw new DeveloperError('first is required.');
+        }
+        if (!defined(second)) {
+            throw new DeveloperError('second is required.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        
+        result.x = Math.min(first.x, second.x);
+        result.y = Math.min(first.y, second.y);
+        result.z = Math.min(first.z, second.z);
+        result.w = Math.min(first.w, second.w);
+
+        return result;
+    };
+
+    /**
+     * Compares two Cartesians and computes a Cartesian which contains the maximum components of the supplied Cartesians.
+     *
+     * @param {Cartesian4} first A cartesian to compare.
+     * @param {Cartesian4} second A cartesian to compare.
+     * @param {Cartesian4} result The object into which to store the result.
+     * @returns {Cartesian4} A cartesian with the maximum components.
+     */
+    Cartesian4.maximumByComponent = function(first, second, result) {
+                if (!defined(first)) {
+            throw new DeveloperError('first is required.');
+        }
+        if (!defined(second)) {
+            throw new DeveloperError('second is required.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        
+        result.x = Math.max(first.x, second.x);
+        result.y = Math.max(first.y, second.y);
+        result.z = Math.max(first.z, second.z);
+        result.w = Math.max(first.w, second.w);
+
+        return result;
+    };
+
+    /**
+     * Computes the provided Cartesian's squared magnitude.
+     *
+     * @param {Cartesian4} cartesian The Cartesian instance whose squared magnitude is to be computed.
+     * @returns {Number} The squared magnitude.
+     */
+    Cartesian4.magnitudeSquared = function(cartesian) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        
+        return cartesian.x * cartesian.x + cartesian.y * cartesian.y + cartesian.z * cartesian.z + cartesian.w * cartesian.w;
+    };
+
+    /**
+     * Computes the Cartesian's magnitude (length).
+     *
+     * @param {Cartesian4} cartesian The Cartesian instance whose magnitude is to be computed.
+     * @returns {Number} The magnitude.
+     */
+    Cartesian4.magnitude = function(cartesian) {
+        return Math.sqrt(Cartesian4.magnitudeSquared(cartesian));
+    };
+
+    var distanceScratch = new Cartesian4();
+
+    /**
+     * Computes the 4-space distance between two points
+     *
+     * @param {Cartesian4} left The first point to compute the distance from.
+     * @param {Cartesian4} right The second point to compute the distance to.
+     * @returns {Number} The distance between two points.
+     *
+     * @example
+     * // Returns 1.0
+     * var d = Cesium.Cartesian4.distance(new Cesium.Cartesian4(1.0, 0.0, 0.0, 0.0), new Cesium.Cartesian4(2.0, 0.0, 0.0, 0.0));
+     */
+    Cartesian4.distance = function(left, right) {
+                if (!defined(left) || !defined(right)) {
+            throw new DeveloperError('left and right are required.');
+        }
+        
+        Cartesian4.subtract(left, right, distanceScratch);
+        return Cartesian4.magnitude(distanceScratch);
+    };
+
+    /**
+     * Computes the normalized form of the supplied Cartesian.
+     *
+     * @param {Cartesian4} cartesian The Cartesian to be normalized.
+     * @param {Cartesian4} result The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter.
+     */
+    Cartesian4.normalize = function(cartesian, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        var magnitude = Cartesian4.magnitude(cartesian);
+
+        result.x = cartesian.x / magnitude;
+        result.y = cartesian.y / magnitude;
+        result.z = cartesian.z / magnitude;
+        result.w = cartesian.w / magnitude;
+        return result;
+    };
+
+    /**
+     * Computes the dot (scalar) product of two Cartesians.
+     *
+     * @param {Cartesian4} left The first Cartesian.
+     * @param {Cartesian4} right The second Cartesian.
+     * @returns {Number} The dot product.
+     */
+    Cartesian4.dot = function(left, right) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        
+        return left.x * right.x + left.y * right.y + left.z * right.z + left.w * right.w;
+    };
+
+    /**
+     * Computes the componentwise product of two Cartesians.
+     *
+     * @param {Cartesian4} left The first Cartesian.
+     * @param {Cartesian4} right The second Cartesian.
+     * @param {Cartesian4} result The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter.
+     */
+    Cartesian4.multiplyComponents = function(left, right, result) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = left.x * right.x;
+        result.y = left.y * right.y;
+        result.z = left.z * right.z;
+        result.w = left.w * right.w;
+        return result;
+    };
+
+    /**
+     * Computes the componentwise sum of two Cartesians.
+     *
+     * @param {Cartesian4} left The first Cartesian.
+     * @param {Cartesian4} right The second Cartesian.
+     * @param {Cartesian4} result The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter.
+     */
+    Cartesian4.add = function(left, right, result) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = left.x + right.x;
+        result.y = left.y + right.y;
+        result.z = left.z + right.z;
+        result.w = left.w + right.w;
+        return result;
+    };
+
+    /**
+     * Computes the componentwise difference of two Cartesians.
+     *
+     * @param {Cartesian4} left The first Cartesian.
+     * @param {Cartesian4} right The second Cartesian.
+     * @param {Cartesian4} result The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter.
+     */
+    Cartesian4.subtract = function(left, right, result) {
+                if (!defined(left)) {
+            throw new DeveloperError('left is required');
+        }
+        if (!defined(right)) {
+            throw new DeveloperError('right is required');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = left.x - right.x;
+        result.y = left.y - right.y;
+        result.z = left.z - right.z;
+        result.w = left.w - right.w;
+        return result;
+    };
+
+    /**
+     * Multiplies the provided Cartesian componentwise by the provided scalar.
+     *
+     * @param {Cartesian4} cartesian The Cartesian to be scaled.
+     * @param {Number} scalar The scalar to multiply with.
+     * @param {Cartesian4} result The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter.
+     */
+    Cartesian4.multiplyByScalar = function(cartesian, scalar, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        if (typeof scalar !== 'number') {
+            throw new DeveloperError('scalar is required and must be a number.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = cartesian.x * scalar;
+        result.y = cartesian.y * scalar;
+        result.z = cartesian.z * scalar;
+        result.w = cartesian.w * scalar;
+        return result;
+    };
+
+    /**
+     * Divides the provided Cartesian componentwise by the provided scalar.
+     *
+     * @param {Cartesian4} cartesian The Cartesian to be divided.
+     * @param {Number} scalar The scalar to divide by.
+     * @param {Cartesian4} result The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter.
+     */
+    Cartesian4.divideByScalar = function(cartesian, scalar, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        if (typeof scalar !== 'number') {
+            throw new DeveloperError('scalar is required and must be a number.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = cartesian.x / scalar;
+        result.y = cartesian.y / scalar;
+        result.z = cartesian.z / scalar;
+        result.w = cartesian.w / scalar;
+        return result;
+    };
+
+    /**
+     * Negates the provided Cartesian.
+     *
+     * @param {Cartesian4} cartesian The Cartesian to be negated.
+     * @param {Cartesian4} result The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter.
+     */
+    Cartesian4.negate = function(cartesian, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = -cartesian.x;
+        result.y = -cartesian.y;
+        result.z = -cartesian.z;
+        result.w = -cartesian.w;
+        return result;
+    };
+
+    /**
+     * Computes the absolute value of the provided Cartesian.
+     *
+     * @param {Cartesian4} cartesian The Cartesian whose absolute value is to be computed.
+     * @param {Cartesian4} result The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter.
+     */
+    Cartesian4.abs = function(cartesian, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required');
+        }
+        
+        result.x = Math.abs(cartesian.x);
+        result.y = Math.abs(cartesian.y);
+        result.z = Math.abs(cartesian.z);
+        result.w = Math.abs(cartesian.w);
+        return result;
+    };
+
+    var lerpScratch = new Cartesian4();
+    /**
+     * Computes the linear interpolation or extrapolation at t using the provided cartesians.
+     *
+     * @param {Cartesian4} start The value corresponding to t at 0.0.
+     * @param {Cartesian4}end The value corresponding to t at 1.0.
+     * @param {Number} t The point along t at which to interpolate.
+     * @param {Cartesian4} result The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter.
+     */
+    Cartesian4.lerp = function(start, end, t, result) {
+                if (!defined(start)) {
+            throw new DeveloperError('start is required.');
+        }
+        if (!defined(end)) {
+            throw new DeveloperError('end is required.');
+        }
+        if (typeof t !== 'number') {
+            throw new DeveloperError('t is required and must be a number.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        
+        Cartesian4.multiplyByScalar(end, t, lerpScratch);
+        result = Cartesian4.multiplyByScalar(start, 1.0 - t, result);
+        return Cartesian4.add(lerpScratch, result, result);
+    };
+
+    var mostOrthogonalAxisScratch = new Cartesian4();
+    /**
+     * Returns the axis that is most orthogonal to the provided Cartesian.
+     *
+     * @param {Cartesian4} cartesian The Cartesian on which to find the most orthogonal axis.
+     * @param {Cartesian4} result The object onto which to store the result.
+     * @returns {Cartesian4} The most orthogonal axis.
+     */
+    Cartesian4.mostOrthogonalAxis = function(cartesian, result) {
+                if (!defined(cartesian)) {
+            throw new DeveloperError('cartesian is required.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        
+        var f = Cartesian4.normalize(cartesian, mostOrthogonalAxisScratch);
+        Cartesian4.abs(f, f);
+
+        if (f.x <= f.y) {
+            if (f.x <= f.z) {
+                if (f.x <= f.w) {
+                    result = Cartesian4.clone(Cartesian4.UNIT_X, result);
+                } else {
+                    result = Cartesian4.clone(Cartesian4.UNIT_W, result);
+                }
+            } else if (f.z <= f.w) {
+                result = Cartesian4.clone(Cartesian4.UNIT_Z, result);
+            } else {
+                result = Cartesian4.clone(Cartesian4.UNIT_W, result);
+            }
+        } else if (f.y <= f.z) {
+            if (f.y <= f.w) {
+                result = Cartesian4.clone(Cartesian4.UNIT_Y, result);
+            } else {
+                result = Cartesian4.clone(Cartesian4.UNIT_W, result);
+            }
+        } else if (f.z <= f.w) {
+            result = Cartesian4.clone(Cartesian4.UNIT_Z, result);
+        } else {
+            result = Cartesian4.clone(Cartesian4.UNIT_W, result);
+        }
+
+        return result;
+    };
+
+    /**
+     * Compares the provided Cartesians componentwise and returns
+     * <code>true</code> if they are equal, <code>false</code> otherwise.
+     *
+     * @param {Cartesian4} [left] The first Cartesian.
+     * @param {Cartesian4} [right] The second Cartesian.
+     * @returns {Boolean} <code>true</code> if left and right are equal, <code>false</code> otherwise.
+     */
+    Cartesian4.equals = function(left, right) {
+        return (left === right) ||
+               ((defined(left)) &&
+                (defined(right)) &&
+                (left.x === right.x) &&
+                (left.y === right.y) &&
+                (left.z === right.z) &&
+                (left.w === right.w));
+    };
+
+    /**
+     * Compares the provided Cartesians componentwise and returns
+     * <code>true</code> if they are within the provided epsilon,
+     * <code>false</code> otherwise.
+     *
+     * @param {Cartesian4} [left] The first Cartesian.
+     * @param {Cartesian4} [right] The second Cartesian.
+     * @param {Number} epsilon The epsilon to use for equality testing.
+     * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
+     */
+    Cartesian4.equalsEpsilon = function(left, right, epsilon) {
+                if (typeof epsilon !== 'number') {
+            throw new DeveloperError('epsilon is required and must be a number.');
+        }
+        
+        return (left === right) ||
+               ((defined(left)) &&
+                (defined(right)) &&
+                (Math.abs(left.x - right.x) <= epsilon) &&
+                (Math.abs(left.y - right.y) <= epsilon) &&
+                (Math.abs(left.z - right.z) <= epsilon) &&
+                (Math.abs(left.w - right.w) <= epsilon));
+    };
+
+    /**
+     * An immutable Cartesian4 instance initialized to (0.0, 0.0, 0.0, 0.0).
+     *
+     * @type {Cartesian4}
+     * @constant
+     */
+    Cartesian4.ZERO = freezeObject(new Cartesian4(0.0, 0.0, 0.0, 0.0));
+
+    /**
+     * An immutable Cartesian4 instance initialized to (1.0, 0.0, 0.0, 0.0).
+     *
+     * @type {Cartesian4}
+     * @constant
+     */
+    Cartesian4.UNIT_X = freezeObject(new Cartesian4(1.0, 0.0, 0.0, 0.0));
+
+    /**
+     * An immutable Cartesian4 instance initialized to (0.0, 1.0, 0.0, 0.0).
+     *
+     * @type {Cartesian4}
+     * @constant
+     */
+    Cartesian4.UNIT_Y = freezeObject(new Cartesian4(0.0, 1.0, 0.0, 0.0));
+
+    /**
+     * An immutable Cartesian4 instance initialized to (0.0, 0.0, 1.0, 0.0).
+     *
+     * @type {Cartesian4}
+     * @constant
+     */
+    Cartesian4.UNIT_Z = freezeObject(new Cartesian4(0.0, 0.0, 1.0, 0.0));
+
+    /**
+     * An immutable Cartesian4 instance initialized to (0.0, 0.0, 0.0, 1.0).
+     *
+     * @type {Cartesian4}
+     * @constant
+     */
+    Cartesian4.UNIT_W = freezeObject(new Cartesian4(0.0, 0.0, 0.0, 1.0));
+
+    /**
+     * Duplicates this Cartesian4 instance.
+     *
+     * @param {Cartesian4} [result] The object onto which to store the result.
+     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
+     */
+    Cartesian4.prototype.clone = function(result) {
+        return Cartesian4.clone(this, result);
+    };
+
+    /**
+     * Compares this Cartesian against the provided Cartesian componentwise and returns
+     * <code>true</code> if they are equal, <code>false</code> otherwise.
+     *
+     * @param {Cartesian4} [right] The right hand side Cartesian.
+     * @returns {Boolean} <code>true</code> if they are equal, <code>false</code> otherwise.
+     */
+    Cartesian4.prototype.equals = function(right) {
+        return Cartesian4.equals(this, right);
+    };
+
+    /**
+     * Compares this Cartesian against the provided Cartesian componentwise and returns
+     * <code>true</code> if they are within the provided epsilon,
+     * <code>false</code> otherwise.
+     *
+     * @param {Cartesian4} [right] The right hand side Cartesian.
+     * @param {Number} epsilon The epsilon to use for equality testing.
+     * @returns {Boolean} <code>true</code> if they are within the provided epsilon, <code>false</code> otherwise.
+     */
+    Cartesian4.prototype.equalsEpsilon = function(right, epsilon) {
+        return Cartesian4.equalsEpsilon(this, right, epsilon);
+    };
+
+    /**
+     * Creates a string representing this Cartesian in the format '(x, y)'.
+     *
+     * @returns {String} A string representing the provided Cartesian in the format '(x, y)'.
+     */
+    Cartesian4.prototype.toString = function() {
+        return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
+    };
+
+    return Cartesian4;
+});
+
+/*global define*/
 define('Core/Matrix3',[
         './Cartesian3',
         './defaultValue',
@@ -4574,6 +5321,7 @@ define('Core/RuntimeError',[
 /*global define*/
 define('Core/Matrix4',[
         './Cartesian3',
+        './Cartesian4',
         './defaultValue',
         './defined',
         './DeveloperError',
@@ -4583,6 +5331,7 @@ define('Core/Matrix4',[
         './RuntimeError'
     ], function(
         Cartesian3,
+        Cartesian4,
         defaultValue,
         defined,
         DeveloperError,
@@ -6672,6 +7421,11 @@ define('Core/Matrix4',[
         return result;
     };
 
+    var scratchInverseRotation = new Matrix3();
+    var scratchMatrix3Zero = new Matrix3();
+    var scratchBottomRow = new Cartesian4();
+    var scratchExpectedBottomRow = new Cartesian4(0.0, 0.0, 0.0, 1.0);
+
      /**
       * Computes the inverse of the provided matrix using Cramers Rule.
       * If the determinant is zero, the matrix can not be inverted, and an exception is thrown.
@@ -6692,6 +7446,30 @@ define('Core/Matrix4',[
             throw new DeveloperError('result is required,');
         }
         
+        // Special case for a zero scale matrix that can occur, for example,
+        // when a model's node has a [0, 0, 0] scale.
+        if (Matrix3.equalsEpsilon(Matrix4.getRotation(matrix, scratchInverseRotation), scratchMatrix3Zero, CesiumMath.EPSILON7) &&
+            Cartesian4.equals(Matrix4.getRow(matrix, 3, scratchBottomRow), scratchExpectedBottomRow)) {
+
+            result[0] = 0.0;
+            result[1] = 0.0;
+            result[2] = 0.0;
+            result[3] = 0.0;
+            result[4] = 0.0;
+            result[5] = 0.0;
+            result[6] = 0.0;
+            result[7] = 0.0;
+            result[8] = 0.0;
+            result[9] = 0.0;
+            result[10] = 0.0;
+            result[11] = 0.0;
+            result[12] = -matrix[12];
+            result[13] = -matrix[13];
+            result[14] = -matrix[14];
+            result[15] = 1.0;
+            return result;
+        }
+
         //
         // Ported from:
         //   ftp://download.intel.com/design/PentiumIII/sml/24504301.pdf
@@ -9597,10 +10375,10 @@ define('Core/FeatureDetection',[
     var chromeVersionResult;
     function isChrome() {
         if (!defined(isChromeResult)) {
+            isChromeResult = false;
+
             var fields = (/ Chrome\/([\.0-9]+)/).exec(navigator.userAgent);
-            if (fields === null) {
-                isChromeResult = false;
-            } else {
+            if (fields !== null) {
                 isChromeResult = true;
                 chromeVersionResult = extractVersion(fields[1]);
             }
@@ -9617,14 +10395,12 @@ define('Core/FeatureDetection',[
     var safariVersionResult;
     function isSafari() {
         if (!defined(isSafariResult)) {
+            isSafariResult = false;
+
             // Chrome contains Safari in the user agent too
-            if (isChrome() || !(/ Safari\/[\.0-9]+/).test(navigator.userAgent)) {
-                isSafariResult = false;
-            } else {
+            if (!isChrome() && (/ Safari\/[\.0-9]+/).test(navigator.userAgent)) {
                 var fields = (/ Version\/([\.0-9]+)/).exec(navigator.userAgent);
-                if (fields === null) {
-                    isSafariResult = false;
-                } else {
+                if (fields !== null) {
                     isSafariResult = true;
                     safariVersionResult = extractVersion(fields[1]);
                 }
@@ -9642,10 +10418,10 @@ define('Core/FeatureDetection',[
     var webkitVersionResult;
     function isWebkit() {
         if (!defined(isWebkitResult)) {
+            isWebkitResult = false;
+
             var fields = (/ AppleWebKit\/([\.0-9]+)(\+?)/).exec(navigator.userAgent);
-            if (fields === null) {
-                isWebkitResult = false;
-            } else {
+            if (fields !== null) {
                 isWebkitResult = true;
                 webkitVersionResult = extractVersion(fields[1]);
                 webkitVersionResult.isNightly = !!fields[2];
@@ -9663,6 +10439,8 @@ define('Core/FeatureDetection',[
     var internetExplorerVersionResult;
     function isInternetExplorer() {
         if (!defined(isInternetExplorerResult)) {
+            isInternetExplorerResult = false;
+
             var fields;
             if (navigator.appName === 'Microsoft Internet Explorer') {
                 fields = /MSIE ([0-9]{1,}[\.0-9]{0,})/.exec(navigator.userAgent);
@@ -9676,8 +10454,6 @@ define('Core/FeatureDetection',[
                     isInternetExplorerResult = true;
                     internetExplorerVersionResult = extractVersion(fields[1]);
                 }
-            } else {
-                isInternetExplorerResult = false;
             }
         }
         return isInternetExplorerResult;
@@ -9685,6 +10461,25 @@ define('Core/FeatureDetection',[
 
     function internetExplorerVersion() {
         return isInternetExplorer() && internetExplorerVersionResult;
+    }
+
+    var isFirefoxResult;
+    var firefoxVersionResult;
+    function isFirefox() {
+        if (!defined(isFirefoxResult)) {
+            isFirefoxResult = false;
+
+            var fields = /Firefox\/([\.0-9]+)/.exec(navigator.userAgent);
+            if (fields !== null) {
+                isFirefoxResult = true;
+                firefoxVersionResult = extractVersion(fields[1]);
+            }
+        }
+        return isFirefoxResult;
+    }
+
+    function firefoxVersion() {
+        return isFirefox() && firefoxVersionResult;
     }
 
     /**
@@ -9703,6 +10498,8 @@ define('Core/FeatureDetection',[
         webkitVersion : webkitVersion,
         isInternetExplorer : isInternetExplorer,
         internetExplorerVersion : internetExplorerVersion,
+        isFirefox : isFirefox,
+        firefoxVersion : firefoxVersion,
         hardwareConcurrency : defaultValue(navigator.hardwareConcurrency, 3)
     };
 
@@ -11312,14 +12109,107 @@ define('Core/EllipseGeometryLibrary',[
 });
 
 /*global define*/
+define('Core/PrimitiveType',[
+        './freezeObject'
+    ], function(
+        freezeObject) {
+    "use strict";
+
+    /**
+     * The type of a geometric primitive, i.e., points, lines, and triangles.
+     *
+     * @namespace
+     * @alias PrimitiveType
+     */
+    var PrimitiveType = {
+        /**
+         * 0x0000.  Points primitive where each vertex (or index) is a separate point.
+         *
+         * @type {Number}
+         * @constant
+         */
+        POINTS : 0x0000,
+
+        /**
+         * 0x0001.  Lines primitive where each two vertices (or indices) is a line segment.  Line segments are not necessarily connected.
+         *
+         * @type {Number}
+         * @constant
+         */
+        LINES : 0x0001,
+
+        /**
+         * 0x0002.  Line loop primitive where each vertex (or index) after the first connects a line to
+         * the previous vertex, and the last vertex implicitly connects to the first.
+         *
+         * @type {Number}
+         * @constant
+         */
+        LINE_LOOP : 0x0002,
+
+        /**
+         * 0x0003.  Line strip primitive where each vertex (or index) after the first connects a line to the previous vertex.
+         *
+         * @type {Number}
+         * @constant
+         */
+        LINE_STRIP : 0x0003,
+
+        /**
+         * 0x0004.  Triangles primitive where each three vertices (or indices) is a triangle.  Triangles do not necessarily share edges.
+         *
+         * @type {Number}
+         * @constant
+         */
+        TRIANGLES : 0x0004,
+
+        /**
+         * 0x0005.  Triangle strip primitive where each vertex (or index) after the first two connect to
+         * the previous two vertices forming a triangle.  For example, this can be used to model a wall.
+         *
+         * @type {Number}
+         * @constant
+         */
+        TRIANGLE_STRIP : 0x0005,
+
+        /**
+         * 0x0006.  Triangle fan primitive where each vertex (or index) after the first two connect to
+         * the previous vertex and the first vertex forming a triangle.  For example, this can be used
+         * to model a cone or circle.
+         *
+         * @type {Number}
+         * @constant
+         */
+        TRIANGLE_FAN : 0x0006,
+
+        /**
+         * @private
+         */
+        validate : function(primitiveType) {
+            return primitiveType === PrimitiveType.POINTS ||
+                   primitiveType === PrimitiveType.LINES ||
+                   primitiveType === PrimitiveType.LINE_LOOP ||
+                   primitiveType === PrimitiveType.LINE_STRIP ||
+                   primitiveType === PrimitiveType.TRIANGLES ||
+                   primitiveType === PrimitiveType.TRIANGLE_STRIP ||
+                   primitiveType === PrimitiveType.TRIANGLE_FAN;
+        }
+    };
+
+    return freezeObject(PrimitiveType);
+});
+
+/*global define*/
 define('Core/Geometry',[
         './defaultValue',
         './defined',
-        './DeveloperError'
+        './DeveloperError',
+        './PrimitiveType'
     ], function(
         defaultValue,
         defined,
-        DeveloperError) {
+        DeveloperError,
+        PrimitiveType) {
     "use strict";
 
     /**
@@ -11336,7 +12226,7 @@ define('Core/Geometry',[
      *
      * @param {Object} options Object with the following properties:
      * @param {GeometryAttributes} options.attributes Attributes, which make up the geometry's vertices.
-     * @param {PrimitiveType} options.primitiveType The type of primitives in the geometry.
+     * @param {PrimitiveType} [options.primitiveType=PrimitiveType.TRIANGLES] The type of primitives in the geometry.
      * @param {Uint16Array|Uint32Array} [options.indices] Optional index data that determines the primitives in the geometry.
      * @param {BoundingSphere} [options.boundingSphere] An optional bounding sphere that fully enclosed the geometry.
      *
@@ -11377,9 +12267,6 @@ define('Core/Geometry',[
 
                 if (!defined(options.attributes)) {
             throw new DeveloperError('options.attributes is required.');
-        }
-        if (!defined(options.primitiveType)) {
-            throw new DeveloperError('options.primitiveType is required.');
         }
         
         /**
@@ -11447,7 +12334,7 @@ define('Core/Geometry',[
          *
          * @default undefined
          */
-        this.primitiveType = options.primitiveType;
+        this.primitiveType = defaultValue(options.primitiveType, PrimitiveType.TRIANGLES);
 
         /**
          * An optional bounding sphere that fully encloses the geometry.  This is
@@ -11850,6 +12737,286 @@ define('Core/GeometryInstance',[
 });
 
 /*global define*/
+define('Core/AttributeCompression',[
+        './Cartesian2',
+        './Cartesian3',
+        './defined',
+        './DeveloperError',
+        './Math'
+    ], function(
+        Cartesian2,
+        Cartesian3,
+        defined,
+        DeveloperError,
+        CesiumMath) {
+    "use strict";
+
+    /**
+     * Attribute compression and decompression functions.
+     *
+     * @namespace
+     * @alias AttributeCompression
+     *
+     * @private
+     */
+    var AttributeCompression = {};
+
+    /**
+     * Encodes a normalized vector into 2 SNORM values in the range of [0-255] following the 'oct' encoding.
+     *
+     * Oct encoding is a compact representation of unit length vectors.  The encoding and decoding functions are low cost, and represent the normalized vector within 1 degree of error.
+     * The 'oct' encoding is described in "A Survey of Efficient Representations of Independent Unit Vectors",
+     * Cigolle et al 2014: {@link http://jcgt.org/published/0003/02/01/}
+     *
+     * @param {Cartesian3} vector The normalized vector to be compressed into 2 byte 'oct' encoding.
+     * @param {Cartesian2} result The 2 byte oct-encoded unit length vector.
+     * @returns {Cartesian2} The 2 byte oct-encoded unit length vector.
+     *
+     * @exception {DeveloperError} vector must be defined.
+     * @exception {DeveloperError} result must be defined.
+     * @exception {DeveloperError} vector must be normalized.
+     *
+     * @see AttributeCompression.octDecode
+     */
+    AttributeCompression.octEncode = function(vector, result) {
+                if (!defined(vector)) {
+            throw new DeveloperError('vector is required.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        var magSquared = Cartesian3.magnitudeSquared(vector);
+        if (Math.abs(magSquared - 1.0) > CesiumMath.EPSILON6) {
+            throw new DeveloperError('vector must be normalized.');
+        }
+        
+        result.x = vector.x / (Math.abs(vector.x) + Math.abs(vector.y) + Math.abs(vector.z));
+        result.y = vector.y / (Math.abs(vector.x) + Math.abs(vector.y) + Math.abs(vector.z));
+        if (vector.z < 0) {
+            var x = result.x;
+            var y = result.y;
+            result.x = (1.0 - Math.abs(y)) * CesiumMath.signNotZero(x);
+            result.y = (1.0 - Math.abs(x)) * CesiumMath.signNotZero(y);
+        }
+
+        result.x = CesiumMath.toSNorm(result.x);
+        result.y = CesiumMath.toSNorm(result.y);
+
+        return result;
+    };
+
+    /**
+     * Decodes a unit-length vector in 'oct' encoding to a normalized 3-component vector.
+     *
+     * @param {Number} x The x component of the oct-encoded unit length vector.
+     * @param {Number} y The y component of the oct-encoded unit length vector.
+     * @param {Cartesian3} result The decoded and normalized vector
+     * @returns {Cartesian3} The decoded and normalized vector.
+     *
+     * @exception {DeveloperError} result must be defined.
+     * @exception {DeveloperError} x and y must be a signed normalized integer between 0 and 255.
+     *
+     * @see AttributeCompression.octEncode
+     */
+    AttributeCompression.octDecode = function(x, y, result) {
+                if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        if (x < 0 || x > 255 || y < 0 || y > 255) {
+            throw new DeveloperError('x and y must be a signed normalized integer between 0 and 255');
+        }
+        
+        result.x = CesiumMath.fromSNorm(x);
+        result.y = CesiumMath.fromSNorm(y);
+        result.z = 1.0 - (Math.abs(result.x) + Math.abs(result.y));
+
+        if (result.z < 0.0)
+        {
+            var oldVX = result.x;
+            result.x = (1.0 - Math.abs(result.y)) * CesiumMath.signNotZero(oldVX);
+            result.y = (1.0 - Math.abs(oldVX)) * CesiumMath.signNotZero(result.y);
+        }
+
+        return Cartesian3.normalize(result, result);
+    };
+
+    /**
+     * Packs an oct encoded vector into a single floating-point number.
+     *
+     * @param {Cartesian2} encoded The oct encoded vector.
+     * @returns {Number} The oct encoded vector packed into a single float.
+     *
+     * @exception {DeveloperError} encoded is required.
+     */
+    AttributeCompression.octPackFloat = function(encoded) {
+                if (!defined(encoded)) {
+            throw new DeveloperError('encoded is required.');
+        }
+                return 256.0 * encoded.x + encoded.y;
+    };
+
+    var scratchEncodeCart2 = new Cartesian2();
+
+    /**
+     * Encodes a normalized vector into 2 SNORM values in the range of [0-255] following the 'oct' encoding and
+     * stores those values in a single float-point number.
+     *
+     * @param {Cartesian3} vector The normalized vector to be compressed into 2 byte 'oct' encoding.
+     * @returns {Number} The 2 byte oct-encoded unit length vector.
+     *
+     * @exception {DeveloperError} vector must be defined.
+     * @exception {DeveloperError} vector must be normalized.
+     */
+    AttributeCompression.octEncodeFloat = function(vector) {
+        AttributeCompression.octEncode(vector, scratchEncodeCart2);
+        return AttributeCompression.octPackFloat(scratchEncodeCart2);
+    };
+
+    /**
+     * Decodes a unit-length vector in 'oct' encoding packed in a floating-point number to a normalized 3-component vector.
+     *
+     * @param {Number} value The oct-encoded unit length vector stored as a single floating-point number.
+     * @param {Cartesian3} result The decoded and normalized vector
+     * @returns {Cartesian3} The decoded and normalized vector.
+     *
+     * @exception {DeveloperError} value must be defined.
+     * @exception {DeveloperError} result must be defined.
+     */
+    AttributeCompression.octDecodeFloat = function(value, result) {
+                if (!defined(value)) {
+            throw new DeveloperError('value is required.');
+        }
+        
+        var temp = value / 256.0;
+        var x = Math.floor(temp);
+        var y = (temp - x) * 256.0;
+
+        return AttributeCompression.octDecode(x, y, result);
+    };
+
+    /**
+     * Encodes three normalized vectors into 6 SNORM values in the range of [0-255] following the 'oct' encoding and
+     * packs those into two floating-point numbers.
+     *
+     * @param {Cartesian3} v1 A normalized vector to be compressed.
+     * @param {Cartesian3} v2 A normalized vector to be compressed.
+     * @param {Cartesian3} v3 A normalized vector to be compressed.
+     * @param {Cartesian2} result The 'oct' encoded vectors packed into two floating-point numbers.
+     * @returns {Cartesian2} The 'oct' encoded vectors packed into two floating-point numbers.
+     *
+     * @exception {DeveloperError} v1 must be defined.
+     * @exception {DeveloperError} v2 must be defined.
+     * @exception {DeveloperError} v3 must be defined.
+     * @exception {DeveloperError} result must be defined.
+     */
+    AttributeCompression.octPack = function(v1, v2, v3, result) {
+                if (!defined(v1)) {
+            throw new DeveloperError('v1 is required.');
+        }
+        if (!defined(v2)) {
+            throw new DeveloperError('v2 is required.');
+        }
+        if (!defined(v3)) {
+            throw new DeveloperError('v3 is required.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        
+        var encoded1 = AttributeCompression.octEncodeFloat(v1);
+        var encoded2 = AttributeCompression.octEncodeFloat(v2);
+
+        var encoded3 = AttributeCompression.octEncode(v3, scratchEncodeCart2);
+        result.x = 65536.0 * encoded3.x + encoded1;
+        result.y = 65536.0 * encoded3.y + encoded2;
+        return result;
+    };
+
+    /**
+     * Decodes three unit-length vectors in 'oct' encoding packed into a floating-point number to a normalized 3-component vector.
+     *
+     * @param {Cartesian2} packed The three oct-encoded unit length vectors stored as two floating-point number.
+     * @param {Cartesian3} v1 One decoded and normalized vector.
+     * @param {Cartesian3} v2 One decoded and normalized vector.
+     * @param {Cartesian3} v3 One decoded and normalized vector.
+     *
+     * @exception {DeveloperError} packed must be defined.
+     * @exception {DeveloperError} v1 must be defined.
+     * @exception {DeveloperError} v2 must be defined.
+     * @exception {DeveloperError} v3 must be defined.
+     */
+    AttributeCompression.octUnpack = function(packed, v1, v2, v3) {
+                if (!defined(packed)) {
+            throw new DeveloperError('packed is required.');
+        }
+        if (!defined(v1)) {
+            throw new DeveloperError('v1 is required.');
+        }
+        if (!defined(v2)) {
+            throw new DeveloperError('v2 is required.');
+        }
+        if (!defined(v3)) {
+            throw new DeveloperError('v3 is required.');
+        }
+        
+        var temp = packed.x / 65536.0;
+        var x = Math.floor(temp);
+        var encodedFloat1 = (temp - x) * 65536.0;
+
+        temp = packed.y / 65536.0;
+        var y = Math.floor(temp);
+        var encodedFloat2 = (temp - y) * 65536.0;
+
+        AttributeCompression.octDecodeFloat(encodedFloat1, v1);
+        AttributeCompression.octDecodeFloat(encodedFloat2, v2);
+        AttributeCompression.octDecode(x, y, v3);
+    };
+
+    /**
+     * Pack texture coordinates into a single float. The texture coordinates will only preserve 12 bits of precision.
+     *
+     * @param {Cartesian2} textureCoordinates The texture coordinates to compress
+     * @returns {Number} The packed texture coordinates.
+     *
+     * @exception {DeveloperError} textureCoordinates is required.
+     */
+    AttributeCompression.compressTextureCoordinates = function(textureCoordinates) {
+                if (!defined(textureCoordinates)) {
+            throw new DeveloperError('textureCoordinates is required.');
+        }
+        
+        var x = textureCoordinates.x === 1.0 ? 4095.0 : (textureCoordinates.x * 4096.0) | 0;
+        var y = textureCoordinates.y === 1.0 ? 4095.0 : (textureCoordinates.y * 4096.0) | 0;
+        return 4096.0 * x + y;
+    };
+
+    /**
+     * Decompresses texture coordinates that were packed into a single float.
+     *
+     * @param {Number} compressed The compressed texture coordinates.
+     * @param {Cartesian2} result The decompressed texture coordinates.
+     * @returns {Cartesian2} The modified result parameter.
+     *
+     * @exception {DeveloperError} compressed is required.
+     * @exception {DeveloperError} result is required.
+     */
+    AttributeCompression.decompressTextureCoordinates = function(compressed, result) {
+                if (!defined(compressed)) {
+            throw new DeveloperError('compressed is required.');
+        }
+        if (!defined(result)) {
+            throw new DeveloperError('result is required.');
+        }
+        
+        var temp = compressed / 4096.0;
+        result.x = Math.floor(temp) / 4096.0;
+        result.y = temp - Math.floor(temp);
+        return result;
+    };
+
+    return AttributeCompression;
+});
+/*global define*/
 define('Core/barycentricCoordinates',[
         './Cartesian2',
         './Cartesian3',
@@ -11930,753 +13097,6 @@ define('Core/barycentricCoordinates',[
     };
 
     return barycentricCoordinates;
-});
-
-/*global define*/
-define('Core/Cartesian4',[
-        './defaultValue',
-        './defined',
-        './DeveloperError',
-        './freezeObject'
-    ], function(
-        defaultValue,
-        defined,
-        DeveloperError,
-        freezeObject) {
-    "use strict";
-
-    /**
-     * A 4D Cartesian point.
-     * @alias Cartesian4
-     * @constructor
-     *
-     * @param {Number} [x=0.0] The X component.
-     * @param {Number} [y=0.0] The Y component.
-     * @param {Number} [z=0.0] The Z component.
-     * @param {Number} [w=0.0] The W component.
-     *
-     * @see Cartesian2
-     * @see Cartesian3
-     * @see Packable
-     */
-    var Cartesian4 = function(x, y, z, w) {
-        /**
-         * The X component.
-         * @type {Number}
-         * @default 0.0
-         */
-        this.x = defaultValue(x, 0.0);
-
-        /**
-         * The Y component.
-         * @type {Number}
-         * @default 0.0
-         */
-        this.y = defaultValue(y, 0.0);
-
-        /**
-         * The Z component.
-         * @type {Number}
-         * @default 0.0
-         */
-        this.z = defaultValue(z, 0.0);
-
-        /**
-         * The W component.
-         * @type {Number}
-         * @default 0.0
-         */
-        this.w = defaultValue(w, 0.0);
-    };
-
-    /**
-     * Creates a Cartesian4 instance from x, y, z and w coordinates.
-     *
-     * @param {Number} x The x coordinate.
-     * @param {Number} y The y coordinate.
-     * @param {Number} z The z coordinate.
-     * @param {Number} w The w coordinate.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     */
-    Cartesian4.fromElements = function(x, y, z, w, result) {
-        if (!defined(result)) {
-            return new Cartesian4(x, y, z, w);
-        }
-
-        result.x = x;
-        result.y = y;
-        result.z = z;
-        result.w = w;
-        return result;
-    };
-
-    /**
-     * Creates a Cartesian4 instance from a {@link Color}. <code>red</code>, <code>green</code>, <code>blue</code>,
-     * and <code>alpha</code> map to <code>x</code>, <code>y</code>, <code>z</code>, and <code>w</code>, respectively.
-     *
-     * @param {Color} color The source color.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     */
-    Cartesian4.fromColor = function(color, result) {
-                if (!defined(color)) {
-            throw new DeveloperError('color is required');
-        }
-                if (!defined(result)) {
-            return new Cartesian4(color.red, color.green, color.blue, color.alpha);
-        }
-
-        result.x = color.red;
-        result.y = color.green;
-        result.z = color.blue;
-        result.w = color.alpha;
-        return result;
-    };
-
-    /**
-     * Duplicates a Cartesian4 instance.
-     *
-     * @param {Cartesian4} cartesian The Cartesian to duplicate.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided. (Returns undefined if cartesian is undefined)
-     */
-    Cartesian4.clone = function(cartesian, result) {
-        if (!defined(cartesian)) {
-            return undefined;
-        }
-
-        if (!defined(result)) {
-            return new Cartesian4(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
-        }
-
-        result.x = cartesian.x;
-        result.y = cartesian.y;
-        result.z = cartesian.z;
-        result.w = cartesian.w;
-        return result;
-    };
-
-
-    /**
-     * The number of elements used to pack the object into an array.
-     * @type {Number}
-     */
-    Cartesian4.packedLength = 4;
-
-    /**
-     * Stores the provided instance into the provided array.
-     *
-     * @param {Cartesian4} value The value to pack.
-     * @param {Number[]} array The array to pack into.
-     * @param {Number} [startingIndex=0] The index into the array at which to start packing the elements.
-     */
-    Cartesian4.pack = function(value, array, startingIndex) {
-                if (!defined(value)) {
-            throw new DeveloperError('value is required');
-        }
-        if (!defined(array)) {
-            throw new DeveloperError('array is required');
-        }
-        
-        startingIndex = defaultValue(startingIndex, 0);
-
-        array[startingIndex++] = value.x;
-        array[startingIndex++] = value.y;
-        array[startingIndex++] = value.z;
-        array[startingIndex] = value.w;
-    };
-
-    /**
-     * Retrieves an instance from a packed array.
-     *
-     * @param {Number[]} array The packed array.
-     * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
-     * @param {Cartesian4} [result] The object into which to store the result.
-     * @returns {Cartesian4}  The modified result parameter or a new Cartesian4 instance if one was not provided.
-     */
-    Cartesian4.unpack = function(array, startingIndex, result) {
-                if (!defined(array)) {
-            throw new DeveloperError('array is required');
-        }
-        
-        startingIndex = defaultValue(startingIndex, 0);
-
-        if (!defined(result)) {
-            result = new Cartesian4();
-        }
-        result.x = array[startingIndex++];
-        result.y = array[startingIndex++];
-        result.z = array[startingIndex++];
-        result.w = array[startingIndex];
-        return result;
-    };
-
-    /**
-     * Creates a Cartesian4 from four consecutive elements in an array.
-     * @function
-     *
-     * @param {Number[]} array The array whose four consecutive elements correspond to the x, y, z, and w components, respectively.
-     * @param {Number} [startingIndex=0] The offset into the array of the first element, which corresponds to the x component.
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4}  The modified result parameter or a new Cartesian4 instance if one was not provided.
-     *
-     * @example
-     * // Create a Cartesian4 with (1.0, 2.0, 3.0, 4.0)
-     * var v = [1.0, 2.0, 3.0, 4.0];
-     * var p = Cesium.Cartesian4.fromArray(v);
-     *
-     * // Create a Cartesian4 with (1.0, 2.0, 3.0, 4.0) using an offset into an array
-     * var v2 = [0.0, 0.0, 1.0, 2.0, 3.0, 4.0];
-     * var p2 = Cesium.Cartesian4.fromArray(v2, 2);
-     */
-    Cartesian4.fromArray = Cartesian4.unpack;
-
-    /**
-     * Computes the value of the maximum component for the supplied Cartesian.
-     *
-     * @param {Cartesian4} cartesian The cartesian to use.
-     * @returns {Number} The value of the maximum component.
-     */
-    Cartesian4.maximumComponent = function(cartesian) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        
-        return Math.max(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
-    };
-
-    /**
-     * Computes the value of the minimum component for the supplied Cartesian.
-     *
-     * @param {Cartesian4} cartesian The cartesian to use.
-     * @returns {Number} The value of the minimum component.
-     */
-    Cartesian4.minimumComponent = function(cartesian) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        
-        return Math.min(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
-    };
-
-    /**
-     * Compares two Cartesians and computes a Cartesian which contains the minimum components of the supplied Cartesians.
-     *
-     * @param {Cartesian4} first A cartesian to compare.
-     * @param {Cartesian4} second A cartesian to compare.
-     * @param {Cartesian4} result The object into which to store the result.
-     * @returns {Cartesian4} A cartesian with the minimum components.
-     */
-    Cartesian4.minimumByComponent = function(first, second, result) {
-                if (!defined(first)) {
-            throw new DeveloperError('first is required.');
-        }
-        if (!defined(second)) {
-            throw new DeveloperError('second is required.');
-        }
-        if (!defined(result)) {
-            throw new DeveloperError('result is required.');
-        }
-        
-        result.x = Math.min(first.x, second.x);
-        result.y = Math.min(first.y, second.y);
-        result.z = Math.min(first.z, second.z);
-        result.w = Math.min(first.w, second.w);
-
-        return result;
-    };
-
-    /**
-     * Compares two Cartesians and computes a Cartesian which contains the maximum components of the supplied Cartesians.
-     *
-     * @param {Cartesian4} first A cartesian to compare.
-     * @param {Cartesian4} second A cartesian to compare.
-     * @param {Cartesian4} result The object into which to store the result.
-     * @returns {Cartesian4} A cartesian with the maximum components.
-     */
-    Cartesian4.maximumByComponent = function(first, second, result) {
-                if (!defined(first)) {
-            throw new DeveloperError('first is required.');
-        }
-        if (!defined(second)) {
-            throw new DeveloperError('second is required.');
-        }
-        if (!defined(result)) {
-            throw new DeveloperError('result is required.');
-        }
-        
-        result.x = Math.max(first.x, second.x);
-        result.y = Math.max(first.y, second.y);
-        result.z = Math.max(first.z, second.z);
-        result.w = Math.max(first.w, second.w);
-
-        return result;
-    };
-
-    /**
-     * Computes the provided Cartesian's squared magnitude.
-     *
-     * @param {Cartesian4} cartesian The Cartesian instance whose squared magnitude is to be computed.
-     * @returns {Number} The squared magnitude.
-     */
-    Cartesian4.magnitudeSquared = function(cartesian) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        
-        return cartesian.x * cartesian.x + cartesian.y * cartesian.y + cartesian.z * cartesian.z + cartesian.w * cartesian.w;
-    };
-
-    /**
-     * Computes the Cartesian's magnitude (length).
-     *
-     * @param {Cartesian4} cartesian The Cartesian instance whose magnitude is to be computed.
-     * @returns {Number} The magnitude.
-     */
-    Cartesian4.magnitude = function(cartesian) {
-        return Math.sqrt(Cartesian4.magnitudeSquared(cartesian));
-    };
-
-    var distanceScratch = new Cartesian4();
-
-    /**
-     * Computes the 4-space distance between two points
-     *
-     * @param {Cartesian4} left The first point to compute the distance from.
-     * @param {Cartesian4} right The second point to compute the distance to.
-     * @returns {Number} The distance between two points.
-     *
-     * @example
-     * // Returns 1.0
-     * var d = Cesium.Cartesian4.distance(new Cesium.Cartesian4(1.0, 0.0, 0.0, 0.0), new Cesium.Cartesian4(2.0, 0.0, 0.0, 0.0));
-     */
-    Cartesian4.distance = function(left, right) {
-                if (!defined(left) || !defined(right)) {
-            throw new DeveloperError('left and right are required.');
-        }
-        
-        Cartesian4.subtract(left, right, distanceScratch);
-        return Cartesian4.magnitude(distanceScratch);
-    };
-
-    /**
-     * Computes the normalized form of the supplied Cartesian.
-     *
-     * @param {Cartesian4} cartesian The Cartesian to be normalized.
-     * @param {Cartesian4} result The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter.
-     */
-    Cartesian4.normalize = function(cartesian, result) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        if (!defined(result)) {
-            throw new DeveloperError('result is required');
-        }
-        
-        var magnitude = Cartesian4.magnitude(cartesian);
-
-        result.x = cartesian.x / magnitude;
-        result.y = cartesian.y / magnitude;
-        result.z = cartesian.z / magnitude;
-        result.w = cartesian.w / magnitude;
-        return result;
-    };
-
-    /**
-     * Computes the dot (scalar) product of two Cartesians.
-     *
-     * @param {Cartesian4} left The first Cartesian.
-     * @param {Cartesian4} right The second Cartesian.
-     * @returns {Number} The dot product.
-     */
-    Cartesian4.dot = function(left, right) {
-                if (!defined(left)) {
-            throw new DeveloperError('left is required');
-        }
-        if (!defined(right)) {
-            throw new DeveloperError('right is required');
-        }
-        
-        return left.x * right.x + left.y * right.y + left.z * right.z + left.w * right.w;
-    };
-
-    /**
-     * Computes the componentwise product of two Cartesians.
-     *
-     * @param {Cartesian4} left The first Cartesian.
-     * @param {Cartesian4} right The second Cartesian.
-     * @param {Cartesian4} result The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter.
-     */
-    Cartesian4.multiplyComponents = function(left, right, result) {
-                if (!defined(left)) {
-            throw new DeveloperError('left is required');
-        }
-        if (!defined(right)) {
-            throw new DeveloperError('right is required');
-        }
-        if (!defined(result)) {
-            throw new DeveloperError('result is required');
-        }
-        
-        result.x = left.x * right.x;
-        result.y = left.y * right.y;
-        result.z = left.z * right.z;
-        result.w = left.w * right.w;
-        return result;
-    };
-
-    /**
-     * Computes the componentwise sum of two Cartesians.
-     *
-     * @param {Cartesian4} left The first Cartesian.
-     * @param {Cartesian4} right The second Cartesian.
-     * @param {Cartesian4} result The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter.
-     */
-    Cartesian4.add = function(left, right, result) {
-                if (!defined(left)) {
-            throw new DeveloperError('left is required');
-        }
-        if (!defined(right)) {
-            throw new DeveloperError('right is required');
-        }
-        if (!defined(result)) {
-            throw new DeveloperError('result is required');
-        }
-        
-        result.x = left.x + right.x;
-        result.y = left.y + right.y;
-        result.z = left.z + right.z;
-        result.w = left.w + right.w;
-        return result;
-    };
-
-    /**
-     * Computes the componentwise difference of two Cartesians.
-     *
-     * @param {Cartesian4} left The first Cartesian.
-     * @param {Cartesian4} right The second Cartesian.
-     * @param {Cartesian4} result The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter.
-     */
-    Cartesian4.subtract = function(left, right, result) {
-                if (!defined(left)) {
-            throw new DeveloperError('left is required');
-        }
-        if (!defined(right)) {
-            throw new DeveloperError('right is required');
-        }
-        if (!defined(result)) {
-            throw new DeveloperError('result is required');
-        }
-        
-        result.x = left.x - right.x;
-        result.y = left.y - right.y;
-        result.z = left.z - right.z;
-        result.w = left.w - right.w;
-        return result;
-    };
-
-    /**
-     * Multiplies the provided Cartesian componentwise by the provided scalar.
-     *
-     * @param {Cartesian4} cartesian The Cartesian to be scaled.
-     * @param {Number} scalar The scalar to multiply with.
-     * @param {Cartesian4} result The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter.
-     */
-    Cartesian4.multiplyByScalar = function(cartesian, scalar, result) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        if (typeof scalar !== 'number') {
-            throw new DeveloperError('scalar is required and must be a number.');
-        }
-        if (!defined(result)) {
-            throw new DeveloperError('result is required');
-        }
-        
-        result.x = cartesian.x * scalar;
-        result.y = cartesian.y * scalar;
-        result.z = cartesian.z * scalar;
-        result.w = cartesian.w * scalar;
-        return result;
-    };
-
-    /**
-     * Divides the provided Cartesian componentwise by the provided scalar.
-     *
-     * @param {Cartesian4} cartesian The Cartesian to be divided.
-     * @param {Number} scalar The scalar to divide by.
-     * @param {Cartesian4} result The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter.
-     */
-    Cartesian4.divideByScalar = function(cartesian, scalar, result) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        if (typeof scalar !== 'number') {
-            throw new DeveloperError('scalar is required and must be a number.');
-        }
-        if (!defined(result)) {
-            throw new DeveloperError('result is required');
-        }
-        
-        result.x = cartesian.x / scalar;
-        result.y = cartesian.y / scalar;
-        result.z = cartesian.z / scalar;
-        result.w = cartesian.w / scalar;
-        return result;
-    };
-
-    /**
-     * Negates the provided Cartesian.
-     *
-     * @param {Cartesian4} cartesian The Cartesian to be negated.
-     * @param {Cartesian4} result The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter.
-     */
-    Cartesian4.negate = function(cartesian, result) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        if (!defined(result)) {
-            throw new DeveloperError('result is required');
-        }
-        
-        result.x = -cartesian.x;
-        result.y = -cartesian.y;
-        result.z = -cartesian.z;
-        result.w = -cartesian.w;
-        return result;
-    };
-
-    /**
-     * Computes the absolute value of the provided Cartesian.
-     *
-     * @param {Cartesian4} cartesian The Cartesian whose absolute value is to be computed.
-     * @param {Cartesian4} result The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter.
-     */
-    Cartesian4.abs = function(cartesian, result) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required');
-        }
-        if (!defined(result)) {
-            throw new DeveloperError('result is required');
-        }
-        
-        result.x = Math.abs(cartesian.x);
-        result.y = Math.abs(cartesian.y);
-        result.z = Math.abs(cartesian.z);
-        result.w = Math.abs(cartesian.w);
-        return result;
-    };
-
-    var lerpScratch = new Cartesian4();
-    /**
-     * Computes the linear interpolation or extrapolation at t using the provided cartesians.
-     *
-     * @param {Cartesian4} start The value corresponding to t at 0.0.
-     * @param {Cartesian4}end The value corresponding to t at 1.0.
-     * @param {Number} t The point along t at which to interpolate.
-     * @param {Cartesian4} result The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter.
-     */
-    Cartesian4.lerp = function(start, end, t, result) {
-                if (!defined(start)) {
-            throw new DeveloperError('start is required.');
-        }
-        if (!defined(end)) {
-            throw new DeveloperError('end is required.');
-        }
-        if (typeof t !== 'number') {
-            throw new DeveloperError('t is required and must be a number.');
-        }
-        if (!defined(result)) {
-            throw new DeveloperError('result is required.');
-        }
-        
-        Cartesian4.multiplyByScalar(end, t, lerpScratch);
-        result = Cartesian4.multiplyByScalar(start, 1.0 - t, result);
-        return Cartesian4.add(lerpScratch, result, result);
-    };
-
-    var mostOrthogonalAxisScratch = new Cartesian4();
-    /**
-     * Returns the axis that is most orthogonal to the provided Cartesian.
-     *
-     * @param {Cartesian4} cartesian The Cartesian on which to find the most orthogonal axis.
-     * @param {Cartesian4} result The object onto which to store the result.
-     * @returns {Cartesian4} The most orthogonal axis.
-     */
-    Cartesian4.mostOrthogonalAxis = function(cartesian, result) {
-                if (!defined(cartesian)) {
-            throw new DeveloperError('cartesian is required.');
-        }
-        if (!defined(result)) {
-            throw new DeveloperError('result is required.');
-        }
-        
-        var f = Cartesian4.normalize(cartesian, mostOrthogonalAxisScratch);
-        Cartesian4.abs(f, f);
-
-        if (f.x <= f.y) {
-            if (f.x <= f.z) {
-                if (f.x <= f.w) {
-                    result = Cartesian4.clone(Cartesian4.UNIT_X, result);
-                } else {
-                    result = Cartesian4.clone(Cartesian4.UNIT_W, result);
-                }
-            } else if (f.z <= f.w) {
-                result = Cartesian4.clone(Cartesian4.UNIT_Z, result);
-            } else {
-                result = Cartesian4.clone(Cartesian4.UNIT_W, result);
-            }
-        } else if (f.y <= f.z) {
-            if (f.y <= f.w) {
-                result = Cartesian4.clone(Cartesian4.UNIT_Y, result);
-            } else {
-                result = Cartesian4.clone(Cartesian4.UNIT_W, result);
-            }
-        } else if (f.z <= f.w) {
-            result = Cartesian4.clone(Cartesian4.UNIT_Z, result);
-        } else {
-            result = Cartesian4.clone(Cartesian4.UNIT_W, result);
-        }
-
-        return result;
-    };
-
-    /**
-     * Compares the provided Cartesians componentwise and returns
-     * <code>true</code> if they are equal, <code>false</code> otherwise.
-     *
-     * @param {Cartesian4} [left] The first Cartesian.
-     * @param {Cartesian4} [right] The second Cartesian.
-     * @returns {Boolean} <code>true</code> if left and right are equal, <code>false</code> otherwise.
-     */
-    Cartesian4.equals = function(left, right) {
-        return (left === right) ||
-               ((defined(left)) &&
-                (defined(right)) &&
-                (left.x === right.x) &&
-                (left.y === right.y) &&
-                (left.z === right.z) &&
-                (left.w === right.w));
-    };
-
-    /**
-     * Compares the provided Cartesians componentwise and returns
-     * <code>true</code> if they are within the provided epsilon,
-     * <code>false</code> otherwise.
-     *
-     * @param {Cartesian4} [left] The first Cartesian.
-     * @param {Cartesian4} [right] The second Cartesian.
-     * @param {Number} epsilon The epsilon to use for equality testing.
-     * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
-     */
-    Cartesian4.equalsEpsilon = function(left, right, epsilon) {
-                if (typeof epsilon !== 'number') {
-            throw new DeveloperError('epsilon is required and must be a number.');
-        }
-        
-        return (left === right) ||
-               ((defined(left)) &&
-                (defined(right)) &&
-                (Math.abs(left.x - right.x) <= epsilon) &&
-                (Math.abs(left.y - right.y) <= epsilon) &&
-                (Math.abs(left.z - right.z) <= epsilon) &&
-                (Math.abs(left.w - right.w) <= epsilon));
-    };
-
-    /**
-     * An immutable Cartesian4 instance initialized to (0.0, 0.0, 0.0, 0.0).
-     *
-     * @type {Cartesian4}
-     * @constant
-     */
-    Cartesian4.ZERO = freezeObject(new Cartesian4(0.0, 0.0, 0.0, 0.0));
-
-    /**
-     * An immutable Cartesian4 instance initialized to (1.0, 0.0, 0.0, 0.0).
-     *
-     * @type {Cartesian4}
-     * @constant
-     */
-    Cartesian4.UNIT_X = freezeObject(new Cartesian4(1.0, 0.0, 0.0, 0.0));
-
-    /**
-     * An immutable Cartesian4 instance initialized to (0.0, 1.0, 0.0, 0.0).
-     *
-     * @type {Cartesian4}
-     * @constant
-     */
-    Cartesian4.UNIT_Y = freezeObject(new Cartesian4(0.0, 1.0, 0.0, 0.0));
-
-    /**
-     * An immutable Cartesian4 instance initialized to (0.0, 0.0, 1.0, 0.0).
-     *
-     * @type {Cartesian4}
-     * @constant
-     */
-    Cartesian4.UNIT_Z = freezeObject(new Cartesian4(0.0, 0.0, 1.0, 0.0));
-
-    /**
-     * An immutable Cartesian4 instance initialized to (0.0, 0.0, 0.0, 1.0).
-     *
-     * @type {Cartesian4}
-     * @constant
-     */
-    Cartesian4.UNIT_W = freezeObject(new Cartesian4(0.0, 0.0, 0.0, 1.0));
-
-    /**
-     * Duplicates this Cartesian4 instance.
-     *
-     * @param {Cartesian4} [result] The object onto which to store the result.
-     * @returns {Cartesian4} The modified result parameter or a new Cartesian4 instance if one was not provided.
-     */
-    Cartesian4.prototype.clone = function(result) {
-        return Cartesian4.clone(this, result);
-    };
-
-    /**
-     * Compares this Cartesian against the provided Cartesian componentwise and returns
-     * <code>true</code> if they are equal, <code>false</code> otherwise.
-     *
-     * @param {Cartesian4} [right] The right hand side Cartesian.
-     * @returns {Boolean} <code>true</code> if they are equal, <code>false</code> otherwise.
-     */
-    Cartesian4.prototype.equals = function(right) {
-        return Cartesian4.equals(this, right);
-    };
-
-    /**
-     * Compares this Cartesian against the provided Cartesian componentwise and returns
-     * <code>true</code> if they are within the provided epsilon,
-     * <code>false</code> otherwise.
-     *
-     * @param {Cartesian4} [right] The right hand side Cartesian.
-     * @param {Number} epsilon The epsilon to use for equality testing.
-     * @returns {Boolean} <code>true</code> if they are within the provided epsilon, <code>false</code> otherwise.
-     */
-    Cartesian4.prototype.equalsEpsilon = function(right, epsilon) {
-        return Cartesian4.equalsEpsilon(this, right, epsilon);
-    };
-
-    /**
-     * Creates a string representing this Cartesian in the format '(x, y)'.
-     *
-     * @returns {String} A string representing the provided Cartesian in the format '(x, y)'.
-     */
-    Cartesian4.prototype.toString = function() {
-        return '(' + this.x + ', ' + this.y + ', ' + this.z + ', ' + this.w + ')';
-    };
-
-    return Cartesian4;
 });
 
 /*global define*/
@@ -12980,6 +13400,35 @@ define('Core/IndexDatatype',[
         }
 
         return new Uint16Array(indicesLengthOrArray);
+    };
+
+    /**
+     * Creates a typed array from a source array buffer.  The resulting typed array will store indices, using either <code><Uint16Array</code>
+     * or <code>Uint32Array</code> depending on the number of vertices.
+     *
+     * @param {Number} numberOfVertices Number of vertices that the indices will reference.
+     * @param {ArrayBuffer} sourceArray Passed through to the typed array constructor.
+     * @param {byteOffset} byteOffset Passed through to the typed array constructor.
+     * @param {length} length Passed through to the typed array constructor.
+     * @returns {Uint16Aray|Uint32Array} A <code>Uint16Array</code> or <code>Uint32Array</code> constructed with <code>sourceArray</code>, <code>byteOffset</code>, and <code>length</code>.
+     *
+     */
+    IndexDatatype.createTypedArrayFromArrayBuffer = function(numberOfVertices, sourceArray, byteOffset, length) {
+                if (!defined(numberOfVertices)) {
+            throw new DeveloperError('numberOfVertices is required.');
+        }
+        if (!defined(sourceArray)) {
+            throw new DeveloperError('sourceArray is required.');
+        }
+        if (!defined(byteOffset)) {
+            throw new DeveloperError('byteOffset is required.');
+        }
+        
+        if (numberOfVertices > CesiumMath.SIXTY_FOUR_KILOBYTES) {
+            return new Uint32Array(sourceArray, byteOffset, length);
+        }
+
+        return new Uint16Array(sourceArray, byteOffset, length);
     };
 
     return freezeObject(IndexDatatype);
@@ -14748,97 +15197,6 @@ define('Core/Plane',[
 });
 
 /*global define*/
-define('Core/PrimitiveType',[
-        './freezeObject'
-    ], function(
-        freezeObject) {
-    "use strict";
-
-    /**
-     * The type of a geometric primitive, i.e., points, lines, and triangles.
-     *
-     * @namespace
-     * @alias PrimitiveType
-     */
-    var PrimitiveType = {
-        /**
-         * 0x0000.  Points primitive where each vertex (or index) is a separate point.
-         *
-         * @type {Number}
-         * @constant
-         */
-        POINTS : 0x0000,
-
-        /**
-         * 0x0001.  Lines primitive where each two vertices (or indices) is a line segment.  Line segments are not necessarily connected.
-         *
-         * @type {Number}
-         * @constant
-         */
-        LINES : 0x0001,
-
-        /**
-         * 0x0002.  Line loop primitive where each vertex (or index) after the first connects a line to
-         * the previous vertex, and the last vertex implicitly connects to the first.
-         *
-         * @type {Number}
-         * @constant
-         */
-        LINE_LOOP : 0x0002,
-
-        /**
-         * 0x0003.  Line strip primitive where each vertex (or index) after the first connects a line to the previous vertex.
-         *
-         * @type {Number}
-         * @constant
-         */
-        LINE_STRIP : 0x0003,
-
-        /**
-         * 0x0004.  Triangles primitive where each three vertices (or indices) is a triangle.  Triangles do not necessarily share edges.
-         *
-         * @type {Number}
-         * @constant
-         */
-        TRIANGLES : 0x0004,
-
-        /**
-         * 0x0005.  Triangle strip primitive where each vertex (or index) after the first two connect to
-         * the previous two vertices forming a triangle.  For example, this can be used to model a wall.
-         *
-         * @type {Number}
-         * @constant
-         */
-        TRIANGLE_STRIP : 0x0005,
-
-        /**
-         * 0x0006.  Triangle fan primitive where each vertex (or index) after the first two connect to
-         * the previous vertex and the first vertex forming a triangle.  For example, this can be used
-         * to model a cone or circle.
-         *
-         * @type {Number}
-         * @constant
-         */
-        TRIANGLE_FAN : 0x0006,
-
-        /**
-         * @private
-         */
-        validate : function(primitiveType) {
-            return primitiveType === PrimitiveType.POINTS ||
-                   primitiveType === PrimitiveType.LINES ||
-                   primitiveType === PrimitiveType.LINE_LOOP ||
-                   primitiveType === PrimitiveType.LINE_STRIP ||
-                   primitiveType === PrimitiveType.TRIANGLES ||
-                   primitiveType === PrimitiveType.TRIANGLE_STRIP ||
-                   primitiveType === PrimitiveType.TRIANGLE_FAN;
-        }
-    };
-
-    return freezeObject(PrimitiveType);
-});
-
-/*global define*/
 define('Core/Tipsify',[
         './defaultValue',
         './defined',
@@ -15134,6 +15492,7 @@ define('Core/Tipsify',[
 
 /*global define*/
 define('Core/GeometryPipeline',[
+        './AttributeCompression',
         './barycentricCoordinates',
         './BoundingSphere',
         './Cartesian2',
@@ -15158,6 +15517,7 @@ define('Core/GeometryPipeline',[
         './PrimitiveType',
         './Tipsify'
     ], function(
+        AttributeCompression,
         barycentricCoordinates,
         BoundingSphere,
         Cartesian2,
@@ -15403,7 +15763,10 @@ define('Core/GeometryPipeline',[
             'normal',
             'st',
             'binormal',
-            'tangent'
+            'tangent',
+
+            // From compressing texture coordinates and normals
+            'compressedAttributes'
         ];
 
         var attributes = geometry.attributes;
@@ -16403,6 +16766,119 @@ define('Core/GeometryPipeline',[
             componentsPerAttribute : 3,
             values : binormalValues
         });
+
+        return geometry;
+    };
+
+    var scratchCartesian2 = new Cartesian2();
+    var toEncode1 = new Cartesian3();
+    var toEncode2 = new Cartesian3();
+    var toEncode3 = new Cartesian3();
+
+    /**
+     * Compresses and packs geometry normal attribute values to save memory.
+     *
+     * @param {Geometry} geometry The geometry to modify.
+     * @returns {Geometry} The modified <code>geometry</code> argument, with its normals compressed and packed.
+     *
+     * @example
+     * geometry = Cesium.GeometryPipeline.compressVertices(geometry);
+     */
+    GeometryPipeline.compressVertices = function(geometry) {
+                if (!defined(geometry)) {
+            throw new DeveloperError('geometry is required.');
+        }
+        
+        var normalAttribute = geometry.attributes.normal;
+        var stAttribute = geometry.attributes.st;
+        if (!defined(normalAttribute) && !defined(stAttribute)) {
+            return geometry;
+        }
+
+        var tangentAttribute = geometry.attributes.tangent;
+        var binormalAttribute = geometry.attributes.binormal;
+
+        var normals;
+        var st;
+        var tangents;
+        var binormals;
+
+        if (defined(normalAttribute)) {
+            normals = normalAttribute.values;
+        }
+        if (defined(stAttribute)) {
+            st = stAttribute.values;
+        }
+        if (defined(tangentAttribute)) {
+            tangents = tangentAttribute.values;
+        }
+        if (binormalAttribute) {
+            binormals = binormalAttribute.values;
+        }
+
+        var length = defined(normals) ? normals.length : st.length;
+        var numComponents = defined(normals) ? 3.0 : 2.0;
+        var numVertices = length / numComponents;
+
+        var compressedLength = numVertices;
+        var numCompressedComponents = defined(st) && defined(normals) ? 2.0 : 1.0;
+        numCompressedComponents += defined(tangents) || defined(binormals) ? 1.0 : 0.0;
+        compressedLength *= numCompressedComponents;
+
+        var compressedAttributes = new Float32Array(compressedLength);
+
+        var normalIndex = 0;
+        for (var i = 0; i < numVertices; ++i) {
+            if (defined(st)) {
+                Cartesian2.fromArray(st, i * 2.0, scratchCartesian2);
+                compressedAttributes[normalIndex++] = AttributeCompression.compressTextureCoordinates(scratchCartesian2);
+            }
+
+            var index = i * 3.0;
+            if (defined(normals) && defined(tangents) && defined(binormals)) {
+                Cartesian3.fromArray(normals, index, toEncode1);
+                Cartesian3.fromArray(tangents, index, toEncode2);
+                Cartesian3.fromArray(binormals, index, toEncode3);
+
+                AttributeCompression.octPack(toEncode1, toEncode2, toEncode3, scratchCartesian2);
+                compressedAttributes[normalIndex++] = scratchCartesian2.x;
+                compressedAttributes[normalIndex++] = scratchCartesian2.y;
+            } else {
+                if (defined(normals)) {
+                    Cartesian3.fromArray(normals, index, toEncode1);
+                    compressedAttributes[normalIndex++] = AttributeCompression.octEncodeFloat(toEncode1);
+                }
+
+                if (defined(tangents)) {
+                    Cartesian3.fromArray(tangents, index, toEncode1);
+                    compressedAttributes[normalIndex++] = AttributeCompression.octEncodeFloat(toEncode1);
+                }
+
+                if (defined(binormals)) {
+                    Cartesian3.fromArray(binormals, index, toEncode1);
+                    compressedAttributes[normalIndex++] = AttributeCompression.octEncodeFloat(toEncode1);
+                }
+            }
+        }
+
+        geometry.attributes.compressedAttributes = new GeometryAttribute({
+            componentDatatype : ComponentDatatype.FLOAT,
+            componentsPerAttribute : numCompressedComponents,
+            values : compressedAttributes
+        });
+
+        if (defined(normals)) {
+            delete geometry.attributes.normal;
+        }
+        if (defined(st)) {
+            delete geometry.attributes.st;
+        }
+        if (defined(tangents)) {
+            delete geometry.attributes.tangent;
+        }
+        if (defined(binormals)) {
+            delete geometry.attributes.binormal;
+        }
 
         return geometry;
     };
