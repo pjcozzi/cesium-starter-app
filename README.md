@@ -31,7 +31,7 @@ No python?  Use Cesium's node.js server.
 
 * Install [node.js](http://nodejs.org/)
 * From the `cesium-starter-app` root directory, run
-   * `npm install connect`
+   * `npm install`
    * `node server.js`
 
 Browse to `http://localhost:8000/`
