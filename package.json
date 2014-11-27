@@ -8,10 +8,13 @@
         "type": "git",
         "url": "hhttps://github.com/pjcozzi/cesium-starter-app"
     },
-    "devDependencies": {
-        "express": "4.4.4",
+    "dependencies": {
+      "express": "~4.9.x",
         "compression": "1.0.8",
         "request": "2.36.0",
         "yargs": "1.2.6"
+    },
+    "engines": {
+      "node": "0.10.x"
     }
 }
