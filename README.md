@@ -41,7 +41,7 @@ Heroku server
 
 It is simple to get an app up and running on a public server hosted by [Heroku](http://heroku.com/).  Depending on your app requirements this can often be done at no cost.
 
-* Make sure you have the heroku toolbelt installed
+* Make sure you have the [heroku toolbelt](https://toolbelt.heroku.com/) installed
 * `heroku create my-awesome-cesium-starter-app`
 * `git push heroku master`
 
