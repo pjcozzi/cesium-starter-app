@@ -36,6 +36,15 @@ No python?  Use Cesium's node.js server.
 
 Browse to `http://localhost:8000/`
 
+Heroku server
+-------------
+
+It is simple to get an app up and running on a public server hosted by Heroku.
+
+* Make sure you have the heroku toolbelt installed
+* `heroku create my-awesome-cesium-starter-app`
+* `git push heroku master`
+
 What's here?
 ------------
 
