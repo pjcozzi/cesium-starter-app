@@ -44,6 +44,7 @@ It is simple to get an app up and running on a public server hosted by [Heroku](
 * Make sure you have the [heroku toolbelt](https://toolbelt.heroku.com/) installed
 * `heroku create my-awesome-cesium-starter-app`
 * `git push heroku master`
+* If that succeeds you should be able to view your app with a URL like [https://**my-awesome-cesium-starter-app**.herokuapp.com](https://my-awesome-cesium-starter-app.herokuapp.com)
 
 What's here?
 ------------
