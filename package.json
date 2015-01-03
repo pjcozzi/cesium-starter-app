@@ -9,7 +9,7 @@
         "url": "hhttps://github.com/pjcozzi/cesium-starter-app"
     },
     "dependencies": {
-      "express": "~4.9.x",
+        "express": "~4.9.x",
         "compression": "1.0.8",
         "request": "2.36.0",
         "yargs": "1.2.6"
