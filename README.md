@@ -36,24 +36,6 @@ No python?  Use Cesium's node.js server.
 
 Browse to `http://localhost:8000/`
 
-Hosting your app on GitHub Pages
---------------------------------
-
-If your app only requires static file serving (i.e. no proxying etc) it can be hosted using [GitHub Pages](https://pages.github.com/).
-* Push your app to a gh-pages branch on github.  If you want to push from master you can use this command:
-  `git push origin master:gh-pages`
-* After about 10 mins or so you can view your app with a URL like [http:/**my-github-username**.github.io/**my-awesome-cesium-starter-app**/](http://my-github-username.github.io/my-awesome-cesium-starter-app/)
-
-Hosting your app on Heroku
---------------------------
-
-It is simple to get an app up and running on a public server hosted by [Heroku](http://heroku.com/).  This will use the node server in this repo.  Depending on your app requirements this can often be done at no cost.
-
-* Make sure you have the [heroku toolbelt](https://toolbelt.heroku.com/) installed
-* `heroku create my-awesome-cesium-starter-app`
-* `git push heroku master`
-* If that succeeds you should be able to view your app with a URL like [https://**my-awesome-cesium-starter-app**.herokuapp.com](https://my-awesome-cesium-starter-app.herokuapp.com)
-
 What's here?
 ------------
 
@@ -78,6 +60,24 @@ If you use Eclipse as your JavaScript IDE, it is easy to important the `cesium-s
 * Next to `Select root directory`, click `Browse`
 * Browse to the `cesium-starter-app` root directory and click `Open`
 * Click `Finish`
+
+Hosting your app on GitHub Pages
+--------------------------------
+
+If your app only requires static file serving (i.e. no proxying etc) it can be hosted using [GitHub Pages](https://pages.github.com/).
+* Push your app to a gh-pages branch on github.  If you want to push from master you can use this command:
+  `git push origin master:gh-pages`
+* After about 10 mins or so you can view your app with a URL like [http:/**my-github-username**.github.io/**my-awesome-cesium-starter-app**/](http://my-github-username.github.io/my-awesome-cesium-starter-app/)
+
+Hosting your app on Heroku
+--------------------------
+
+It is simple to get an app up and running on a public server hosted by [Heroku](http://heroku.com/).  This will use the node server in this repo.  Depending on your app requirements this can often be done at no cost.
+
+* Make sure you have the [heroku toolbelt](https://toolbelt.heroku.com/) installed
+* `heroku create my-awesome-cesium-starter-app`
+* `git push heroku master`
+* If that succeeds you should be able to view your app with a URL like [https://**my-awesome-cesium-starter-app**.herokuapp.com](https://my-awesome-cesium-starter-app.herokuapp.com)
 
 Updating Cesium
 ---------------
