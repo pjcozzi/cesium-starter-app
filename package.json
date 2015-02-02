@@ -6,7 +6,7 @@
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
-        "url": "hhttps://github.com/pjcozzi/cesium-starter-app"
+        "url": "https://github.com/pjcozzi/cesium-starter-app"
     },
     "dependencies": {
         "express": "~4.9.x",
