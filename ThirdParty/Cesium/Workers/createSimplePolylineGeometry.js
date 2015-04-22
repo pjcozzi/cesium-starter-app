@@ -1,7 +1,7 @@
 /**
  * Cesium - https://github.com/AnalyticalGraphicsInc/cesium
  *
- * Copyright 2011-2014 Cesium Contributors
+ * Copyright 2011-2015 Cesium Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1793,6 +1793,15 @@ define('Core/Cartesian3',[
     };
 
     /**
+     * @private
+     */
+    Cartesian3.equalsArray = function(cartesian, array, offset) {
+        return cartesian.x === array[offset] &&
+               cartesian.y === array[offset + 1] &&
+               cartesian.z === array[offset + 2];
+    };
+
+    /**
      * Compares the provided Cartesians componentwise and returns
      * <code>true</code> if they pass an absolute or relative tolerance test,
      * <code>false</code> otherwise.
@@ -2107,15 +2116,16 @@ define('Core/Cartesian3',[
 
     /**
      * Compares this Cartesian against the provided Cartesian componentwise and returns
-     * <code>true</code> if they are within the provided epsilon,
+     * <code>true</code> if they pass an absolute or relative tolerance test,
      * <code>false</code> otherwise.
      *
      * @param {Cartesian3} [right] The right hand side Cartesian.
-     * @param {Number} epsilon The epsilon to use for equality testing.
+     * @param {Number} relativeEpsilon The relative epsilon tolerance to use for equality testing.
+     * @param {Number} [absoluteEpsilon=relativeEpsilon] The absolute epsilon tolerance to use for equality testing.
      * @returns {Boolean} <code>true</code> if they are within the provided epsilon, <code>false</code> otherwise.
      */
-    Cartesian3.prototype.equalsEpsilon = function(right, epsilon) {
-        return Cartesian3.equalsEpsilon(this, right, epsilon);
+    Cartesian3.prototype.equalsEpsilon = function(right, relativeEpsilon, absoluteEpsilon) {
+        return Cartesian3.equalsEpsilon(this, right, relativeEpsilon, absoluteEpsilon);
     };
 
     /**
@@ -2629,6 +2639,51 @@ define('Core/Ellipsoid',[
      */
     Ellipsoid.prototype.clone = function(result) {
         return Ellipsoid.clone(this, result);
+    };
+
+    /**
+     * The number of elements used to pack the object into an array.
+     * @type {Number}
+     */
+    Ellipsoid.packedLength = Cartesian3.packedLength;
+
+    /**
+     * Stores the provided instance into the provided array.
+     * @function
+     *
+     * @param {Object} value The value to pack.
+     * @param {Number[]} array The array to pack into.
+     * @param {Number} [startingIndex=0] The index into the array at which to start packing the elements.
+     */
+    Ellipsoid.pack = function(value, array, startingIndex) {
+                if (!defined(value)) {
+            throw new DeveloperError('value is required');
+        }
+        if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        Cartesian3.pack(value._radii, array, startingIndex);
+    };
+
+    /**
+     * Retrieves an instance from a packed array.
+     *
+     * @param {Number[]} array The packed array.
+     * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
+     * @param {Ellipsoid} [result] The object into which to store the result.
+     */
+    Ellipsoid.unpack = function(array, startingIndex, result) {
+                if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        var radii = Cartesian3.unpack(array, startingIndex);
+        return Ellipsoid.fromCartesian3(radii, result);
     };
 
     /**
@@ -3874,6 +3929,16 @@ define('Core/Cartesian4',[
     };
 
     /**
+     * @private
+     */
+    Cartesian4.equalsArray = function(cartesian, array, offset) {
+        return cartesian.x === array[offset] &&
+               cartesian.y === array[offset + 1] &&
+               cartesian.z === array[offset + 2] &&
+               cartesian.w === array[offset + 3];
+    };
+
+    /**
      * Compares the provided Cartesians componentwise and returns
      * <code>true</code> if they pass an absolute or relative tolerance test,
      * <code>false</code> otherwise.
@@ -3957,15 +4022,16 @@ define('Core/Cartesian4',[
 
     /**
      * Compares this Cartesian against the provided Cartesian componentwise and returns
-     * <code>true</code> if they are within the provided epsilon,
+     * <code>true</code> if they pass an absolute or relative tolerance test,
      * <code>false</code> otherwise.
      *
      * @param {Cartesian4} [right] The right hand side Cartesian.
-     * @param {Number} epsilon The epsilon to use for equality testing.
+     * @param {Number} relativeEpsilon The relative epsilon tolerance to use for equality testing.
+     * @param {Number} [absoluteEpsilon=relativeEpsilon] The absolute epsilon tolerance to use for equality testing.
      * @returns {Boolean} <code>true</code> if they are within the provided epsilon, <code>false</code> otherwise.
      */
-    Cartesian4.prototype.equalsEpsilon = function(right, epsilon) {
-        return Cartesian4.equalsEpsilon(this, right, epsilon);
+    Cartesian4.prototype.equalsEpsilon = function(right, relativeEpsilon, absoluteEpsilon) {
+        return Cartesian4.equalsEpsilon(this, right, relativeEpsilon, absoluteEpsilon);
     };
 
     /**
@@ -4033,6 +4099,71 @@ define('Core/Matrix3',[
         this[6] = defaultValue(column2Row0, 0.0);
         this[7] = defaultValue(column2Row1, 0.0);
         this[8] = defaultValue(column2Row2, 0.0);
+    };
+
+    /**
+     * The number of elements used to pack the object into an array.
+     * @type {Number}
+     */
+    Matrix3.packedLength = 9;
+
+    /**
+     * Stores the provided instance into the provided array.
+     *
+     * @param {Matrix3} value The value to pack.
+     * @param {Number[]} array The array to pack into.
+     * @param {Number} [startingIndex=0] The index into the array at which to start packing the elements.
+     */
+    Matrix3.pack = function(value, array, startingIndex) {
+                if (!defined(value)) {
+            throw new DeveloperError('value is required');
+        }
+
+        if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        array[startingIndex++] = value[0];
+        array[startingIndex++] = value[1];
+        array[startingIndex++] = value[2];
+        array[startingIndex++] = value[3];
+        array[startingIndex++] = value[4];
+        array[startingIndex++] = value[5];
+        array[startingIndex++] = value[6];
+        array[startingIndex++] = value[7];
+        array[startingIndex++] = value[8];
+    };
+
+    /**
+     * Retrieves an instance from a packed array.
+     *
+     * @param {Number[]} array The packed array.
+     * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
+     * @param {Matrix3} [result] The object into which to store the result.
+     */
+    Matrix3.unpack = function(array, startingIndex, result) {
+                if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        if (!defined(result)) {
+            result = new Matrix3();
+        }
+
+        result[0] = array[startingIndex++];
+        result[1] = array[startingIndex++];
+        result[2] = array[startingIndex++];
+        result[3] = array[startingIndex++];
+        result[4] = array[startingIndex++];
+        result[5] = array[startingIndex++];
+        result[6] = array[startingIndex++];
+        result[7] = array[startingIndex++];
+        result[8] = array[startingIndex++];
+        return result;
     };
 
     /**
@@ -5300,6 +5431,21 @@ define('Core/Matrix3',[
      */
     Matrix3.prototype.equals = function(right) {
         return Matrix3.equals(this, right);
+    };
+
+    /**
+     * @private
+     */
+    Matrix3.equalsArray = function(matrix, array, offset) {
+        return matrix[0] === array[offset] &&
+               matrix[1] === array[offset + 1] &&
+               matrix[2] === array[offset + 2] &&
+               matrix[3] === array[offset + 3] &&
+               matrix[4] === array[offset + 4] &&
+               matrix[5] === array[offset + 5] &&
+               matrix[6] === array[offset + 6] &&
+               matrix[7] === array[offset + 7] &&
+               matrix[8] === array[offset + 8];
     };
 
     /**
@@ -7958,6 +8104,28 @@ define('Core/Matrix4',[
     };
 
     /**
+     * @private
+     */
+    Matrix4.equalsArray = function(matrix, array, offset) {
+        return matrix[0] === array[offset] &&
+               matrix[1] === array[offset + 1] &&
+               matrix[2] === array[offset + 2] &&
+               matrix[3] === array[offset + 3] &&
+               matrix[4] === array[offset + 4] &&
+               matrix[5] === array[offset + 5] &&
+               matrix[6] === array[offset + 6] &&
+               matrix[7] === array[offset + 7] &&
+               matrix[8] === array[offset + 8] &&
+               matrix[9] === array[offset + 9] &&
+               matrix[10] === array[offset + 10] &&
+               matrix[11] === array[offset + 11] &&
+               matrix[12] === array[offset + 12] &&
+               matrix[13] === array[offset + 13] &&
+               matrix[14] === array[offset + 14] &&
+               matrix[15] === array[offset + 15];
+    };
+
+    /**
      * Compares this matrix to the provided matrix componentwise and returns
      * <code>true</code> if they are within the provided epsilon,
      * <code>false</code> otherwise.
@@ -7986,76 +8154,12 @@ define('Core/Matrix4',[
     return Matrix4;
 });
 
-/*global define,console*/
-define('Core/deprecationWarning',[
-        './defined',
-        './DeveloperError'
-    ], function(
-        defined,
-        DeveloperError) {
-    "use strict";
-
-    var warnings = {};
-
-    /**
-     * Logs a deprecation message to the console.  Use this function instead of
-     * <code>console.log</code> directly since this does not log duplicate messages
-     * unless it is called from multiple workers.
-     *
-     * @exports deprecationWarning
-     *
-     * @param {String} identifier The unique identifier for this deprecated API.
-     * @param {String} message The message to log to the console.
-     *
-     * @example
-     * // Deprecated function or class
-     * var Foo = function() {
-     *    deprecationWarning('Foo', 'Foo was deprecated in Cesium 1.01.  It will be removed in 1.03.  Use newFoo instead.');
-     *    // ...
-     * }
-     *
-     * // Deprecated function
-     * Bar.prototype.func = function() {
-     *    deprecationWarning('Bar.func', 'Bar.func() was deprecated in Cesium 1.01.  It will be removed in 1.03.  Use Bar.newFunc() instead.');
-     *    // ...
-     * };
-     *
-     * // Deprecated property
-     * defineProperties(Bar.prototype, {
-     *     prop : {
-     *         get : function() {
-     *             deprecationWarning('Bar.prop', 'Bar.prop was deprecated in Cesium 1.01.  It will be removed in 1.03.  Use Bar.newProp instead.');
-     *             // ...
-     *         },
-     *         set : function(value) {
-     *             deprecationWarning('Bar.prop', 'Bar.prop was deprecated in Cesium 1.01.  It will be removed in 1.03.  Use Bar.newProp instead.');
-     *             // ...
-     *         }
-     *     }
-     * });
-     *
-     * @private
-     */
-    var deprecationWarning = function(identifier, message) {
-                if (!defined(identifier) || !defined(message)) {
-            throw new DeveloperError('identifier and message are required.');
-        }
-        
-        if (!defined(warnings[identifier])) {
-            warnings[identifier] = true;
-            console.log(message);
-        }
-    };
-
-    return deprecationWarning;
-});
 /*global define*/
 define('Core/Rectangle',[
         './Cartographic',
         './defaultValue',
         './defined',
         './defineProperties',
-        './deprecationWarning',
         './DeveloperError',
         './Ellipsoid',
         './freezeObject',
@@ -8065,7 +8169,6 @@ define('Core/Rectangle',[
         defaultValue,
         defined,
         defineProperties,
-        deprecationWarning,
         DeveloperError,
         Ellipsoid,
         freezeObject,
@@ -8142,6 +8245,61 @@ define('Core/Rectangle',[
             }
         }
     });
+
+    /**
+     * The number of elements used to pack the object into an array.
+     * @type {Number}
+     */
+    Rectangle.packedLength = 4;
+
+    /**
+     * Stores the provided instance into the provided array.
+     *
+     * @param {BoundingSphere} value The value to pack.
+     * @param {Number[]} array The array to pack into.
+     * @param {Number} [startingIndex=0] The index into the array at which to start packing the elements.
+     */
+    Rectangle.pack = function(value, array, startingIndex) {
+                if (!defined(value)) {
+            throw new DeveloperError('value is required');
+        }
+
+        if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        array[startingIndex++] = value.west;
+        array[startingIndex++] = value.south;
+        array[startingIndex++] = value.east;
+        array[startingIndex] = value.north;
+    };
+
+    /**
+     * Retrieves an instance from a packed array.
+     *
+     * @param {Number[]} array The packed array.
+     * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
+     * @param {Rectangle} [result] The object into which to store the result.
+     */
+    Rectangle.unpack = function(array, startingIndex, result) {
+                if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        if (!defined(result)) {
+            result = new Rectangle();
+        }
+
+        result.west = array[startingIndex++];
+        result.south = array[startingIndex++];
+        result.east = array[startingIndex++];
+        result.north = array[startingIndex];
+        return result;
+    };
 
     /**
      * Computes the width of a rectangle in radians.
@@ -8600,59 +8758,6 @@ define('Core/Rectangle',[
         result.east = east;
         result.north = north;
         return result;
-    };
-
-    /**
-     * Computes the intersection of two rectangles
-     *
-     * @deprecated
-     *
-     * @param {Rectangle} rectangle On rectangle to find an intersection
-     * @param {Rectangle} otherRectangle Another rectangle to find an intersection
-     * @param {Rectangle} [result] The object onto which to store the result.
-     * @returns {Rectangle} The modified result parameter or a new Rectangle instance if none was provided.
-     */
-    Rectangle.intersectWith = function(rectangle, otherRectangle, result) {
-        deprecationWarning('Rectangle.intersectWith', 'Rectangle.intersectWith was deprecated in Cesium 1.5. It will be removed in Cesium 1.6. Use Rectangle.intersection.');
-
-                if (!defined(rectangle)) {
-            throw new DeveloperError('rectangle is required');
-        }
-        if (!defined(otherRectangle)) {
-            throw new DeveloperError('otherRectangle is required.');
-        }
-        
-        var west = Math.max(rectangle.west, otherRectangle.west);
-        var south = Math.max(rectangle.south, otherRectangle.south);
-        var east = Math.min(rectangle.east, otherRectangle.east);
-        var north = Math.min(rectangle.north, otherRectangle.north);
-        if (!defined(result)) {
-            return new Rectangle(west, south, east, north);
-        }
-        result.west = west;
-        result.south = south;
-        result.east = east;
-        result.north = north;
-        return result;
-    };
-
-    /**
-     * Determines if the rectangle is empty, i.e., if <code>west >= east</code>
-     * or <code>south >= north</code>.
-     *
-     * @deprecated
-     *
-     * @param {Rectangle} rectangle The rectangle
-     * @returns {Boolean} True if the rectangle is empty; otherwise, false.
-     */
-    Rectangle.isEmpty = function(rectangle) {
-        deprecationWarning('Rectangle.isEmpty', 'Rectangle.isEmpty was deprecated in Cesium 1.5. It will be removed in Cesium 1.6.');
-
-                if (!defined(rectangle)) {
-            throw new DeveloperError('rectangle is required');
-        }
-        
-        return rectangle.west >= rectangle.east || rectangle.south >= rectangle.north;
     };
 
     /**
@@ -9312,6 +9417,53 @@ define('Core/BoundingSphere',[
         return result;
     };
 
+    var fromBoundingSpheresScratch = new Cartesian3();
+
+    /**
+     * Computes a tight-fitting bounding sphere enclosing the provided array of bounding spheres.
+     *
+     * @param {BoundingSphere[]} boundingSpheres The array of bounding spheres.
+     * @param {BoundingSphere} [result] The object onto which to store the result.
+     * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
+     */
+    BoundingSphere.fromBoundingSpheres = function(boundingSpheres, result) {
+        if (!defined(result)) {
+            result = new BoundingSphere();
+        }
+
+        if (!defined(boundingSpheres) || boundingSpheres.length === 0) {
+            result.center = Cartesian3.clone(Cartesian3.ZERO, result.center);
+            result.radius = 0.0;
+            return result;
+        }
+
+        var length = boundingSpheres.length;
+        if (length === 1) {
+            return BoundingSphere.clone(boundingSpheres[0], result);
+        }
+
+        if (length === 2) {
+            return BoundingSphere.union(boundingSpheres[0], boundingSpheres[1], result);
+        }
+
+        var positions = [];
+        for (var i = 0; i < length; i++) {
+            positions.push(boundingSpheres[i].center);
+        }
+
+        result = BoundingSphere.fromPoints(positions, result);
+
+        var center = result.center;
+        var radius = result.radius;
+        for (i = 0; i < length; i++) {
+            var tmp = boundingSpheres[i];
+            radius = Math.max(radius, Cartesian3.distance(center, tmp.center, fromBoundingSpheresScratch) + tmp.radius);
+        }
+        result.radius = radius;
+
+        return result;
+    };
+
     /**
      * Duplicates a BoundingSphere instance.
      *
@@ -9369,7 +9521,7 @@ define('Core/BoundingSphere',[
      *
      * @param {Number[]} array The packed array.
      * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
-     * @param {Cartesian3} [result] The object into which to store the result.
+     * @param {BoundingSphere} [result] The object into which to store the result.
      */
     BoundingSphere.unpack = function(array, startingIndex, result) {
                 if (!defined(array)) {
@@ -10159,8 +10311,29 @@ define('Core/FeatureDetection',[
         return isFirefoxResult;
     }
 
+    var isWindowsResult;
+    function isWindows() {
+        if (!defined(isWindowsResult)) {
+            isWindowsResult = /Windows/i.test(navigator.appVersion);
+        }
+        return isWindowsResult;
+    }
+
+
     function firefoxVersion() {
         return isFirefox() && firefoxVersionResult;
+    }
+
+    var hasPointerEvents;
+    function supportsPointerEvents() {
+        if (!defined(hasPointerEvents)) {
+            //While window.navigator.pointerEnabled is deprecated in the W3C specification
+            //we still need to use it if it exists in order to support browsers
+            //that rely on it, such as the Windows WebBrowser control which defines
+            //window.PointerEvent but sets window.navigator.pointerEnabled to false.
+            hasPointerEvents = defined(window.PointerEvent) && (!defined(window.navigator.pointerEnabled) || window.navigator.pointerEnabled);
+        }
+        return hasPointerEvents;
     }
 
     /**
@@ -10181,7 +10354,9 @@ define('Core/FeatureDetection',[
         internetExplorerVersion : internetExplorerVersion,
         isFirefox : isFirefox,
         firefoxVersion : firefoxVersion,
-        hardwareConcurrency : defaultValue(navigator.hardwareConcurrency, 3)
+        isWindows : isWindows,
+        hardwareConcurrency : defaultValue(navigator.hardwareConcurrency, 3),
+        supportsPointerEvents : supportsPointerEvents
     };
 
     /**
@@ -10328,14 +10503,54 @@ define('Core/Color',[
      * @param {Number} [green=255] The green component.
      * @param {Number} [blue=255] The blue component.
      * @param {Number} [alpha=255] The alpha component.
-     * @returns {Color} A new color instance.
+     * @param {Color} [result] The object onto which to store the result.
+     * @returns {Color} The modified result parameter or a new Color instance if one was not provided.
      */
-    Color.fromBytes = function(red, green, blue, alpha) {
+    Color.fromBytes = function(red, green, blue, alpha, result) {
         red = Color.byteToFloat(defaultValue(red, 255.0));
         green = Color.byteToFloat(defaultValue(green, 255.0));
         blue = Color.byteToFloat(defaultValue(blue, 255.0));
         alpha = Color.byteToFloat(defaultValue(alpha, 255.0));
-        return new Color(red, green, blue, alpha);
+
+        if (!defined(result)) {
+            return new Color(red, green, blue, alpha);
+        }
+
+        result.red = red;
+        result.green = green;
+        result.blue = blue;
+        result.alpha = alpha;
+        return result;
+    };
+
+    /**
+     * Creates a new Color that has the same red, green, and blue components
+     * of the specified color, but with the specified alpha value.
+     *
+     * @param {Color} color The base color
+     * @param {Number} alpha The new alpha component.
+     * @param {Color} [result] The object onto which to store the result.
+     * @returns {Color} The modified result parameter or a new Color instance if one was not provided.
+     *
+     * @example var translucentRed = Cesium.Color.fromColor(Cesium.Color.RED, 0.9);
+     */
+    Color.fromAlpha = function(color, alpha, result) {
+                if (!defined(color)) {
+            throw new DeveloperError('color is required');
+        }
+        if (!defined(alpha)) {
+            throw new DeveloperError('alpha is required');
+        }
+        
+        if (!defined(result)) {
+            return new Color(color.red, color.green, color.blue, alpha);
+        }
+
+        result.red = color.red;
+        result.green = color.green;
+        result.blue = color.blue;
+        result.alpha = alpha;
+        return result;
     };
 
     var scratchArrayBuffer;
@@ -10685,6 +10900,16 @@ define('Core/Color',[
     };
 
     /**
+     * @private
+     */
+    Color.equalsArray = function(color, array, offset) {
+        return color.red === array[offset] &&
+               color.green === array[offset + 1] &&
+               color.blue === array[offset + 2] &&
+               color.alpha === array[offset + 3];
+    };
+
+    /**
      * Returns a duplicate of a Color instance.
      *
      * @param {Color} [result] The object to store the result in, if undefined a new instance will be created.
@@ -10845,6 +11070,20 @@ define('Core/Color',[
         result.blue = this.blue * magnitude;
         result.alpha = this.alpha;
         return result;
+    };
+
+    /**
+     * Creates a new Color that has the same red, green, and blue components
+     * as this Color, but with the specified alpha value.
+     *
+     * @param {Number} alpha The new alpha component.
+     * @param {Color} [result] The object onto which to store the result.
+     * @returns {Color} The modified result parameter or a new Color instance if one was not provided.
+     *
+     * @example var translucentRed = Cesium.Color.RED.withAlpha(0.9);
+     */
+    Color.prototype.withAlpha = function(alpha, result) {
+        return Color.fromAlpha(this, alpha, result);
     };
 
     /**
@@ -12160,6 +12399,15 @@ define('Core/Color',[
      */
     Color.YELLOWGREEN = freezeObject(Color.fromCssColorString('#9ACD32'));
 
+    /**
+     * An immutable Color instance initialized to CSS transparent.
+     * <span class="colorSwath" style="background: transparent;"></span>
+     *
+     * @constant
+     * @type {Color}
+     */
+    Color.TRANSPARENT = freezeObject(new Color(0, 0, 0, 0));
+
     return Color;
 });
 
@@ -13293,10 +13541,10 @@ define('Core/EllipsoidGeodesic',[
         vincentyInverseFormula(ellipsoidGeodesic, ellipsoid.maximumRadius, ellipsoid.minimumRadius,
                                start.longitude, start.latitude, end.longitude, end.latitude);
 
-        start.height = 0;
-        end.height = 0;
         ellipsoidGeodesic._start = Cartographic.clone(start, ellipsoidGeodesic._start);
         ellipsoidGeodesic._end = Cartographic.clone(end, ellipsoidGeodesic._end);
+        ellipsoidGeodesic._start.height = 0;
+        ellipsoidGeodesic._end.height = 0;
 
         setConstants(ellipsoidGeodesic);
     }
@@ -14435,7 +14683,7 @@ define('Core/IntersectionTests',[
      * @param {Cartesian3} p0 The first vertex of the triangle.
      * @param {Cartesian3} p1 The second vertex of the triangle.
      * @param {Cartesian3} p2 The third vertex of the triangle.
-     * @param {Boolean} [cullBackFaces=false] If <code>true<code>, will only compute an intersection with the front face of the triangle
+     * @param {Boolean} [cullBackFaces=false] If <code>true</code>, will only compute an intersection with the front face of the triangle
      *                  and return undefined for intersections with the back face.
      * @param {Cartesian3} [result] The <code>Cartesian3</code> onto which to store the result.
      * @returns {Cartesian3} The intersection point or undefined if there is no intersections.
@@ -14465,7 +14713,7 @@ define('Core/IntersectionTests',[
      * @param {Cartesian3} p0 The first vertex of the triangle.
      * @param {Cartesian3} p1 The second vertex of the triangle.
      * @param {Cartesian3} p2 The third vertex of the triangle.
-     * @param {Boolean} [cullBackFaces=false] If <code>true<code>, will only compute an intersection with the front face of the triangle
+     * @param {Boolean} [cullBackFaces=false] If <code>true</code>, will only compute an intersection with the front face of the triangle
      *                  and return undefined for intersections with the back face.
      * @param {Cartesian3} [result] The <code>Cartesian3</code> onto which to store the result.
      * @returns {Cartesian3} The intersection point or undefined if there is no intersections.
@@ -15531,10 +15779,11 @@ define('Core/PolylinePipeline',[
 
         var cleanedPositions = positions.slice(0, i);
         for (; i < length; ++i) {
-            v0 = positions[i - 1];
+            // v0 is set by either the previous loop, or the previous clean point.
             v1 = positions[i];
             if (!Cartesian3.equalsEpsilon(v0, v1, removeDuplicatesEpsilon)) {
                 cleanedPositions.push(Cartesian3.clone(v1));
+                v0 = v1;
             }
         }
 
@@ -15755,22 +16004,133 @@ define('Core/SimplePolylineGeometry',[
         options = defaultValue(options, defaultValue.EMPTY_OBJECT);
         var positions = options.positions;
         var colors = options.colors;
-        var perVertex = defaultValue(options.colorsPerVertex, false);
+        var colorsPerVertex = defaultValue(options.colorsPerVertex, false);
 
                 if ((!defined(positions)) || (positions.length < 2)) {
             throw new DeveloperError('At least two positions are required.');
         }
-        if (defined(colors) && ((perVertex && colors.length < positions.length) || (!perVertex && colors.length < positions.length - 1))) {
+        if (defined(colors) && ((colorsPerVertex && colors.length < positions.length) || (!colorsPerVertex && colors.length < positions.length - 1))) {
             throw new DeveloperError('colors has an invalid length.');
         }
         
         this._positions = positions;
         this._colors = colors;
-        this._perVertex = perVertex;
+        this._colorsPerVertex = colorsPerVertex;
         this._followSurface = defaultValue(options.followSurface, true);
         this._granularity = defaultValue(options.granularity, CesiumMath.RADIANS_PER_DEGREE);
         this._ellipsoid = defaultValue(options.ellipsoid, Ellipsoid.WGS84);
         this._workerName = 'createSimplePolylineGeometry';
+
+        var numComponents = 1 + positions.length * Cartesian3.packedLength;
+        numComponents += defined(colors) ? 1 + colors.length * Color.packedLength : 1;
+
+        /**
+         * The number of elements used to pack the object into an array.
+         * @type {Number}
+         */
+        this.packedLength = numComponents + Ellipsoid.packedLength + 3;
+    };
+
+    /**
+     * Stores the provided instance into the provided array.
+     * @function
+     *
+     * @param {Object} value The value to pack.
+     * @param {Number[]} array The array to pack into.
+     * @param {Number} [startingIndex=0] The index into the array at which to start packing the elements.
+     */
+    SimplePolylineGeometry.pack = function(value, array, startingIndex) {
+                if (!defined(value)) {
+            throw new DeveloperError('value is required');
+        }
+        if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        var i;
+
+        var positions = value._positions;
+        var length = positions.length;
+        array[startingIndex++] = length;
+
+        for (i = 0; i < length; ++i, startingIndex += Cartesian3.packedLength) {
+            Cartesian3.pack(positions[i], array, startingIndex);
+        }
+
+        var colors = value._colors;
+        length = defined(colors) ? colors.length : 0.0;
+        array[startingIndex++] = length;
+
+        for (i = 0; i < length; ++i, startingIndex += Color.packedLength) {
+            Color.pack(colors[i], array, startingIndex);
+        }
+
+        Ellipsoid.pack(value._ellipsoid, array, startingIndex);
+        startingIndex += Ellipsoid.packedLength;
+
+        array[startingIndex++] = value._colorsPerVertex ? 1.0 : 0.0;
+        array[startingIndex++] = value._followSurface ? 1.0 : 0.0;
+        array[startingIndex]   = value._granularity;
+    };
+
+    /**
+     * Retrieves an instance from a packed array.
+     *
+     * @param {Number[]} array The packed array.
+     * @param {Number} [startingIndex=0] The starting index of the element to be unpacked.
+     * @param {SimplePolylineGeometry} [result] The object into which to store the result.
+     */
+    SimplePolylineGeometry.unpack = function(array, startingIndex, result) {
+                if (!defined(array)) {
+            throw new DeveloperError('array is required');
+        }
+        
+        startingIndex = defaultValue(startingIndex, 0);
+
+        var i;
+
+        var length = array[startingIndex++];
+        var positions = new Array(length);
+
+        for (i = 0; i < length; ++i, startingIndex += Cartesian3.packedLength) {
+            positions[i] = Cartesian3.unpack(array, startingIndex);
+        }
+
+        length = array[startingIndex++];
+        var colors = length > 0 ? new Array(length) : undefined;
+
+        for (i = 0; i < length; ++i, startingIndex += Color.packedLength) {
+            colors[i] = Color.unpack(array, startingIndex);
+        }
+
+        var ellipsoid = Ellipsoid.unpack(array, startingIndex);
+        startingIndex += Ellipsoid.packedLength;
+
+        var colorsPerVertex = array[startingIndex++] === 1.0;
+        var followSurface = array[startingIndex++] === 1.0;
+        var granularity = array[startingIndex];
+
+        if (!defined(result)) {
+            return new SimplePolylineGeometry({
+                positions : positions,
+                colors : colors,
+                ellipsoid : ellipsoid,
+                colorsPerVertex : colorsPerVertex,
+                followSurface : followSurface,
+                granularity : granularity
+            });
+        }
+
+        result._positions = positions;
+        result._colors = colors;
+        result._ellipsoid = ellipsoid;
+        result._colorsPerVertex = colorsPerVertex;
+        result._followSurface = followSurface;
+        result._granularity = granularity;
+
+        return result;
     };
 
     var scratchArray1 = new Array(2);
@@ -15791,13 +16151,13 @@ define('Core/SimplePolylineGeometry',[
     SimplePolylineGeometry.createGeometry = function(simplePolylineGeometry) {
         var positions = simplePolylineGeometry._positions;
         var colors = simplePolylineGeometry._colors;
-        var perVertex = simplePolylineGeometry._perVertex;
+        var colorsPerVertex = simplePolylineGeometry._colorsPerVertex;
         var followSurface = simplePolylineGeometry._followSurface;
         var granularity = simplePolylineGeometry._granularity;
         var ellipsoid = simplePolylineGeometry._ellipsoid;
 
         var minDistance = CesiumMath.chordLength(granularity, ellipsoid.maximumRadius);
-        var perSegmentColors = defined(colors) && !perVertex;
+        var perSegmentColors = defined(colors) && !colorsPerVertex;
 
         var i;
         var length = positions.length;
@@ -15951,14 +16311,19 @@ define('Core/SimplePolylineGeometry',[
 
 /*global define*/
 define('Workers/createSimplePolylineGeometry',[
+        '../Core/defined',
         '../Core/Ellipsoid',
         '../Core/SimplePolylineGeometry'
     ], function(
+        defined,
         Ellipsoid,
         SimplePolylineGeometry) {
     "use strict";
 
-    function createSimplePolylineGeometry(simplePolylineGeometry) {
+    function createSimplePolylineGeometry(simplePolylineGeometry, offset) {
+        if (defined(offset)) {
+            simplePolylineGeometry = SimplePolylineGeometry.unpack(simplePolylineGeometry, offset);
+        }
         simplePolylineGeometry._ellipsoid = Ellipsoid.clone(simplePolylineGeometry._ellipsoid);
         return SimplePolylineGeometry.createGeometry(simplePolylineGeometry);
     }
